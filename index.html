@@ -961,33 +961,40 @@ function loadCfg(){
   try{const d=localStorage.getItem(ID_KEY);if(d)identity=JSON.parse(d);}catch(e){}
 }
 
-async function init(){
-  loadCfg();loadMembers();updateAuthUI();
-  // Load roster from localStorage always
-  try{const d=localStorage.getItem('tr_roster');if(d)allRoster=JSON.parse(d);}catch(e){}
-  try{renderRoster('12U');renderRoster('16U');}catch(e){console.error('Roster error',e);}
+async function apiFetch(resource){
+  try{const r=await fetch('/api/data?resource='+resource);if(r.ok)return await r.json();return null;}catch(e){return null;}
+}
+async function apiSave(resource,data){
+  try{await fetch('/api/data?resource='+resource,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}catch(e){console.error('API save error',e);}
+}
 
-  if(cfg.url&&cfg.key){
-    try{
-      sb=supabase.createClient(cfg.url,cfg.key);
-      document.getElementById('sync-ind').innerHTML='<span class="sdot"></span>Live';
-      await loadSlots();await loadTourneys();
-      // Load members from Supabase (merge with local)
-      try{
-        const{data:mbData}=await sb.from('members').select('*');
-        if(mbData&&mbData.length){
-          // Merge: local has priority for any member not in server
-          const serverIds=mbData.map(m=>m.id);
-          const localOnly=members.filter(m=>!serverIds.includes(m.id));
-          members=[...mbData,...localOnly];
-          saveMembers();
-        }
-      }catch(e){}
-      updatePendingBadge();
-      sb.channel('lessons_ch').on('postgres_changes',{event:'*',schema:'public',table:'lessons'},()=>loadSlots()).subscribe();
-      sb.channel('tourn_ch').on('postgres_changes',{event:'*',schema:'public',table:'tournaments'},()=>loadTourneys()).subscribe();
-    }catch(e){console.error(e);offlineMode();}
-  } else { offlineMode(); }
+async function init(){
+  loadCfg();updateAuthUI();
+
+  // Load data from server API (Netlify Blobs)
+  try{
+    const[rosterData,tourneysData,slotsData,membersData]=await Promise.all([
+      apiFetch('roster'),apiFetch('tournaments'),apiFetch('lessons'),apiFetch('members')
+    ]);
+    if(rosterData)allRoster=rosterData;
+    if(tourneysData)allTourneys=tourneysData;
+    if(slotsData){
+      const now=new Date();now.setHours(0,0,0,0);
+      allSlots=(slotsData||[]).filter(s=>new Date(s.date+'T00:00:00')>=now).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+    }
+    if(membersData&&membersData.length)members=membersData;
+    else loadMembers();
+    document.getElementById('sync-ind').innerHTML='<span class="sdot"></span>Live';
+  }catch(e){
+    console.error('Failed to load from API, using localStorage fallback',e);
+    loadMembers();
+    try{const d=localStorage.getItem('tr_roster');if(d)allRoster=JSON.parse(d);}catch(e2){}
+    offlineMode();
+  }
+
+  try{renderRoster('12U');renderRoster('16U');}catch(e){console.error('Roster error',e);}
+  renderPlayerSlots();renderTourneys();
+  updatePendingBadge();
 }
 
 function offlineMode(){
@@ -1031,23 +1038,27 @@ function getTime(hr,min,ampm){let h=parseInt(document.getElementById(hr).value);
 
 // ═══ SLOTS ═══
 async function loadSlots(){
-  const now=new Date();now.setHours(0,0,0,0);
-  const{data,error}=await sb.from('lessons').select('*').gte('date',now.toISOString().slice(0,10)).order('date').order('time');
-  if(error)return;allSlots=data||[];renderPlayerSlots();if(isCoach)renderCoachView();
+  const data=await apiFetch('lessons');
+  if(data){
+    const now=new Date();now.setHours(0,0,0,0);
+    allSlots=(data||[]).filter(s=>new Date(s.date+'T00:00:00')>=now).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  }
+  renderPlayerSlots();if(isCoach)renderCoachView();
 }
 async function saveSlot(slot){
-  if(sb){const{error}=await sb.from('lessons').insert(slot);if(error){toast('Error: '+error.message,'err');return false;}return true;}
   allSlots.push(slot);allSlots.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-  localStorage.setItem('tr_slots',JSON.stringify(allSlots));renderPlayerSlots();if(isCoach)renderCoachView();return true;
+  await apiSave('lessons',allSlots);
+  renderPlayerSlots();if(isCoach)renderCoachView();return true;
 }
 async function updateSlot(id,updates){
-  if(sb){const{error}=await sb.from('lessons').update(updates).eq('id',id);if(error){toast('Error','err');return;}await loadSlots();return;}
   const s=allSlots.find(x=>x.id===id);if(s)Object.assign(s,updates);
-  localStorage.setItem('tr_slots',JSON.stringify(allSlots));renderPlayerSlots();if(isCoach)renderCoachView();
+  await apiSave('lessons',allSlots);
+  renderPlayerSlots();if(isCoach)renderCoachView();
 }
 async function delSlot(id){
-  if(sb){await sb.from('lessons').delete().eq('id',id);await loadSlots();return;}
-  allSlots=allSlots.filter(x=>x.id!==id);localStorage.setItem('tr_slots',JSON.stringify(allSlots));renderPlayerSlots();if(isCoach)renderCoachView();
+  allSlots=allSlots.filter(x=>x.id!==id);
+  await apiSave('lessons',allSlots);
+  renderPlayerSlots();if(isCoach)renderCoachView();
 }
 
 function filterSlots(val,el){document.querySelectorAll('#view-player .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');slotFilter=val;renderPlayerSlots();}
@@ -1123,11 +1134,11 @@ function renderCoachView(){
 
 async function coachRm(id){const s=allSlots.find(x=>x.id===id);if(!s||!confirm(`Remove ${s.booked_by}'s booking?`))return;await updateSlot(id,{booked_by:null,booked_team:null});toast('Removed','');}
 async function coachDel(id){if(!confirm('Delete slot?'))return;await delSlot(id);toast('Deleted','');}
-async function deleteAllOpen(){if(!confirm('Delete all open slots?'))return;for(const s of allSlots.filter(s=>!s.booked_by))await delSlot(s.id);toast('Done','ok');}
+async function deleteAllOpen(){if(!confirm('Delete all open slots?'))return;allSlots=allSlots.filter(s=>s.booked_by);await apiSave('lessons',allSlots);renderPlayerSlots();if(isCoach)renderCoachView();toast('Done','ok');}
 async function deletePast(){
   if(!confirm('Clear past slots?'))return;
   if(sb){await sb.from('lessons').delete().lt('date',new Date().toISOString().slice(0,10));await loadSlots();}
-  else{const now=new Date().toISOString().slice(0,10);allSlots=allSlots.filter(s=>s.date>=now);localStorage.setItem('tr_slots',JSON.stringify(allSlots));renderPlayerSlots();}
+  else{const now=new Date().toISOString().slice(0,10);allSlots=allSlots.filter(s=>s.date>=now);await apiSave('lessons',allSlots);renderPlayerSlots();}
   toast('Past slots cleared','ok');
 }
 
@@ -1161,7 +1172,7 @@ async function addBulk(){
   }
   if(!batch.length){toast('No new slots to add','err');return;}
   if(sb){const{error}=await sb.from('lessons').insert(batch);if(error){toast('Error: '+error.message,'err');return;}await loadSlots();}
-  else{batch.forEach(s=>allSlots.push(s));allSlots.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));localStorage.setItem('tr_slots',JSON.stringify(allSlots));renderPlayerSlots();}
+  else{batch.forEach(s=>allSlots.push(s));allSlots.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));await apiSave('lessons',allSlots);renderPlayerSlots();}
   toast(`Created ${batch.length} slots!`,'ok');renderCoachView();
 }
 
@@ -1198,7 +1209,7 @@ function addPlayer(team){
   const ig=document.getElementById('np-'+team.toLowerCase()+'-ig').value.trim();
   if(!allRoster[team])allRoster[team]=[];
   allRoster[team].push({name,pos,num,ig});
-  localStorage.setItem('tr_roster',JSON.stringify(allRoster));
+  apiSave('roster',allRoster);
   document.getElementById('np-'+team.toLowerCase()+'-name').value='';
   document.getElementById('np-'+team.toLowerCase()+'-pos').value='';
   document.getElementById('np-'+team.toLowerCase()+'-num').value='';
@@ -1209,7 +1220,7 @@ function addPlayer(team){
 function removePlayer(team,idx){
   if(!confirm('Remove player?'))return;
   allRoster[team].splice(idx,1);
-  localStorage.setItem('tr_roster',JSON.stringify(allRoster));
+  apiSave('roster',allRoster);
   renderRoster(team);
 }
 
@@ -1236,11 +1247,9 @@ function loadLocalTourneys(){
 }
 
 async function loadTourneys(){
-  if(!sb){loadLocalTourneys();renderTourneys();return;}
-  const now=new Date();
-  const{data,error}=await sb.from('tournaments').select('*').order('date');
-  if(error||!data||!data.length){loadLocalTourneys();renderTourneys();return;}
-  allTourneys=data;renderTourneys();
+  const data=await apiFetch('tournaments');
+  if(data)allTourneys=data;
+  renderTourneys();
 }
 
 async function addTournament(){
@@ -1251,8 +1260,8 @@ async function addTournament(){
   const notes=document.getElementById('t-notes').value.trim();
   if(!name||!date||!loc){toast('Fill in name, date, location','err');return;}
   const entry={id:uid(),name,date,location:loc,team,notes};
-  if(sb){const{error}=await sb.from('tournaments').insert(entry);if(error){toast('Error: '+error.message,'err');return;}await loadTourneys();}
-  else{allTourneys.push(entry);allTourneys.sort((a,b)=>a.date.localeCompare(b.date));localStorage.setItem('tr_tourneys',JSON.stringify(allTourneys));renderTourneys();}
+  allTourneys.push(entry);allTourneys.sort((a,b)=>a.date.localeCompare(b.date));
+  await apiSave('tournaments',allTourneys);renderTourneys();
   closeModal('modal-tourn');toast('Tournament added!','ok');
   document.getElementById('t-name').value='';document.getElementById('t-loc').value='';document.getElementById('t-notes').value='';
 }
@@ -1260,7 +1269,7 @@ async function addTournament(){
 async function delTourney(id){
   if(!confirm('Remove this tournament?'))return;
   if(sb){await sb.from('tournaments').delete().eq('id',id);await loadTourneys();}
-  else{allTourneys=allTourneys.filter(t=>t.id!==id);localStorage.setItem('tr_tourneys',JSON.stringify(allTourneys));renderTourneys();}
+  else{allTourneys=allTourneys.filter(t=>t.id!==id);await apiSave('tournaments',allTourneys);renderTourneys();}
   toast('Removed','');
 }
 
@@ -1327,7 +1336,7 @@ let approvingId = null;
 function loadMembers(){
   try{const d=localStorage.getItem(MEMBERS_KEY);if(d)members=JSON.parse(d);}catch(e){members=[];}
 }
-function saveMembers(){ localStorage.setItem(MEMBERS_KEY,JSON.stringify(members)); }
+function saveMembers(){ localStorage.setItem(MEMBERS_KEY,JSON.stringify(members)); apiSave('members',members); }
 
 // ── SUB TABS ──
 function idTab(tab,el){
