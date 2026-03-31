@@ -1272,7 +1272,7 @@ function renderRoster(team) {
       html += '<div class="roster-num">'+(p.num||'&#8212;')+'</div>';
     }
     html += '<div style="font-weight:700;font-size:13px;margin-top:4px;">'+p.name+'</div>';
-    if(p.photo) html += '<div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;color:var(--silver3);">'+(p.num||'')+'</div>';
+    if(p.photo) html += '<div style="font-weight:900;font-size:18px;color:var(--silver3);">'+(p.num||'')+'</div>';
     if(p.pos) html += '<div style="font-size:11px;color:var(--muted);">'+p.pos+'</div>';
     if(p.ig) {
       var ig = p.ig.replace('@','');
