@@ -1024,9 +1024,10 @@ function renderSlot(s) {
   var time = fmt(s.time);
   var dur = s.duration;
   var isC = identity && identity.type==='coach';
+  var isIn = !!identity;
   if(taken) {
-    var bookedInfo = isC ? '<div style="font-size:11px;font-weight:600;color:var(--white);margin-top:2px;">'+s.booked_by+'</div><div style="font-size:10px;color:var(--silver2);">'+s.booked_team+'</div>' : '';
-    return '<div class="slot taken" style="'+(isC?'opacity:1;border-color:rgba(248,113,113,.3);':'')+'""><div class="slot-time">'+time+'</div><div style="font-size:10px;"><span class="dot dot-t"></span>Booked</div>'+bookedInfo+'</div>';
+    var bookedInfo = isIn ? '<div style="font-size:11px;font-weight:600;color:var(--white);margin-top:2px;">'+s.booked_by+'</div><div style="font-size:10px;color:var(--silver2);">'+s.booked_team+'</div>' : '';
+    return '<div class="slot taken" style="opacity:1;border-color:rgba(248,113,113,.2);""><div class="slot-time">'+time+'</div><div style="font-size:10px;"><span class="dot dot-t"></span>Booked</div>'+bookedInfo+'</div>';
   }
   if(isMe) {
     return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-cancel="'+s.id+'">✕ Cancel</div></div>';
