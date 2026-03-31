@@ -749,6 +749,17 @@ function save(key, data) {
   try { localStorage.setItem(key, JSON.stringify(data)); } catch(e){}
 }
 
+// ====== AUTO EMAIL VIA FORMSPREE ======
+async function sendNotification(subject, message) {
+  try {
+    await fetch('https://formspree.io/f/xpqorjjj', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify({subject: subject, message: message, _replyto: 'noreply@teamrollintx.com'})
+    });
+  } catch(e){ console.error('Notification failed',e); }
+}
+
 // Supabase sync helpers
 async function sbSaveSlots() {
   if(!sb) return;
@@ -1016,10 +1027,11 @@ function cancelSlot(id) {
   save(SLOTS_KEY, allSlots); sbSaveSlots();
   renderSlots();
   toast('Booking cancelled','');
-  // Email coaches
-  var subject = 'Team Rollin: Lesson Cancellation — '+playerName;
-  var body = 'A lesson slot has been cancelled.%0A%0A   Player: '+playerName+'%0A   Team: '+playerTeam+'%0A   Date: '+slotDate+'%0A   Time: '+slotTime+'%0A%0AThis slot is now open for rebooking at teamrollinsoftball.net.%0A%0A— Team Rollin TX Site';
-  window.location.href = 'mailto:ginisays@gmail.com,Teamrollinfastpitch@gmail.com?subject='+encodeURIComponent(subject)+'&body='+body;
+  // Auto-email coaches
+  sendNotification(
+    'Team Rollin: Lesson Cancellation — '+playerName,
+    'A lesson slot has been cancelled.\n\nPlayer: '+playerName+'\nTeam: '+playerTeam+'\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nThis slot is now open for rebooking at teamrollinsoftball.net.\n\n— Team Rollin TX Site'
+  );
 }
 
 // ====== COACH VIEW ======
@@ -1329,10 +1341,16 @@ function confirmApprove() {
   closeModal('modal-approve');
   renderMembersPanel(); updatePendingBadge();
   toast(m.name+' approved! PIN: '+pin,'ok');
-  // Send email to parent
-  var subject = 'Team Rollin TX — You are approved! Your PIN is inside';
-  var body = 'Hi '+m.parentName+',%0A%0AGreat news! '+m.name+' has been approved for '+m.team+' Team Rollin TX.%0A%0AHere is your sign-in information:%0A%0A   Name: '+m.name+'%0A   Team: '+m.team+'%0A   PIN: '+pin+'%0A%0ATo sign in, go to teamrollinsoftball.net, click Sign In, enter the name, team, and PIN above.%0A%0AKeep this PIN safe — you will need it every time you sign in.%0A%0AWelcome to the team!%0A%0A— Coach Jaz%0ATeam Rollin TX';
-  window.location.href = 'mailto:'+m.parentEmail+'?subject='+encodeURIComponent(subject)+'&body='+body;
+  // Auto-email parent with PIN
+  fetch('https://formspree.io/f/xpqorjjj', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+    body: JSON.stringify({
+      subject: 'Team Rollin TX — You are approved! Your PIN is inside',
+      _replyto: m.parentEmail,
+      message: 'Hi '+m.parentName+',\n\nGreat news! '+m.name+' has been approved for '+m.team+' Team Rollin TX.\n\nSign-in information:\n  Name: '+m.name+'\n  Team: '+m.team+'\n  PIN: '+pin+'\n\nTo sign in, go to teamrollinsoftball.net, click Sign In, and enter the name, team, and PIN above.\n\nKeep this PIN safe — you will need it every time you sign in.\n\nWelcome to the team!\n\n— Coach Jaz\nTeam Rollin TX'
+    })
+  }).catch(function(e){ console.error('Approval email failed',e); });
 }
 function denyMember(id) {
   if(!confirm('Deny this request?')) return;
@@ -1354,13 +1372,23 @@ function submitContact() {
   var subject = document.getElementById('cf-subject').value;
   var message = document.getElementById('cf-message').value.trim();
   if(!first||!last||!email||!message) { document.getElementById('cf-note').textContent='Please fill in all fields.'; return; }
-  var body = 'Name: '+first+' '+last+'%0AEmail: '+email+'%0A%0A'+encodeURIComponent(message);
-  var mailto = 'mailto:ginisays@gmail.com,Teamrollinfastpitch@gmail.com?subject=Team Rollin: '+encodeURIComponent(subject)+'&body='+body;
-  window.location.href = mailto;
-  setTimeout(function(){
+  // Send via Formspree automatically
+  fetch('https://formspree.io/f/xpqorjjj', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+    body: JSON.stringify({
+      subject: 'Team Rollin Contact: '+subject,
+      name: first+' '+last,
+      email: email,
+      message: message,
+      _replyto: email
+    })
+  }).then(function(r){
     document.getElementById('contact-form-wrap').style.display='none';
     document.getElementById('contact-ok').style.display='block';
-  }, 800);
+  }).catch(function(){
+    document.getElementById('cf-note').textContent='Something went wrong. Please try again.';
+  });
 }
 
 // ====== START ======
