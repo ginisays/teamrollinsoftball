@@ -202,6 +202,21 @@ footer a{color:var(--silver2);}
   .ham-btn{display:none;}
 }
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+<style>
+.flatpickr-calendar{background:var(--black3)!important;border:1px solid var(--border2)!important;border-radius:10px!important;font-family:'Barlow',sans-serif!important;}
+.flatpickr-day{color:var(--white)!important;border-radius:6px!important;}
+.flatpickr-day:hover{background:var(--black4)!important;border-color:var(--border2)!important;}
+.flatpickr-day.selected,.flatpickr-day.selected:hover{background:var(--white)!important;color:var(--black)!important;border-color:var(--white)!important;}
+.flatpickr-day.inRange{background:var(--faint)!important;border-color:transparent!important;}
+.flatpickr-months,.flatpickr-weekdays,.flatpickr-weekday{background:var(--black3)!important;color:var(--silver)!important;}
+.flatpickr-current-month,.flatpickr-month{color:var(--white)!important;}
+.flatpickr-prev-month,.flatpickr-next-month{color:var(--silver)!important;fill:var(--silver)!important;}
+.flatpickr-day.flatpickr-disabled{color:var(--silver3)!important;}
+.numInputWrapper:hover{background:transparent!important;}
+.flatpickr-current-month input.cur-year{color:var(--white)!important;}
+.flatpickr-current-month .flatpickr-monthDropdown-months{color:var(--white)!important;background:var(--black3)!important;}
+</style>
 </head>
 <body>
 
@@ -1327,6 +1342,17 @@ document.addEventListener('click', function(e) {
   var dm = e.target.closest('[data-deletemember]');
   if(dm) { deleteMember(dm.getAttribute('data-deletemember')); return; }
 });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+<script>
+// Init all date pickers with flatpickr
+var fpOpts = {dateFormat:'Y-m-d', disableMobile:false, allowInput:true};
+flatpickr('#s-date', fpOpts);
+flatpickr('#b-start', Object.assign({}, fpOpts, {onChange: function(sel,str){ var fp2=document.querySelector('#b-end')._flatpickr; if(fp2) fp2.set('minDate',str); }}));
+flatpickr('#b-end', fpOpts);
+flatpickr('#t-date', fpOpts);
+flatpickr('#del-start', Object.assign({}, fpOpts, {onChange: function(sel,str){ var fp2=document.querySelector('#del-end')._flatpickr; if(fp2) fp2.set('minDate',str); }}));
+flatpickr('#del-end', fpOpts);
 </script>
 </body>
 </html>
