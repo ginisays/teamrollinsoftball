@@ -1129,9 +1129,33 @@ function renderCoachView() {
 }
 function coachRm(id) {
   var s = allSlots.find(function(x){ return x.id===id; });
-  if(!s || !confirm('Remove booking?')) return;
+  if(!s || !confirm('Remove booking for '+s.booked_by+'?')) return;
+  var playerName = s.booked_by;
+  var playerTeam = s.booked_team;
+  var slotDate = s.date;
+  var slotTime = fmt(s.time);
+  // Look up parent email from members list
+  var member = members.find(function(m){ return m.name.toLowerCase()===playerName.toLowerCase() && m.team===playerTeam; });
+  var parentEmail = member ? member.parentEmail : null;
   s.booked_by=null; s.booked_team=null;
   save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView(); toast('Removed','');
+  // Email parent if we have their email
+  if(parentEmail) {
+    fetch('https://formspree.io/f/xpqorjjj', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify({
+        subject: 'Team Rollin TX: Your lesson slot has been cancelled',
+        _replyto: 'Teamrollinfastpitch@gmail.com',
+        message: 'Hi '+( member ? member.parentName : playerName )+',\n\nYour lesson slot has been cancelled by Coach Jaz.\n\nPlayer: '+playerName+'\nTeam: '+playerTeam+'\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nPlease visit teamrollinsoftball.net to book a new slot or contact Coach Jaz with any questions.\n\n— Team Rollin TX'
+      })
+    }).catch(function(e){ console.error('Cancel email failed',e); });
+  }
+  // Also notify coaches
+  sendNotification(
+    'Team Rollin: Coach removed booking — '+playerName,
+    'Coach removed a lesson booking.\n\nPlayer: '+playerName+'\nTeam: '+playerTeam+'\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nParent notified: '+(parentEmail||'No email on file')
+  );
 }
 function coachDel(id) {
   if(!confirm('Delete slot?')) return;
