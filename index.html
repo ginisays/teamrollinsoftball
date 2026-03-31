@@ -1346,6 +1346,26 @@ function toggleAddPlayer(team) {
   var el = document.getElementById('add-player-'+team);
   if(el) el.style.display = el.style.display==='none' ? 'block' : 'none';
 }
+function compressPhoto(file, callback) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      var MAX = 300;
+      var w = img.width, h = img.height;
+      if(w > h) { if(w > MAX) { h = h*(MAX/w); w = MAX; } }
+      else { if(h > MAX) { w = w*(MAX/h); h = MAX; } }
+      canvas.width = w; canvas.height = h;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      callback(canvas.toDataURL('image/jpeg', 0.7));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 function addPlayer(team) {
   var prefix = team==='12U' ? 'p12' : 'p16';
   var name = document.getElementById(prefix+'-name').value.trim();
@@ -1387,15 +1407,13 @@ function saveEditPlayer() {
   var existing = roster[team][idx];
   var photoFile = document.getElementById('ep-photo').files[0];
   if(photoFile) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      roster[team][idx] = {name:name, pos:document.getElementById('ep-pos').value.trim(), num:document.getElementById('ep-num').value.trim(), ig:document.getElementById('ep-ig').value.trim(), photo:e.target.result};
+    compressPhoto(photoFile, function(compressed) {
+      roster[team][idx] = {name:name, pos:document.getElementById('ep-pos').value.trim(), num:document.getElementById('ep-num').value.trim(), ig:document.getElementById('ep-ig').value.trim(), photo:compressed};
       save(ROSTER_KEY, roster); sbSaveRoster();
       closeModal('modal-edit-player');
       renderRoster(team);
       toast('Player updated!','ok');
-    };
-    reader.readAsDataURL(photoFile);
+    });
   } else {
     roster[team][idx] = {name:name, pos:document.getElementById('ep-pos').value.trim(), num:document.getElementById('ep-num').value.trim(), ig:document.getElementById('ep-ig').value.trim(), photo:existing.photo||''};
     save(ROSTER_KEY, roster); sbSaveRoster();
