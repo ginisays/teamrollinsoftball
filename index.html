@@ -658,6 +658,22 @@ footer a{color:var(--silver2);}
   </div>
 </div>
 
+<div class="overlay" id="modal-edit-tourn">
+  <div class="modal">
+    <div class="modal-title">Edit Tournament</div>
+    <input type="hidden" id="et-id">
+    <div class="fg"><label>Name</label><input id="et-name" type="text"></div>
+    <div class="fg"><label>Date</label><input id="et-date" type="text"></div>
+    <div class="fg"><label>Location</label><input id="et-loc" type="text"></div>
+    <div class="fg"><label>Team</label><select id="et-team"><option value="both">Both Teams</option><option value="12U">12U Only</option><option value="16U">16U Only</option></select></div>
+    <div class="fg"><label>Notes</label><input id="et-notes" type="text"></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-w" style="flex:1;justify-content:center;" onclick="saveEditTourn()">Save</button>
+      <button class="btn btn-g" style="flex:1;justify-content:center;" onclick="closeModal('modal-edit-tourn')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="modal-tourn">
   <div class="modal">
     <div class="modal-title">Add Tournament</div>
@@ -1229,6 +1245,41 @@ function delTourn(id) {
   save(TOURN_KEY, tourneys); sbSaveTourneys(); renderTourneys(); toast('Removed','');
 }
 
+function openEditTourn(id) {
+  var t = tourneys.find(function(x){ return x.id===id; });
+  if(!t) return;
+  document.getElementById('et-id').value = t.id;
+  document.getElementById('et-name').value = t.name || '';
+  document.getElementById('et-date').value = t.date || '';
+  document.getElementById('et-loc').value = t.location || '';
+  document.getElementById('et-team').value = t.team || 'both';
+  document.getElementById('et-notes').value = t.notes || '';
+  openModal('modal-edit-tourn');
+  // Init flatpickr on edit date field
+  if(window.flatpickr) {
+    var existing = document.getElementById('et-date')._flatpickr;
+    if(existing) existing.destroy();
+    flatpickr('#et-date', {dateFormat:'Y-m-d', allowInput:true});
+  }
+}
+
+function saveEditTourn() {
+  var id = document.getElementById('et-id').value;
+  var name = document.getElementById('et-name').value.trim();
+  var date = document.getElementById('et-date').value.trim();
+  var loc = document.getElementById('et-loc').value.trim();
+  if(!name||!date||!loc) { toast('Fill name, date, location','err'); return; }
+  var t = tourneys.find(function(x){ return x.id===id; });
+  if(!t) return;
+  t.name = name; t.date = date; t.location = loc;
+  t.team = document.getElementById('et-team').value;
+  t.notes = document.getElementById('et-notes').value.trim();
+  tourneys.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  save(TOURN_KEY, tourneys); sbSaveTourneys();
+  closeModal('modal-edit-tourn');
+  renderTourneys(); toast('Tournament updated!','ok');
+}
+
 function renderTourneys() {
   var el = document.getElementById('tourn-list');
   if(!el) return;
@@ -1248,7 +1299,10 @@ function renderTourneys() {
     if(t.notes) html += '<div style="font-size:11px;color:var(--silver3);margin-top:4px;">'+t.notes+'</div>';
     html += '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;">';
     html += '<span style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid var(--border2);color:var(--silver2);">'+tl+'</span>';
-    if(isC) html += '<button class="btn btn-d btn-sm" data-tdelete="'+t.id+'">Remove</button>';
+    if(isC) {
+      html += '<button class="btn btn-g btn-sm" data-tedit="'+t.id+'">Edit</button>';
+      html += '<button class="btn btn-d btn-sm" data-tdelete="'+t.id+'">Remove</button>';
+    }
     html += '</div></div></div>';
   });
   el.innerHTML = html;
@@ -1508,6 +1562,8 @@ document.addEventListener('click', function(e) {
   if(cdel) { coachDel(cdel.getAttribute('data-cdel')); return; }
   var tdel = e.target.closest('[data-tdelete]');
   if(tdel) { delTourn(tdel.getAttribute('data-tdelete')); return; }
+  var tedit = e.target.closest('[data-tedit]');
+  if(tedit) { openEditTourn(tedit.getAttribute('data-tedit')); return; }
   var rmPlayer = e.target.closest('[data-remove]');
   if(rmPlayer) { var parts=rmPlayer.getAttribute('data-remove').split(':'); removePlayer(parts[0], parseInt(parts[1])); return; }
   var editPlayer = e.target.closest('[data-edit]');
