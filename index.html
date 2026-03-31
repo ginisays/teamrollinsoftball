@@ -674,6 +674,24 @@ footer a{color:var(--silver2);}
   </div>
 </div>
 
+<div class="overlay" id="modal-cbook">
+  <div class="modal">
+    <div class="modal-title">Book a Player</div>
+    <input type="hidden" id="cbook-slot-id">
+    <div id="cbook-slot-info" style="font-family:monospace;font-size:12px;color:var(--silver);margin-bottom:14px;"></div>
+    <div class="fg">
+      <label>Select Player</label>
+      <select id="cbook-player">
+        <option value="">— choose a player —</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-w" style="flex:1;justify-content:center;" onclick="confirmCoachBook()">Book</button>
+      <button class="btn btn-g" style="flex:1;justify-content:center;" onclick="closeModal('modal-cbook')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="modal-tourn">
   <div class="modal">
     <div class="modal-title">Add Tournament</div>
@@ -1122,7 +1140,7 @@ function renderCoachView() {
     var d = new Date(s.date+'T00:00:00');
     var dateStr = DAYS_S[d.getDay()]+' '+MONTHS[d.getMonth()]+' '+d.getDate();
     var player = s.booked_by ? '<strong>'+s.booked_by+'</strong>' : '<span style="color:var(--silver3)">&#8212;</span>';
-    var rmBtn = s.booked_by ? '<button class="btn btn-d btn-sm" data-crm="'+s.id+'">Remove</button>' : '';
+    var rmBtn = s.booked_by ? '<button class="btn btn-d btn-sm" data-crm="'+s.id+'">Remove</button>' : '<button class="btn btn-w btn-sm" data-cbook="'+s.id+'">Book Player</button>';
     html += '<tr>';
     html += '<td style="font-size:11px;">'+dateStr+'</td>';
     html += '<td style="font-size:11px;">'+fmt(s.time)+'</td>';
@@ -1169,6 +1187,45 @@ function coachDel(id) {
   if(!confirm('Delete slot?')) return;
   allSlots = allSlots.filter(function(x){ return x.id!==id; });
   save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView(); toast('Deleted','');
+}
+
+function openCoachBook(id) {
+  var s = allSlots.find(function(x){ return x.id===id; });
+  if(!s) return;
+  document.getElementById('cbook-slot-id').value = id;
+  var d = new Date(s.date+'T00:00:00');
+  document.getElementById('cbook-slot-info').textContent = DAYS[d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate()+' @ '+fmt(s.time)+' · '+s.duration+'min · '+(s.team==='both'?'Both teams':s.team);
+  // Populate player dropdown from members
+  var sel = document.getElementById('cbook-player');
+  sel.innerHTML = '<option value="">— choose a player —</option>';
+  var approved = members.filter(function(m){ return m.status==='approved'; });
+  // Filter by team if slot is team-specific
+  if(s.team !== 'both') approved = approved.filter(function(m){ return m.team===s.team; });
+  approved.forEach(function(m){
+    var opt = document.createElement('option');
+    opt.value = m.name + '|' + m.team;
+    opt.textContent = m.name + ' (' + m.team + ')';
+    sel.appendChild(opt);
+  });
+  openModal('modal-cbook');
+}
+
+function confirmCoachBook() {
+  var id = document.getElementById('cbook-slot-id').value;
+  var val = document.getElementById('cbook-player').value;
+  if(!val) { toast('Select a player','err'); return; }
+  var parts = val.split('|');
+  var playerName = parts[0];
+  var playerTeam = parts[1];
+  var s = allSlots.find(function(x){ return x.id===id; });
+  if(!s) return;
+  if(s.booked_by) { toast('Slot already booked','err'); return; }
+  s.booked_by = playerName;
+  s.booked_team = playerTeam;
+  save(SLOTS_KEY, allSlots); sbSaveSlots();
+  closeModal('modal-cbook');
+  renderCoachView(); renderSlots();
+  toast(playerName+' booked!','ok');
 }
 function delAllOpen() {
   if(!confirm('Delete all open slots?')) return;
@@ -1612,6 +1669,8 @@ document.addEventListener('click', function(e) {
   if(crm) { coachRm(crm.getAttribute('data-crm')); return; }
   var cdel = e.target.closest('[data-cdel]');
   if(cdel) { coachDel(cdel.getAttribute('data-cdel')); return; }
+  var cbook = e.target.closest('[data-cbook]');
+  if(cbook) { openCoachBook(cbook.getAttribute('data-cbook')); return; }
   var tdel = e.target.closest('[data-tdelete]');
   if(tdel) { delTourn(tdel.getAttribute('data-tdelete')); return; }
   var tedit = e.target.closest('[data-tedit]');
