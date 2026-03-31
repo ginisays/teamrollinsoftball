@@ -490,6 +490,21 @@ footer a{color:var(--silver2);}
               <button class="btn btn-d btn-sm" onclick="delAllOpen()">Delete All Open</button>
               <button class="btn btn-d btn-sm" onclick="delPast()">Clear Past</button>
             </div>
+            <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Delete by Date Range</div>
+              <div class="form-row" style="margin-bottom:8px;">
+                <div class="fg" style="margin:0"><label>From</label><input type="date" id="del-start"></div>
+                <div class="fg" style="margin:0"><label>To</label><input type="date" id="del-end"></div>
+              </div>
+              <div class="fg" style="margin-bottom:8px;"><label>Which slots</label>
+                <select id="del-which">
+                  <option value="all">All slots</option>
+                  <option value="open">Open only</option>
+                  <option value="booked">Booked only</option>
+                </select>
+              </div>
+              <button class="btn btn-d btn-full" onclick="delByRange()">Delete Slots in Range</button>
+            </div>
           </div>
         </div>
       </div>
@@ -994,6 +1009,26 @@ function delPast() {
   var now = new Date().toISOString().slice(0,10);
   allSlots = allSlots.filter(function(s){ return s.date>=now; });
   save(SLOTS_KEY, allSlots); renderCoachView(); toast('Cleared','ok');
+}
+
+function delByRange() {
+  var from = document.getElementById('del-start').value;
+  var to = document.getElementById('del-end').value;
+  var which = document.getElementById('del-which').value;
+  if(!from||!to) { toast('Pick a date range','err'); return; }
+  if(from>to) { toast('Start must be before end','err'); return; }
+  var toDelete = allSlots.filter(function(s){
+    if(s.date < from || s.date > to) return false;
+    if(which==='open') return !s.booked_by;
+    if(which==='booked') return !!s.booked_by;
+    return true;
+  });
+  if(!toDelete.length) { toast('No slots found in that range','err'); return; }
+  var label = which==='open' ? 'open' : which==='booked' ? 'booked' : '';
+  if(!confirm('Delete '+toDelete.length+' '+label+' slots from '+from+' to '+to+'?')) return;
+  var ids = toDelete.map(function(s){ return s.id; });
+  allSlots = allSlots.filter(function(s){ return ids.indexOf(s.id)<0; });
+  save(SLOTS_KEY, allSlots); renderCoachView(); toast('Deleted '+toDelete.length+' slots','ok');
 }
 
 // ====== ADD SLOTS ======
