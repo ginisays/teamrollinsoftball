@@ -627,6 +627,22 @@ footer a{color:var(--silver2);}
   </div>
 </div>
 
+<div class="overlay" id="modal-edit-player">
+  <div class="modal">
+    <div class="modal-title">Edit Player</div>
+    <input type="hidden" id="ep-team">
+    <input type="hidden" id="ep-idx">
+    <div class="fg"><label>Name</label><input id="ep-name" type="text" placeholder="Player name"></div>
+    <div class="fg"><label>Position</label><input id="ep-pos" type="text" placeholder="CF/Pitcher"></div>
+    <div class="fg"><label>Number</label><input id="ep-num" type="text" placeholder="#"></div>
+    <div class="fg"><label>Instagram</label><input id="ep-ig" type="text" placeholder="@handle"></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-w" style="flex:1;justify-content:center;" onclick="saveEditPlayer()">Save</button>
+      <button class="btn btn-g" style="flex:1;justify-content:center;" onclick="closeModal('modal-edit-player')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="modal-approve">
   <div class="modal">
     <div class="modal-title">Approve Member</div>
@@ -1254,7 +1270,12 @@ function renderRoster(team) {
       var ig = p.ig.replace('@','');
       html += '<div style="font-size:10px;color:var(--silver2);margin-top:4px;"><a href="https://instagram.com/'+ig+'" target="_blank" style="color:var(--silver2);">'+p.ig+'</a></div>';
     }
-    if(isC) html += '<button class="btn btn-d btn-sm" style="margin-top:6px;width:100%;justify-content:center;" data-remove="'+team+':'+i+'">&#10005;</button>';
+    if(isC) {
+      html += '<div style="display:flex;gap:4px;margin-top:6px;">';
+      html += '<button class="btn btn-g btn-sm" style="flex:1;justify-content:center;" data-edit="'+team+':'+i+'">Edit</button>';
+      html += '<button class="btn btn-d btn-sm" style="flex:1;justify-content:center;" data-remove="'+team+':'+i+'">&#10005;</button>';
+      html += '</div>';
+    }
     html += '</div>';
   });
   el.innerHTML = html;
@@ -1279,6 +1300,35 @@ function addPlayer(team) {
 function removePlayer(team, idx) {
   if(!confirm('Remove player?')) return;
   roster[team].splice(idx,1); save(ROSTER_KEY, roster); sbSaveRoster(); renderRoster(team);
+}
+
+function openEditPlayer(team, idx) {
+  var p = roster[team][idx];
+  if(!p) return;
+  document.getElementById('ep-team').value = team;
+  document.getElementById('ep-idx').value = idx;
+  document.getElementById('ep-name').value = p.name || '';
+  document.getElementById('ep-pos').value = p.pos || '';
+  document.getElementById('ep-num').value = p.num || '';
+  document.getElementById('ep-ig').value = p.ig || '';
+  openModal('modal-edit-player');
+}
+
+function saveEditPlayer() {
+  var team = document.getElementById('ep-team').value;
+  var idx = parseInt(document.getElementById('ep-idx').value);
+  var name = document.getElementById('ep-name').value.trim();
+  if(!name) { toast('Name is required','err'); return; }
+  roster[team][idx] = {
+    name: name,
+    pos: document.getElementById('ep-pos').value.trim(),
+    num: document.getElementById('ep-num').value.trim(),
+    ig: document.getElementById('ep-ig').value.trim()
+  };
+  save(ROSTER_KEY, roster); sbSaveRoster();
+  closeModal('modal-edit-player');
+  renderRoster(team);
+  toast('Player updated!','ok');
 }
 
 // ====== MEMBERS ======
@@ -1440,6 +1490,8 @@ document.addEventListener('click', function(e) {
   if(tdel) { delTourn(tdel.getAttribute('data-tdelete')); return; }
   var rmPlayer = e.target.closest('[data-remove]');
   if(rmPlayer) { var parts=rmPlayer.getAttribute('data-remove').split(':'); removePlayer(parts[0], parseInt(parts[1])); return; }
+  var editPlayer = e.target.closest('[data-edit]');
+  if(editPlayer) { var parts=editPlayer.getAttribute('data-edit').split(':'); openEditPlayer(parts[0], parseInt(parts[1])); return; }
   var approve = e.target.closest('[data-approve]');
   if(approve) { startApprove(approve.getAttribute('data-approve')); return; }
   var deny = e.target.closest('[data-deny]');
