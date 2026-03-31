@@ -714,7 +714,7 @@ var isCoach = false;
 var pendingPage = null;
 var approvingId = null;
 
-var PROTECTED = ['checklist','faq','lessons'];
+var PROTECTED = ['checklist','faq','lessons','teams'];
 var DEFAULT_TOURNEYS = [
   {id:'t1',name:'Shaking Off Rust',date:'2026-01-24',location:'Seguin, TX',team:'both',notes:'1-Day Saturday'},
   {id:'t2',name:'Knockin Off The Ice',date:'2026-01-31',location:'Seguin, TX',team:'both',notes:''},
@@ -944,6 +944,11 @@ function submitRequest() {
   closeModal('modal-id');
   toast('Request sent! Coach Jaz will review it soon.','ok');
   updatePendingBadge();
+  // Notify coaches of new member request
+  sendNotification(
+    'Team Rollin: New Member Request — ' + name,
+    'A new member request has been submitted.\n\nPlayer: ' + name + '\nTeam: ' + team + '\nParent: ' + parent + '\nParent Email: ' + email + '\n\nLog in to teamrollinsoftball.net to approve or deny this request.'
+  );
 }
 
 function logout() {
