@@ -1192,6 +1192,10 @@ function confirmApprove() {
   closeModal('modal-approve');
   renderMembersPanel(); updatePendingBadge();
   toast(m.name+' approved! PIN: '+pin,'ok');
+  // Send email to parent
+  var subject = 'Team Rollin TX — You are approved! Your PIN is inside';
+  var body = 'Hi '+m.parentName+',%0A%0AGreat news! '+m.name+' has been approved for '+m.team+' Team Rollin TX.%0A%0AHere is your sign-in information:%0A%0A   Name: '+m.name+'%0A   Team: '+m.team+'%0A   PIN: '+pin+'%0A%0ATo sign in, go to teamrollinsoftball.net, click Sign In, enter the name, team, and PIN above.%0A%0AKeep this PIN safe — you will need it every time you sign in.%0A%0AWelcome to the team!%0A%0A— Coach Jaz%0ATeam Rollin TX';
+  window.location.href = 'mailto:'+m.parentEmail+'?subject='+encodeURIComponent(subject)+'&body='+body;
 }
 function denyMember(id) {
   if(!confirm('Deny this request?')) return;
