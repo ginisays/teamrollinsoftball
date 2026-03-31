@@ -176,7 +176,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* ROSTER */
 .roster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
-.roster-player{background:var(--black);border:1px solid var(--border);border-radius:var(--r);padding:12px;text-align:center;}
+.roster-player{background:var(--black);border:1px solid var(--border);border-radius:var(--r);padding:10px;text-align:center;overflow:hidden;}
 .roster-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;color:var(--silver3);line-height:1;}
 
 /* FOOTER */
@@ -270,6 +270,7 @@ footer a{color:var(--silver2);}
           <div id="add-player-12U" style="display:none;margin-top:12px;">
             <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p12-name" type="text" placeholder="Player name"></div><div class="fg" style="margin:0"><input id="p12-pos" type="text" placeholder="Position"></div></div>
             <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p12-num" type="text" placeholder="#"></div><div class="fg" style="margin:0"><input id="p12-ig" type="text" placeholder="@instagram"></div></div>
+            <div class="fg" style="margin-bottom:8px;"><label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:5px;">Headshot (optional)</label><input id="p12-photo" type="file" accept="image/*" style="font-size:12px;color:var(--muted);width:100%;"></div>
             <button class="btn btn-w btn-full" onclick="addPlayer('12U')">Add Player</button>
           </div>
         </div>
@@ -286,6 +287,7 @@ footer a{color:var(--silver2);}
           <div id="add-player-16U" style="display:none;margin-top:12px;">
             <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p16-name" type="text" placeholder="Player name"></div><div class="fg" style="margin:0"><input id="p16-pos" type="text" placeholder="Position"></div></div>
             <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p16-num" type="text" placeholder="#"></div><div class="fg" style="margin:0"><input id="p16-ig" type="text" placeholder="@instagram"></div></div>
+            <div class="fg" style="margin-bottom:8px;"><label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:5px;">Headshot (optional)</label><input id="p16-photo" type="file" accept="image/*" style="font-size:12px;color:var(--muted);width:100%;"></div>
             <button class="btn btn-w btn-full" onclick="addPlayer('16U')">Add Player</button>
           </div>
         </div>
@@ -636,6 +638,7 @@ footer a{color:var(--silver2);}
     <div class="fg"><label>Position</label><input id="ep-pos" type="text" placeholder="CF/Pitcher"></div>
     <div class="fg"><label>Number</label><input id="ep-num" type="text" placeholder="#"></div>
     <div class="fg"><label>Instagram</label><input id="ep-ig" type="text" placeholder="@handle"></div>
+    <div class="fg"><label>Headshot (optional)</label><input id="ep-photo" type="file" accept="image/*" style="font-size:12px;color:var(--muted);width:100%;"><div id="ep-photo-preview" style="margin-top:8px;"></div></div>
     <div style="display:flex;gap:10px;">
       <button class="btn btn-w" style="flex:1;justify-content:center;" onclick="saveEditPlayer()">Save</button>
       <button class="btn btn-g" style="flex:1;justify-content:center;" onclick="closeModal('modal-edit-player')">Cancel</button>
@@ -1263,8 +1266,13 @@ function renderRoster(team) {
   var html = '';
   players.forEach(function(p, i) {
     html += '<div class="roster-player">';
-    html += '<div class="roster-num">'+(p.num||'&#8212;')+'</div>';
-    html += '<div style="font-weight:600;font-size:13px;margin-top:4px;">'+p.name+'</div>';
+    if(p.photo) {
+      html += '<img src="'+p.photo+'" style="width:100%;height:100px;object-fit:cover;object-position:top;border-radius:6px;margin-bottom:6px;">';
+    } else {
+      html += '<div class="roster-num">'+(p.num||'&#8212;')+'</div>';
+    }
+    html += '<div style="font-weight:700;font-size:13px;margin-top:4px;">'+p.name+'</div>';
+    if(p.photo) html += '<div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;color:var(--silver3);">'+(p.num||'')+'</div>';
     if(p.pos) html += '<div style="font-size:11px;color:var(--muted);">'+p.pos+'</div>';
     if(p.ig) {
       var ig = p.ig.replace('@','');
@@ -1311,6 +1319,9 @@ function openEditPlayer(team, idx) {
   document.getElementById('ep-pos').value = p.pos || '';
   document.getElementById('ep-num').value = p.num || '';
   document.getElementById('ep-ig').value = p.ig || '';
+  document.getElementById('ep-photo').value = '';
+  var prev = document.getElementById('ep-photo-preview');
+  prev.innerHTML = p.photo ? '<img src="'+p.photo+'" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--border2);">' : '<span style="font-size:11px;color:var(--muted);">No photo yet</span>';
   openModal('modal-edit-player');
 }
 
@@ -1319,16 +1330,25 @@ function saveEditPlayer() {
   var idx = parseInt(document.getElementById('ep-idx').value);
   var name = document.getElementById('ep-name').value.trim();
   if(!name) { toast('Name is required','err'); return; }
-  roster[team][idx] = {
-    name: name,
-    pos: document.getElementById('ep-pos').value.trim(),
-    num: document.getElementById('ep-num').value.trim(),
-    ig: document.getElementById('ep-ig').value.trim()
-  };
-  save(ROSTER_KEY, roster); sbSaveRoster();
-  closeModal('modal-edit-player');
-  renderRoster(team);
-  toast('Player updated!','ok');
+  var existing = roster[team][idx];
+  var photoFile = document.getElementById('ep-photo').files[0];
+  if(photoFile) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      roster[team][idx] = {name:name, pos:document.getElementById('ep-pos').value.trim(), num:document.getElementById('ep-num').value.trim(), ig:document.getElementById('ep-ig').value.trim(), photo:e.target.result};
+      save(ROSTER_KEY, roster); sbSaveRoster();
+      closeModal('modal-edit-player');
+      renderRoster(team);
+      toast('Player updated!','ok');
+    };
+    reader.readAsDataURL(photoFile);
+  } else {
+    roster[team][idx] = {name:name, pos:document.getElementById('ep-pos').value.trim(), num:document.getElementById('ep-num').value.trim(), ig:document.getElementById('ep-ig').value.trim(), photo:existing.photo||''};
+    save(ROSTER_KEY, roster); sbSaveRoster();
+    closeModal('modal-edit-player');
+    renderRoster(team);
+    toast('Player updated!','ok');
+  }
 }
 
 // ====== MEMBERS ======
