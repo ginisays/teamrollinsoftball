@@ -397,7 +397,7 @@ footer a{color:var(--silver2);}
   <div class="sec" style="max-width:800px;">
     <div class="faq-item"><div class="faq-q">When and where do I pay monthly dues?</div><div class="faq-a">By the <strong>15th of each month</strong> via Zelle: <strong>(801) 719-4750</strong></div></div>
     <div class="faq-item"><div class="faq-q">How many privates a week do I need?</div><div class="faq-a"><strong>1 mandatory private</strong> and <strong>1 mandatory semi-private</strong> per week. Pitchers and Catchers may do additional work.</div></div>
-    <div class="faq-item"><div class="faq-q">How do I sign up for privates?</div><div class="faq-a">Use the <strong>Lessons</strong> tab on this site. If a slot is full, contact that player directly to arrange a swap — do not delete other players.</div></div>
+    <div class="faq-item"><div class="faq-q">How do I sign up for privates?</div><div class="faq-a">Use the <strong>Lessons</strong> tab on this site to book your slot.</div></div>
     <div class="faq-item"><div class="faq-q">Can parents attend practices?</div><div class="faq-a"><strong>Privates and Semi-Privates are closed to parent viewing.</strong> For Fielding at T&amp;C, sit in right or left field — not behind the dugout.</div></div>
     <div class="faq-item"><div class="faq-q">Can parents engage during games?</div><div class="faq-a">No coaching from the stands. No approaching the dugout. General cheering is always welcome! Players must be self-sufficient during games.</div></div>
     <div class="faq-item"><div class="faq-q">When does my player need to arrive?</div><div class="faq-a"><strong>At least 30 minutes early.</strong> Players must be warmed up and ready when coaches arrive at start time.</div></div>
@@ -423,7 +423,7 @@ footer a{color:var(--silver2);}
         </div>
       </div>
     </div></div>
-    <div class="faq-item"><div class="faq-q">Who do I contact with questions?</div><div class="faq-a"><strong>Playing time / coaching / hitting:</strong> text Jaz directly.<br><strong>Uniforms / food / logistics:</strong> contact Allison.</div></div>
+    <div class="faq-item"><div class="faq-q">Who do I contact with questions?</div><div class="faq-a"><strong>Playing time / coaching / hitting:</strong> have your player communicate directly with Coach Jaz.<br><strong>Uniforms / food / logistics:</strong> contact Allison.</div></div>
   </div>
 </div>
 
@@ -1139,23 +1139,25 @@ function coachRm(id) {
   var parentEmail = member ? member.parentEmail : null;
   s.booked_by=null; s.booked_team=null;
   save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView(); toast('Removed','');
+  // Always notify coaches first
+  sendNotification(
+    'Team Rollin: Coach removed booking — '+playerName,
+    'Coach removed a lesson booking.\n\nPlayer: '+playerName+'\nTeam: '+playerTeam+'\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nParent email: '+(parentEmail||'No email on file')
+  );
   // Email parent if we have their email
   if(parentEmail) {
+    var parentName = member ? member.parentName : playerName;
     fetch('https://formspree.io/f/xpqorjjj', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
       body: JSON.stringify({
-        subject: 'Team Rollin TX: Your lesson slot has been cancelled',
-        _replyto: 'Teamrollinfastpitch@gmail.com',
-        message: 'Hi '+( member ? member.parentName : playerName )+',\n\nYour lesson slot has been cancelled by Coach Jaz.\n\nPlayer: '+playerName+'\nTeam: '+playerTeam+'\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nPlease visit teamrollinsoftball.net to book a new slot or contact Coach Jaz with any questions.\n\n— Team Rollin TX'
+        _replyto: parentEmail,
+        _to: parentEmail,
+        subject: 'Team Rollin TX: Lesson Cancellation for ' + playerName,
+        message: 'Hi ' + parentName + ',\n\nYour lesson slot has been cancelled by Coach Jaz.\n\nPlayer: ' + playerName + '\nTeam: ' + playerTeam + '\nDate: ' + slotDate + '\nTime: ' + slotTime + '\n\nPlease visit teamrollinsoftball.net to book a new slot or contact Coach Jaz with any questions.\n\n— Team Rollin TX'
       })
-    }).catch(function(e){ console.error('Cancel email failed',e); });
+    }).catch(function(e){ console.error('Parent cancel email failed', e); });
   }
-  // Also notify coaches
-  sendNotification(
-    'Team Rollin: Coach removed booking — '+playerName,
-    'Coach removed a lesson booking.\n\nPlayer: '+playerName+'\nTeam: '+playerTeam+'\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nParent notified: '+(parentEmail||'No email on file')
-  );
 }
 function coachDel(id) {
   if(!confirm('Delete slot?')) return;
