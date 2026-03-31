@@ -217,6 +217,7 @@ footer a{color:var(--silver2);}
     <a onclick="go('lessons');closeMob()" id="nav-lessons" style="display:none">Lessons</a>
     <a onclick="go('contact');closeMob()">Contact</a>
     <button class="nav-btn" onclick="openModal('modal-id');closeMob()" id="signin-btn">Sign In</button>
+    <button class="nav-btn" id="signout-btn" style="display:none;background:transparent;color:var(--muted);border:1px solid var(--border2);" onclick="logout();closeMob()">Sign Out</button>
   </div>
   <button class="ham-btn" id="ham-btn" onclick="toggleMob()">☰</button>
 </nav>
@@ -274,27 +275,7 @@ footer a{color:var(--silver2);}
         </div>
       </div>
     </div>
-    <div class="card">
-      <div class="card-head"><div class="card-title">Parent Volunteer Jobs</div></div>
-      <div class="card-body">
-        <div class="grid2" style="gap:28px;">
-          <div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">Staff</div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span style="color:var(--muted)">Team Mom</span><span>Allison</span></div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span style="color:var(--muted)">Food Coords</span><span>Lauren / Molly</span></div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span style="color:var(--muted)">Social Media</span><span>Christy</span></div>
-            <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;"><span style="color:var(--muted)">Score Book</span><span>Megan / Lauren</span></div>
-          </div>
-          <div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">Practice Uniforms</div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span style="color:var(--muted)">Sundays</span><strong>Black</strong></div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span style="color:var(--muted)">Tuesdays</span><strong>Grey</strong></div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span style="color:var(--muted)">Semis</span><strong>Black shirt + black shorts</strong></div>
-            <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;"><span style="color:var(--muted)">Privates</span><strong>Anything (no other team logos)</strong></div>
-          </div>
-        </div>
-      </div>
-    </div>
+
   </div>
 </div>
 
@@ -405,6 +386,25 @@ footer a{color:var(--silver2);}
     <div class="faq-item"><div class="faq-q">Is play time guaranteed?</div><div class="faq-a">No. Play time is earned during practice. There is a <strong>24-hour post-tournament contact rule</strong> — please wait before reaching out about anything from that weekend.</div></div>
     <div class="faq-item"><div class="faq-q">Can my daughter play for other teams?</div><div class="faq-a"><strong>No.</strong></div></div>
     <div class="faq-item"><div class="faq-q">What shoes at tournaments?</div><div class="faq-a">Turf shoes when not in cleats. No crocs.</div></div>
+    <div class="faq-item"><div class="faq-q">Parent Volunteer Jobs</div><div class="faq-a">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px;">
+        <div>
+          <div style="font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--silver2);margin-bottom:8px;">Staff</div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span>Team Mom</span><strong style="color:var(--white);">Allison</strong></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span>Food Coords</span><strong style="color:var(--white);">Lauren / Molly</strong></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span>Social Media</span><strong style="color:var(--white);">Christy</strong></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span>Score Book</span><strong style="color:var(--white);">Megan / Lauren</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;"><span>Streaming</span><strong style="color:var(--white);">Allison</strong></div>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--silver2);margin-bottom:8px;">Practice Uniforms</div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span>Sundays</span><strong style="color:var(--white);">Black</strong></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span>Tuesdays</span><strong style="color:var(--white);">Grey</strong></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span>Semis</span><strong style="color:var(--white);">Black shirt + black shorts</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;"><span>Privates</span><strong style="color:var(--white);">Anything (no other team logos)</strong></div>
+        </div>
+      </div>
+    </div></div>
     <div class="faq-item"><div class="faq-q">Who do I contact with questions?</div><div class="faq-a"><strong>Playing time / coaching / hitting:</strong> text Jaz directly.<br><strong>Uniforms / food / logistics:</strong> contact Allison.</div></div>
   </div>
 </div>
@@ -513,8 +513,8 @@ footer a{color:var(--silver2);}
       <div>
         <p style="font-size:16px;color:var(--muted);line-height:1.7;margin-bottom:28px;">Questions about tryouts, lessons, or tournaments? Send us a message.</p>
         <div class="c-item"><div class="c-icon">📸</div><div><div style="font-weight:600;font-size:14px;margin-bottom:2px;">Instagram</div><div style="font-size:13px;color:var(--muted);"><a href="https://instagram.com/teamrollintx" target="_blank" style="color:var(--silver);text-decoration:underline;">@teamrollintx</a></div></div></div>
-        <div class="c-item"><div class="c-icon">👑</div><div><div style="font-weight:600;font-size:14px;margin-bottom:2px;">Coach Jaz</div><div style="font-size:13px;color:var(--muted);"><a href="https://instagram.com/queenrollin4" target="_blank" style="color:var(--silver);text-decoration:underline;">@queenrollin4</a> · (801) 719-4750</div></div></div>
-        <div class="c-item"><div class="c-icon">📞</div><div><div style="font-weight:600;font-size:14px;margin-bottom:2px;">Team Mom — Allison</div><div style="font-size:13px;color:var(--muted);">(808) 753-3882</div></div></div>
+        <div class="c-item"><div class="c-icon">👑</div><div><div style="font-weight:600;font-size:14px;margin-bottom:2px;">Coach Jaz</div><div style="font-size:13px;color:var(--muted);"><a href="https://instagram.com/queenrollin4" target="_blank" style="color:var(--silver);text-decoration:underline;">@queenrollin4</a></div></div></div>
+
       </div>
       <div class="card">
         <div class="card-body">
@@ -803,6 +803,8 @@ function logout() {
 function updateAuthUI() {
   var btn = document.getElementById('signin-btn');
   if(btn) btn.textContent = identity ? identity.name : 'Sign In';
+  var sob = document.getElementById('signout-btn');
+  if(sob) sob.style.display = identity ? '' : 'none';
   var isC = identity && identity.type==='coach';
   var isIn = !!identity;
   var navIds = ['nav-checklist','nav-faq','nav-lessons'];
