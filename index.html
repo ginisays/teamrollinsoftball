@@ -227,8 +227,8 @@ footer a{color:var(--silver2);}
     <a onclick="go('home');closeMob()">Home</a>
     <a onclick="go('teams');closeMob()">Teams</a>
     <a onclick="go('schedule');closeMob()">Schedule</a>
-    <a onclick="go('coach');closeMob()">Coach</a>
-    <a onclick="go('checklist');closeMob()" id="nav-checklist" style="display:none">New Members</a>
+    <a onclick="go('coach');closeMob()">About Us</a>
+    <a onclick="go('checklist');closeMob()" id="nav-checklist" style="display:none">TR Families</a>
     <a onclick="go('faq');closeMob()" id="nav-faq" style="display:none">FAQs</a>
     <a onclick="go('lessons');closeMob()" id="nav-lessons" style="display:none">Lessons</a>
     <a onclick="go('contact');closeMob()">Contact</a>
@@ -308,7 +308,7 @@ footer a{color:var(--silver2);}
 
 <!-- COACH -->
 <div class="page" id="page-coach">
-  <div class="sec-head"><span class="eyebrow">Head Coach</span><h2 class="sec-title">Jazmyn Rollin</h2></div>
+  <div class="sec-head"><span class="eyebrow">About Us</span><h2 class="sec-title">Coach Jaz</h2></div>
   <div class="sec">
     <div class="coach-grid">
       <div class="coach-photo"><img id="coach-img" src="" alt="Coach Jazmyn Rollin"></div>
@@ -338,7 +338,7 @@ footer a{color:var(--silver2);}
 
 <!-- NEW MEMBERS (requires login) -->
 <div class="page" id="page-checklist">
-  <div class="sec-head"><span class="eyebrow">Welcome</span><h2 class="sec-title">New Member Checklist</h2></div>
+  <div class="sec-head"><span class="eyebrow">Team Rollin TX</span><h2 class="sec-title">TR Families</h2></div>
   <div class="sec">
     <div class="grid2">
       <div>
@@ -438,7 +438,7 @@ footer a{color:var(--silver2);}
           <div style="display:flex;gap:8px;align-items:center;">
             <div class="tabs">
               <button class="tab active" onclick="schedView('player',this)">Player</button>
-              <button class="tab" onclick="schedView('coach',this)">Coach</button>
+              <button class="tab" onclick="schedView('coach',this)">About Us</button>
             </div>
           </div>
         </div>
@@ -587,7 +587,7 @@ footer a{color:var(--silver2);}
     <div class="modal-title">Who Are You?</div>
     <div class="modal-tabs">
       <button class="modal-tab active" onclick="idTab('player',this)">Player / Parent</button>
-      <button class="modal-tab" onclick="idTab('coach',this)">Coach</button>
+      <button class="modal-tab" onclick="idTab('coach',this)">About Us</button>
     </div>
     <div id="id-player">
       <div class="modal-tabs" style="margin-bottom:14px;">
@@ -732,7 +732,7 @@ var isCoach = false;
 var pendingPage = null;
 var approvingId = null;
 
-var PROTECTED = ['checklist','faq','lessons','teams'];
+var PROTECTED = ['checklist','faq','lessons'];
 var DEFAULT_TOURNEYS = [
   {id:'t1',name:'Shaking Off Rust',date:'2026-01-24',location:'Seguin, TX',team:'both',notes:'1-Day Saturday'},
   {id:'t2',name:'Knockin Off The Ice',date:'2026-01-31',location:'Seguin, TX',team:'both',notes:''},
