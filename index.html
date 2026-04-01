@@ -528,7 +528,102 @@ footer a{color:var(--silver2);}
       </div>
 
       <!-- MEMBERS PANEL (coach only) -->
-      <div class="card" id="members-card" style="display:none">
+    </div>
+
+    <!-- PITCHING LESSONS -->
+    <div style="margin-top:32px;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Pitching Lessons</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Coach Laurie · Book your weekly slot</div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Pitching Scheduler</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <div class="tabs">
+                <button class="tab active" onclick="pitchView('player',this)">Player</button>
+                <button class="tab" onclick="pitchView('coach',this)">Coach</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body" id="pitch-view-player">
+            <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+              <button class="tab active" onclick="filterPitch('all',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">All</button>
+              <button class="tab" onclick="filterPitch('12U',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">12U</button>
+              <button class="tab" onclick="filterPitch('16U',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">16U</button>
+            </div>
+            <div id="pitch-slots"><div class="empty">No pitching slots available yet.</div></div>
+          </div>
+          <div class="card-body" id="pitch-view-coach" style="display:none">
+            <div class="c-stats" id="pitch-stats"></div>
+            <div style="overflow-x:auto;">
+              <table class="t"><thead><tr><th>Date</th><th>Time</th><th>Player</th><th>Team</th><th></th></tr></thead><tbody id="pitch-tbody"></tbody></table>
+            </div>
+            <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Add Pitching Slots</div>
+              <div class="add-tabs">
+                <button class="add-tab active" onclick="pitchAddTab('single',this)">Single</button>
+                <button class="add-tab" onclick="pitchAddTab('bulk',this)">Bulk Week</button>
+              </div>
+              <div id="pitch-panel-single">
+                <div class="fg"><label>Date</label><input type="date" id="ps-date"></div>
+                <div class="fg"><label>Time</label>
+                  <div class="time-pick">
+                    <select id="ps-hr"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option><option>11</option><option>12</option></select>
+                    <select id="ps-min"><option value="00">00</option><option value="30">30</option></select>
+                    <select id="ps-ampm"><option>AM</option><option selected>PM</option></select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="fg"><label>Team</label><select id="ps-team"><option value="both">Both</option><option value="12U">12U</option><option value="16U">16U</option></select></div>
+                  <div class="fg"><label>Duration</label><select id="ps-dur"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>60 min</option></select></div>
+                </div>
+                <button class="btn btn-w btn-full" onclick="addPitchSingle()">Add Slot</button>
+              </div>
+              <div id="pitch-panel-bulk" style="display:none">
+                <div class="form-row">
+                  <div class="fg"><label>Start</label><input type="date" id="pb-start"></div>
+                  <div class="fg"><label>End</label><input type="date" id="pb-end"></div>
+                </div>
+                <div class="fg"><label>Days</label>
+                  <div class="days-grid" id="pb-days">
+                    <button class="day-chip" data-d="0">Su</button><button class="day-chip" data-d="1">Mo</button><button class="day-chip" data-d="2">Tu</button><button class="day-chip" data-d="3">We</button><button class="day-chip" data-d="4">Th</button><button class="day-chip" data-d="5">Fr</button><button class="day-chip" data-d="6">Sa</button>
+                  </div>
+                </div>
+                <div class="fg"><label>Start Time</label>
+                  <div class="time-pick">
+                    <select id="pb-hr"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option><option>11</option><option>12</option></select>
+                    <select id="pb-min"><option value="00">00</option><option value="30">30</option></select>
+                    <select id="pb-ampm2"><option>AM</option><option selected>PM</option></select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="fg"><label>Slots/Day</label><select id="pb-count"><option value="1" selected>1</option><option value="2">2</option><option value="4">4</option><option value="6">6</option></select></div>
+                  <div class="fg"><label>Duration</label><select id="pb-dur"><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></div>
+                </div>
+                <div class="form-row">
+                  <div class="fg"><label>Team</label><select id="pb-team"><option value="both">Both</option><option value="12U">12U</option><option value="16U">16U</option></select></div>
+                  <div class="fg"><label>Copies per Slot</label><select id="pb-copies"><option value="1">1</option><option value="2">2</option></select></div>
+                </div>
+                <button class="btn btn-w btn-full" onclick="addPitchBulk()">Generate Slots</button>
+              </div>
+              <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn btn-d btn-sm" onclick="delAllOpenPitch()">Delete All Open</button>
+                <button class="btn btn-d btn-sm" onclick="delPastPitch()">Clear Past</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" id="pitch-members-card" style="display:none">
+          <div class="card-head"><div class="card-title">Book a Pitching Slot</div></div>
+          <div class="card-body">
+            <p style="font-size:13px;color:var(--muted);line-height:1.6;">Admin can manually book a player into a pitching slot from the Coach view table.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:none"><!-- spacer --></div>
+    <div class="card" id="members-card" style="display:none">
         <div class="card-head"><div class="card-title">Member Requests</div></div>
         <div class="card-body">
           <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">Pending <span id="pending-ct" style="color:var(--red);"></span></div>
@@ -723,6 +818,7 @@ var DAYS_S = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 var identity = null;
 var allSlots = [];
+var pitchSlots = [];
 var members = [];
 var roster = {};
 var tourneys = [];
@@ -752,12 +848,15 @@ var DEFAULT_TOURNEYS = [
 function load() {
   try { var d=localStorage.getItem(ID_KEY); if(d) identity=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(SLOTS_KEY); if(d) allSlots=JSON.parse(d); } catch(e){}
+  try { var d=localStorage.getItem(PITCH_KEY); if(d) pitchSlots=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(MEMBERS_KEY); if(d) members=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(ROSTER_KEY); if(d) roster=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(TOURN_KEY); if(d) tourneys=JSON.parse(d); else tourneys=DEFAULT_TOURNEYS.slice(); } catch(e){ tourneys=DEFAULT_TOURNEYS.slice(); }
   var now = new Date(); now.setHours(0,0,0,0);
   allSlots = allSlots.filter(function(s){ return new Date(s.date+'T00:00:00') >= now; });
   allSlots.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
+  pitchSlots = pitchSlots.filter(function(s){ return new Date(s.date+'T00:00:00') >= now; });
+  pitchSlots.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
 }
 
 async function syncFromSupabase() {
@@ -815,6 +914,13 @@ async function sendNotification(subject, message) {
 }
 
 // Supabase sync helpers
+async function sbSavePitchSlots() {
+  if(!sb) return;
+  try {
+    await sb.from('pitch_slots').delete().neq('id','__none__');
+    if(pitchSlots.length) await sb.from('pitch_slots').insert(pitchSlots.map(function(s){ return {id:s.id,date:s.date,time:s.time,team:s.team,duration:s.duration,booked_by:s.booked_by||null,booked_team:s.booked_team||null}; }));
+  } catch(e){ console.error('sbSavePitchSlots',e); }
+}
 async function sbSaveSlots() {
   if(!sb) return;
   try {
@@ -1067,6 +1173,18 @@ function openBook(id) {
 }
 
 function confirmBook() {
+  if(bookingId && bookingId.startsWith('pitch_')) {
+    var pid = bookingId.replace('pitch_','');
+    var ps = pitchSlots.find(function(x){ return x.id===pid; });
+    if(!ps || ps.booked_by) { toast('No longer available','err'); closeModal('modal-book'); return; }
+    ps.booked_by = identity.name;
+    ps.booked_team = identity.team;
+    save(PITCH_KEY, pitchSlots); sbSavePitchSlots();
+    closeModal('modal-book');
+    renderPitchSlots();
+    toast('Pitching lesson booked!','ok');
+    return;
+  }
   var s = allSlots.find(function(x){ return x.id===bookingId; });
   if(!s || s.booked_by) { toast('No longer available','err'); closeModal('modal-book'); return; }
   s.booked_by = identity.name;
@@ -1218,12 +1336,16 @@ function confirmCoachBook() {
   var parts = val.split('|');
   var playerName = parts[0];
   var playerTeam = parts[1];
-  var s = allSlots.find(function(x){ return x.id===id; });
+  var isPitch = id.startsWith('pitch_');
+  var realId = isPitch ? id.replace('pitch_','') : id;
+  var pool = isPitch ? pitchSlots : allSlots;
+  var s = pool.find(function(x){ return x.id===realId; });
   if(!s) return;
   if(s.booked_by) { toast('Slot already booked','err'); return; }
   s.booked_by = playerName;
   s.booked_team = playerTeam;
-  save(SLOTS_KEY, allSlots); sbSaveSlots();
+  if(isPitch){ save(PITCH_KEY, pitchSlots); sbSavePitchSlots(); }
+  else { save(SLOTS_KEY, allSlots); sbSaveSlots(); }
   closeModal('modal-cbook');
   renderCoachView(); renderSlots();
   toast(playerName+' booked!','ok');
@@ -1629,6 +1751,201 @@ function submitContact() {
   });
 }
 
+// ====== PITCHING SLOTS ======
+var pitchFilter = 'all';
+
+function pitchView(view, el) {
+  if(view==='coach') {
+    if(!identity || identity.type!=='coach') {
+      el.classList.remove('active');
+      openModal('modal-id');
+      return;
+    }
+    document.querySelectorAll('#pitch-view-player').forEach(function(e){ e.style.display='none'; });
+    document.getElementById('pitch-view-coach').style.display='block';
+    renderPitchCoachView();
+  } else {
+    document.getElementById('pitch-view-player').style.display='block';
+    document.getElementById('pitch-view-coach').style.display='none';
+    renderPitchSlots();
+  }
+}
+
+function filterPitch(val, el) {
+  document.querySelectorAll('#pitch-view-player .tab').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  pitchFilter = val;
+  renderPitchSlots();
+}
+
+function renderPitchSlots() {
+  var el = document.getElementById('pitch-slots');
+  if(!el) return;
+  var data = pitchSlots.slice();
+  if(pitchFilter==='12U') data = data.filter(function(s){ return s.team==='both'||s.team==='12U'; });
+  if(pitchFilter==='16U') data = data.filter(function(s){ return s.team==='both'||s.team==='16U'; });
+  if(!data.length) { el.innerHTML='<div class="empty">No pitching slots available yet.</div>'; return; }
+  var groups={};
+  data.forEach(function(s){ if(!groups[s.date]) groups[s.date]=[]; groups[s.date].push(s); });
+  var html='';
+  Object.keys(groups).sort().forEach(function(date){
+    var d = new Date(date+'T00:00:00');
+    html += '<div class="day-group"><div class="day-head"><div class="day-name">'+DAYS[d.getDay()]+'</div><div class="day-date">'+MONTHS[d.getMonth()]+' '+d.getDate()+'</div></div><div class="slots-grid">';
+    groups[date].forEach(function(s){ html += renderPitchSlot(s); });
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+}
+
+function renderPitchSlot(s) {
+  var isMe = identity && identity.type==='player' && s.booked_by===identity.name && s.booked_team===identity.team;
+  var taken = !!s.booked_by && !isMe;
+  var isIn = !!identity;
+  var time = fmt(s.time);
+  if(taken) {
+    var info = isIn ? '<div style="font-size:11px;font-weight:600;color:var(--white);margin-top:2px;">'+s.booked_by+'</div><div style="font-size:10px;color:var(--silver2);">'+s.booked_team+'</div>' : '';
+    return '<div class="slot taken" style="opacity:1;border-color:rgba(248,113,113,.2);"><div class="slot-time">'+time+'</div><div style="font-size:10px;"><span class="dot dot-t"></span>Booked</div>'+info+'</div>';
+  }
+  if(isMe) {
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-pcancel="'+s.id+'">✕ Cancel</div></div>';
+  }
+  var canBook = identity && identity.type==='player';
+  var click = canBook ? 'data-pbook="'+s.id+'"' : 'data-signin="1"';
+  return '<div class="slot open" '+click+'><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--silver);"><span class="dot dot-o"></span>Open</div><div style="font-size:9px;color:var(--silver3);margin-top:2px;">'+s.duration+'min</div></div>';
+}
+
+function openPitchBook(id) {
+  if(!identity || identity.type!=='player') { openModal('modal-id'); return; }
+  var s = pitchSlots.find(function(x){ return x.id===id; });
+  if(!s) return;
+  // Check: player can't book same time slot twice
+  var sameTime = pitchSlots.find(function(x){ return x.date===s.date && x.time===s.time && x.booked_by===identity.name && x.booked_team===identity.team && x.id!==id; });
+  if(sameTime) { toast('You already have a pitching slot at this time','err'); return; }
+  bookingId = 'pitch_'+id;
+  var d = new Date(s.date+'T00:00:00');
+  document.getElementById('book-info').textContent = 'Pitching · '+DAYS[d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate()+' @ '+fmt(s.time)+' · '+s.duration+'min';
+  document.getElementById('book-for').textContent = identity.name+' ('+identity.team+')';
+  openModal('modal-book');
+}
+
+function cancelPitchSlot(id) {
+  if(!confirm('Cancel this pitching booking?')) return;
+  var s = pitchSlots.find(function(x){ return x.id===id; });
+  if(!s) return;
+  var playerName=s.booked_by, playerTeam=s.booked_team, slotDate=s.date, slotTime=fmt(s.time);
+  s.booked_by=null; s.booked_team=null;
+  save(PITCH_KEY, pitchSlots); sbSavePitchSlots();
+  renderPitchSlots();
+  toast('Pitching booking cancelled','');
+  sendNotification('Team Rollin: Pitching Cancellation — '+playerName, 'Player: '+playerName+'\nTeam: '+playerTeam+'\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nSlot is now open.');
+}
+
+function renderPitchCoachView() {
+  var booked = pitchSlots.filter(function(s){ return s.booked_by; });
+  var open = pitchSlots.filter(function(s){ return !s.booked_by; });
+  document.getElementById('pitch-stats').innerHTML =
+    '<div class="cs"><div class="cs-n">'+booked.length+'</div><div class="cs-l">Booked</div></div>'+
+    '<div class="cs"><div class="cs-n">'+open.length+'</div><div class="cs-l">Open</div></div>'+
+    '<div class="cs"><div class="cs-n">'+booked.filter(function(s){return s.booked_team==='12U';}).length+'</div><div class="cs-l">12U</div></div>'+
+    '<div class="cs"><div class="cs-n">'+booked.filter(function(s){return s.booked_team==='16U';}).length+'</div><div class="cs-l">16U</div></div>';
+  var tbody = document.getElementById('pitch-tbody');
+  if(!pitchSlots.length){tbody.innerHTML='<tr><td colspan="5" class="empty">No slots</td></tr>';return;}
+  var html='';
+  pitchSlots.forEach(function(s){
+    var d=new Date(s.date+'T00:00:00');
+    var dateStr=DAYS_S[d.getDay()]+' '+MONTHS[d.getMonth()]+' '+d.getDate();
+    var player=s.booked_by?'<strong>'+s.booked_by+'</strong>':'<span style="color:var(--silver3)">&#8212;</span>';
+    var rmBtn=s.booked_by?'<button class="btn btn-d btn-sm" data-pcrm="'+s.id+'">Remove</button>':'<button class="btn btn-w btn-sm" data-pcbook="'+s.id+'">Book</button>';
+    html+='<tr><td style="font-size:11px;">'+dateStr+'</td><td style="font-size:11px;">'+fmt(s.time)+'</td><td style="font-size:12px;">'+player+'</td><td style="font-size:11px;color:var(--silver2);">'+(s.booked_team||s.team)+'</td><td style="display:flex;gap:4px;">'+rmBtn+'<button class="btn btn-g btn-sm" data-pcdel="'+s.id+'">Del</button></td></tr>';
+  });
+  tbody.innerHTML=html;
+}
+
+function pitchAddTab(tab, el) {
+  document.querySelectorAll('#pitch-view-coach .add-tab').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('pitch-panel-single').style.display = tab==='single'?'block':'none';
+  document.getElementById('pitch-panel-bulk').style.display = tab==='bulk'?'block':'none';
+}
+document.querySelectorAll('#pb-days .day-chip').forEach(function(c){ c.addEventListener('click', function(){ c.classList.toggle('on'); }); });
+
+function addPitchSingle() {
+  var date=document.getElementById('ps-date').value;
+  var time=getTime('ps-hr','ps-min','ps-ampm');
+  var team=document.getElementById('ps-team').value;
+  var dur=parseInt(document.getElementById('ps-dur').value);
+  if(!date){toast('Pick a date','err');return;}
+  pitchSlots.push({id:'p'+uid(),date:date,time:time,team:team,duration:dur,booked_by:null,booked_team:null});
+  pitchSlots.sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
+  save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView(); toast('Pitching slot added!','ok');
+}
+
+function addPitchBulk() {
+  var start=document.getElementById('pb-start').value;
+  var end=document.getElementById('pb-end').value;
+  var st=getTime('pb-hr','pb-min','pb-ampm2');
+  var count=parseInt(document.getElementById('pb-count').value);
+  var dur=parseInt(document.getElementById('pb-dur').value);
+  var team=document.getElementById('pb-team').value;
+  var copies=parseInt(document.getElementById('pb-copies').value)||1;
+  var days=[];
+  document.querySelectorAll('#pb-days .day-chip.on').forEach(function(c){days.push(parseInt(c.getAttribute('data-d')));});
+  if(!start||!end||!days.length){toast('Fill all fields + pick days','err');return;}
+  var parts=st.split(':'), sh=parseInt(parts[0]), sm=parseInt(parts[1]);
+  var times=[];
+  for(var i=0;i<count;i++){var tot=sh*60+sm+(i*dur);var h=Math.floor(tot/60)%24,m=tot%60;times.push((h<10?'0':'')+h+':'+(m<10?'0':'')+m);}
+  var s=new Date(start+'T00:00:00'),e=new Date(end+'T00:00:00'),added=0;
+  for(var d=new Date(s);d<=e;d.setDate(d.getDate()+1)){
+    if(days.indexOf(d.getDay())>=0){
+      var ds=d.toISOString().slice(0,10);
+      times.forEach(function(time){for(var c=0;c<copies;c++){pitchSlots.push({id:'p'+uid(),date:ds,time:time,team:team,duration:dur,booked_by:null,booked_team:null});added++;}});
+    }
+  }
+  pitchSlots.sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
+  save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView(); toast('Created '+added+' pitching slots!','ok');
+}
+
+function delAllOpenPitch(){
+  if(!confirm('Delete all open pitching slots?'))return;
+  pitchSlots=pitchSlots.filter(function(s){return s.booked_by;});
+  save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView(); toast('Done','ok');
+}
+function delPastPitch(){
+  if(!confirm('Clear past pitching slots?'))return;
+  var now=new Date().toISOString().slice(0,10);
+  pitchSlots=pitchSlots.filter(function(s){return s.date>=now;});
+  save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView(); toast('Cleared','ok');
+}
+function pitchCoachRm(id){
+  var s=pitchSlots.find(function(x){return x.id===id;});
+  if(!s||!confirm('Remove booking for '+s.booked_by+'?'))return;
+  var playerName=s.booked_by,playerTeam=s.booked_team,slotDate=s.date,slotTime=fmt(s.time);
+  var member=members.find(function(m){return m.name.toLowerCase()===playerName.toLowerCase()&&m.team===playerTeam;});
+  var parentEmail=member?member.parentEmail:null;
+  s.booked_by=null;s.booked_team=null;
+  save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView(); toast('Removed','');
+  sendNotification('Team Rollin: Pitching Cancellation — '+playerName,'Coach removed pitching booking.\nPlayer: '+playerName+'\nTeam: '+playerTeam+'\nDate: '+slotDate+'\nTime: '+slotTime);
+  if(parentEmail){fetch('https://formspree.io/f/xpqorjjj',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({_replyto:parentEmail,subject:'Team Rollin TX: Pitching lesson cancelled for '+playerName,message:'Hi '+(member?member.parentName:playerName)+',\n\nYour pitching lesson has been cancelled by Coach Laurie.\n\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nVisit teamrollinsoftball.net to rebook.\n\n— Team Rollin TX'})}).catch(function(){});}
+}
+function pitchCoachDel(id){
+  if(!confirm('Delete pitching slot?'))return;
+  pitchSlots=pitchSlots.filter(function(x){return x.id!==id;});
+  save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView(); toast('Deleted','');
+}
+function openPitchCoachBook(id){
+  var s=pitchSlots.find(function(x){return x.id===id;});
+  if(!s)return;
+  document.getElementById('cbook-slot-id').value='pitch_'+id;
+  var d=new Date(s.date+'T00:00:00');
+  document.getElementById('cbook-slot-info').textContent='Pitching · '+DAYS[d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate()+' @ '+fmt(s.time)+' · '+s.duration+'min';
+  var sel=document.getElementById('cbook-player');
+  sel.innerHTML='<option value="">— choose a player —</option>';
+  var approved=members.filter(function(m){return m.status==='approved';});
+  if(s.team!=='both') approved=approved.filter(function(m){return m.team===s.team;});
+  approved.forEach(function(m){var opt=document.createElement('option');opt.value=m.name+'|'+m.team;opt.textContent=m.name+' ('+m.team+')';sel.appendChild(opt);});
+  openModal('modal-cbook');
+}
+
 // ====== START ======
 function toggleMob(){
   var nl = document.getElementById('nav-links');
@@ -1690,6 +2007,16 @@ document.addEventListener('click', function(e) {
   if(deny) { denyMember(deny.getAttribute('data-deny')); return; }
   var dm = e.target.closest('[data-deletemember]');
   if(dm) { deleteMember(dm.getAttribute('data-deletemember')); return; }
+  var pbook = e.target.closest('[data-pbook]');
+  if(pbook) { openPitchBook(pbook.getAttribute('data-pbook')); return; }
+  var pcancel = e.target.closest('[data-pcancel]');
+  if(pcancel) { cancelPitchSlot(pcancel.getAttribute('data-pcancel')); return; }
+  var pcrm = e.target.closest('[data-pcrm]');
+  if(pcrm) { pitchCoachRm(pcrm.getAttribute('data-pcrm')); return; }
+  var pcdel = e.target.closest('[data-pcdel]');
+  if(pcdel) { pitchCoachDel(pcdel.getAttribute('data-pcdel')); return; }
+  var pcbook = e.target.closest('[data-pcbook]');
+  if(pcbook) { openPitchCoachBook(pcbook.getAttribute('data-pcbook')); return; }
 });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
