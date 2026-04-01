@@ -638,6 +638,7 @@ footer a{color:var(--silver2);}
     <div class="fg"><label>Position</label><input id="ep-pos" type="text" placeholder="CF/Pitcher"></div>
     <div class="fg"><label>Number</label><input id="ep-num" type="text" placeholder="#"></div>
     <div class="fg"><label>Instagram</label><input id="ep-ig" type="text" placeholder="@handle"></div>
+    <div class="fg"><label>Profile Link (Hudl, NCSA, etc.)</label><input id="ep-url" type="url" placeholder="https://..."></div>
     <div class="fg"><label>Headshot (optional)</label><input id="ep-photo" type="file" accept="image/*" style="font-size:12px;color:var(--muted);width:100%;"><div id="ep-photo-preview" style="margin-top:8px;"></div></div>
     <div style="display:flex;gap:10px;">
       <button class="btn btn-w" style="flex:1;justify-content:center;" onclick="saveEditPlayer()">Save</button>
@@ -1423,6 +1424,9 @@ function renderRoster(team) {
       var ig = p.ig.replace('@','');
       html += '<div style="font-size:10px;color:var(--silver2);margin-top:4px;"><a href="https://instagram.com/'+ig+'" target="_blank" style="color:var(--silver2);">'+p.ig+'</a></div>';
     }
+    if(p.url) {
+      html += '<div style="font-size:10px;margin-top:4px;"><a href="'+p.url+'" target="_blank" style="color:var(--green);text-decoration:underline;">&#128279; Profile</a></div>';
+    }
     if(isC) {
       html += '<div style="display:flex;gap:4px;margin-top:6px;">';
       html += '<button class="btn btn-g btn-sm" style="flex:1;justify-content:center;" data-edit="'+team+':'+i+'">Edit</button>';
@@ -1484,6 +1488,7 @@ function openEditPlayer(team, idx) {
   document.getElementById('ep-pos').value = p.pos || '';
   document.getElementById('ep-num').value = p.num || '';
   document.getElementById('ep-ig').value = p.ig || '';
+  document.getElementById('ep-url').value = p.url || '';
   document.getElementById('ep-photo').value = '';
   var prev = document.getElementById('ep-photo-preview');
   prev.innerHTML = p.photo ? '<img src="'+p.photo+'" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--border2);">' : '<span style="font-size:11px;color:var(--muted);">No photo yet</span>';
@@ -1506,7 +1511,7 @@ function saveEditPlayer() {
       toast('Player updated!','ok');
     });
   } else {
-    roster[team][idx] = {name:name, pos:document.getElementById('ep-pos').value.trim(), num:document.getElementById('ep-num').value.trim(), ig:document.getElementById('ep-ig').value.trim(), photo:existing.photo||''};
+    roster[team][idx] = {name:name, pos:document.getElementById('ep-pos').value.trim(), num:document.getElementById('ep-num').value.trim(), ig:document.getElementById('ep-ig').value.trim(), url:document.getElementById('ep-url').value.trim(), photo:existing.photo||''};
     save(ROSTER_KEY, roster); sbSaveRoster();
     closeModal('modal-edit-player');
     renderRoster(team);
