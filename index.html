@@ -12,7 +12,7 @@
   --white:#f2f0ee;--silver:#b8bcc4;--silver2:#8a8f99;--silver3:#4a4f58;
   --border:rgba(242,240,238,0.07);--border2:rgba(242,240,238,0.14);
   --muted:rgba(242,240,238,0.5);--faint:rgba(242,240,238,0.08);
-  --green:#6ee7b7;--red:#f87171;--scarlet:#e5182b;--r:8px;
+  --green:#6ee7b7;--red:#f87171;--scarlet:#e5182b;--royal:#1a3fcc;--r:8px;
 }
 html{scroll-behavior:smooth;}
 body{font-family:'Barlow',sans-serif;background:var(--black);color:var(--white);min-height:100vh;}
@@ -21,7 +21,7 @@ a{text-decoration:none;color:inherit;}
 /* NAV */
 nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5%;height:60px;background:rgba(8,8,8,.97);border-bottom:1px solid var(--border);border-top:2px solid var(--scarlet);}
 .nav-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;letter-spacing:4px;text-transform:uppercase;}
-.nav-logo em{color:var(--silver2);font-style:normal;}
+.nav-logo em{color:#4a7fff;font-style:normal;}
 .nav-links{display:flex;align-items:center;gap:20px;}
 .nav-links a{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:color .2s;}
 .nav-links a:hover{color:var(--white);}
@@ -77,14 +77,14 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* SLOTS */
 .day-group{margin-bottom:20px;}
 .day-head{display:flex;align-items:baseline;gap:8px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);}
-.day-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;text-transform:uppercase;}
+.day-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;text-transform:uppercase;color:#4a7fff;}
 .day-date{font-family:'DM Mono',monospace;font-size:10px;color:var(--silver3);}
 .slots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
 .slot{background:var(--black);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;cursor:pointer;transition:all .15s;}
 .slot.open:hover{border-color:var(--border2);background:var(--faint);}
 .slot.mine{border-color:rgba(110,231,183,.35);background:rgba(110,231,183,.04);}
 .slot.taken{opacity:.35;cursor:default;}
-.slot-time{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;margin-bottom:4px;}
+.slot-time{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;margin-bottom:4px;color:#4a7fff;}
 .dot{width:5px;height:5px;border-radius:50%;display:inline-block;margin-right:4px;}
 .dot-o{background:var(--silver);}
 .dot-m{background:var(--green);}
@@ -120,7 +120,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* TABS */
 .tabs{display:flex;gap:3px;background:var(--black);border:1px solid var(--border);border-radius:6px;padding:3px;}
 .tab{padding:5px 14px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;color:var(--muted);border:none;background:transparent;transition:all .15s;}
-.tab.active{background:var(--white);color:var(--black);}
+.tab.active{background:var(--white);color:var(--black);border-bottom:2px solid var(--royal);}
 
 /* CHECKLIST */
 .chk{display:flex;gap:8px;margin-bottom:8px;font-size:13px;}
@@ -244,7 +244,7 @@ footer a{color:var(--silver2);}
     <img id="lion-img" src="" alt="Team Rollin">
     <div class="hero-tag" style="border-left:2px solid var(--scarlet);padding-left:10px;">All Grit. No Quit.</div>
     <div class="hero-title" style="position:relative;display:inline-block;">Rollin<span style="position:absolute;bottom:-8px;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--scarlet),transparent);border-radius:2px;"></span></div>
-    <div class="hero-sub">12U &amp; 16U · Texas Fastpitch</div>
+    <div class="hero-sub" style="color:#4a7fff;">12U &amp; 16U · Texas Fastpitch</div>
     <div class="hero-btns">
       <button class="btn btn-w" onclick="go('lessons')">Book a Lesson →</button>
       <button class="btn btn-g" onclick="go('schedule')">Tournament Schedule</button>
