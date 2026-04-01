@@ -12,20 +12,20 @@
   --white:#f2f0ee;--silver:#b8bcc4;--silver2:#8a8f99;--silver3:#4a4f58;
   --border:rgba(242,240,238,0.07);--border2:rgba(242,240,238,0.14);
   --muted:rgba(242,240,238,0.5);--faint:rgba(242,240,238,0.08);
-  --green:#6ee7b7;--red:#f87171;--r:8px;
+  --green:#6ee7b7;--red:#f87171;--scarlet:#e5182b;--r:8px;
 }
 html{scroll-behavior:smooth;}
 body{font-family:'Barlow',sans-serif;background:var(--black);color:var(--white);min-height:100vh;}
 a{text-decoration:none;color:inherit;}
 
 /* NAV */
-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5%;height:60px;background:rgba(8,8,8,.97);border-bottom:1px solid var(--border);}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5%;height:60px;background:rgba(8,8,8,.97);border-bottom:1px solid var(--border);border-top:2px solid var(--scarlet);}
 .nav-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;letter-spacing:4px;text-transform:uppercase;}
 .nav-logo em{color:var(--silver2);font-style:normal;}
 .nav-links{display:flex;align-items:center;gap:20px;}
 .nav-links a{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:color .2s;}
 .nav-links a:hover{color:var(--white);}
-.nav-btn{background:var(--white);color:var(--black);padding:7px 16px;border-radius:var(--r);border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;}
+.nav-btn{background:var(--white);color:var(--black);padding:7px 16px;border-radius:var(--r);border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;box-shadow:0 0 0 1px var(--scarlet);}
 .nav-btn:hover{background:var(--silver);}
 
 /* PAGES */
@@ -54,12 +54,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* SECTION */
 .sec{padding:60px 5%;}
 .sec-head{padding:40px 5% 28px;border-bottom:1px solid var(--border);}
-.eyebrow{display:block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--silver2);margin-bottom:10px;}
+.eyebrow{display:block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--silver2);margin-bottom:10px;padding-left:14px;position:relative;}.eyebrow::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:6px;height:6px;background:var(--scarlet);border-radius:50%;}
 .sec-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(36px,6vw,64px);text-transform:uppercase;line-height:.95;}
 
 /* CARD */
 .card{background:var(--black3);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
-.card-head{background:var(--black4);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.card-head{background:var(--black4);border-bottom:1px solid var(--border);border-left:3px solid var(--scarlet);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
 .card-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:1px;}
 .card-body{padding:18px;}
 
@@ -180,7 +180,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .roster-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;color:var(--silver3);line-height:1;}
 
 /* FOOTER */
-footer{text-align:center;padding:24px 5%;border-top:1px solid var(--border);font-size:12px;color:var(--silver3);}
+footer{text-align:center;padding:24px 5%;border-top:1px solid var(--border);border-bottom:3px solid var(--scarlet);font-size:12px;color:var(--silver3);}
 footer a{color:var(--silver2);}
 
 /* EMPTY */
@@ -242,8 +242,8 @@ footer a{color:var(--silver2);}
 <div class="page active" id="page-home">
   <div class="hero">
     <img id="lion-img" src="" alt="Team Rollin">
-    <div class="hero-tag">All Grit. No Quit.</div>
-    <div class="hero-title">Rollin</div>
+    <div class="hero-tag" style="border-left:2px solid var(--scarlet);padding-left:10px;">All Grit. No Quit.</div>
+    <div class="hero-title" style="position:relative;display:inline-block;">Rollin<span style="position:absolute;bottom:-8px;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--scarlet),transparent);border-radius:2px;"></span></div>
     <div class="hero-sub">12U &amp; 16U · Texas Fastpitch</div>
     <div class="hero-btns">
       <button class="btn btn-w" onclick="go('lessons')">Book a Lesson →</button>
@@ -887,7 +887,7 @@ async function syncFromSupabase() {
     var r4 = await sb.from('roster').select('*').order('sort_order');
     if(r4.data && r4.data.length) {
       roster = {};
-      r4.data.forEach(function(p){ if(!roster[p.team]) roster[p.team]=[]; roster[p.team].push({name:p.name,pos:p.pos,num:p.num,ig:p.ig}); });
+      r4.data.forEach(function(p){ if(!roster[p.team]) roster[p.team]=[]; roster[p.team].push({name:p.name,pos:p.pos,num:p.num,ig:p.ig,url:p.url||'',photo:p.photo||''}); });
       save(ROSTER_KEY, roster);
     }
     console.log('Synced from Supabase');
@@ -948,7 +948,7 @@ async function sbSaveRoster() {
     await sb.from('roster').delete().neq('id','__none__');
     var rows = [];
     Object.keys(roster).forEach(function(team){
-      roster[team].forEach(function(p,i){ rows.push({id:team+'_'+i+'_'+p.name.replace(/ /g,'_'),team:team,name:p.name,pos:p.pos||'',num:p.num||'',ig:p.ig||'',sort_order:i}); });
+      roster[team].forEach(function(p,i){ rows.push({id:team+'_'+i+'_'+p.name.replace(/ /g,'_'),team:team,name:p.name,pos:p.pos||'',num:p.num||'',ig:p.ig||'',url:p.url||'',photo:p.photo||'',sort_order:i}); });
     });
     if(rows.length) await sb.from('roster').insert(rows);
   } catch(e){ console.error('sbSaveRoster',e); }
