@@ -175,7 +175,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .day-chip.on{border-color:var(--white);color:var(--white);background:var(--faint);}
 
 /* ROSTER */
-.roster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
+.roster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
 .roster-player{background:var(--black);border:1px solid var(--border);border-radius:var(--r);padding:10px;text-align:center;overflow:hidden;}
 .roster-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;color:var(--silver3);line-height:1;}
 
@@ -1535,7 +1535,7 @@ function renderRoster(team) {
   players.forEach(function(p, i) {
     html += '<div class="roster-player">';
     if(p.photo) {
-      html += '<img src="'+p.photo+'" style="width:100%;height:100px;object-fit:cover;object-position:top;border-radius:6px;margin-bottom:6px;">';
+      html += '<img src="'+p.photo+'" style="width:100%;height:110px;object-fit:cover;object-position:center 20%;border-radius:6px;margin-bottom:6px;">';
     } else {
       html += '<div class="roster-num">'+(p.num||'&#8212;')+'</div>';
     }
@@ -1550,9 +1550,14 @@ function renderRoster(team) {
       html += '<div style="font-size:10px;margin-top:4px;"><a href="'+p.url+'" target="_blank" style="color:var(--green);text-decoration:underline;">&#128279; Profile</a></div>';
     }
     if(isC) {
-      html += '<div style="display:flex;gap:4px;margin-top:6px;">';
+      html += '<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;">';
       html += '<button class="btn btn-g btn-sm" style="flex:1;justify-content:center;" data-edit="'+team+':'+i+'">Edit</button>';
+      if(p.photo) html += '<button class="btn btn-g btn-sm" style="justify-content:center;padding:5px 8px;" title="Delete photo" data-dphoto="'+team+':'+i+'">🗑</button>';
       html += '<button class="btn btn-d btn-sm" style="flex:1;justify-content:center;" data-remove="'+team+':'+i+'">&#10005;</button>';
+      html += '</div>';
+      html += '<div style="display:flex;gap:4px;margin-top:4px;">';
+      html += '<button class="btn btn-g btn-sm" style="flex:1;justify-content:center;" data-moveup="'+team+':'+i+'" '+(i===0?'disabled style="opacity:.3;flex:1;justify-content:center;"':'')+'>&#8593;</button>';
+      html += '<button class="btn btn-g btn-sm" style="flex:1;justify-content:center;" data-movedown="'+team+':'+i+'" '+(i===(players.length-1)?'disabled style="opacity:.3;flex:1;justify-content:center;"':'')+'>&#8595;</button>';
       html += '</div>';
     }
     html += '</div>';
@@ -1599,6 +1604,22 @@ function addPlayer(team) {
 function removePlayer(team, idx) {
   if(!confirm('Remove player?')) return;
   roster[team].splice(idx,1); save(ROSTER_KEY, roster); sbSaveRoster(); renderRoster(team);
+}
+
+function deletePhoto(team, idx) {
+  if(!confirm('Remove this headshot?')) return;
+  roster[team][idx].photo = '';
+  save(ROSTER_KEY, roster); sbSaveRoster(); renderRoster(team); toast('Photo removed','ok');
+}
+
+function movePlayer(team, idx, dir) {
+  var players = roster[team];
+  var newIdx = idx + dir;
+  if(newIdx < 0 || newIdx >= players.length) return;
+  var tmp = players[idx];
+  players[idx] = players[newIdx];
+  players[newIdx] = tmp;
+  save(ROSTER_KEY, roster); sbSaveRoster(); renderRoster(team);
 }
 
 function openEditPlayer(team, idx) {
@@ -2001,6 +2022,12 @@ document.addEventListener('click', function(e) {
   if(rmPlayer) { var parts=rmPlayer.getAttribute('data-remove').split(':'); removePlayer(parts[0], parseInt(parts[1])); return; }
   var editPlayer = e.target.closest('[data-edit]');
   if(editPlayer) { var parts=editPlayer.getAttribute('data-edit').split(':'); openEditPlayer(parts[0], parseInt(parts[1])); return; }
+  var dphoto = e.target.closest('[data-dphoto]');
+  if(dphoto) { var parts=dphoto.getAttribute('data-dphoto').split(':'); deletePhoto(parts[0], parseInt(parts[1])); return; }
+  var moveup = e.target.closest('[data-moveup]');
+  if(moveup) { var parts=moveup.getAttribute('data-moveup').split(':'); movePlayer(parts[0], parseInt(parts[1]), -1); return; }
+  var movedown = e.target.closest('[data-movedown]');
+  if(movedown) { var parts=movedown.getAttribute('data-movedown').split(':'); movePlayer(parts[0], parseInt(parts[1]), 1); return; }
   var approve = e.target.closest('[data-approve]');
   if(approve) { startApprove(approve.getAttribute('data-approve')); return; }
   var deny = e.target.closest('[data-deny]');
