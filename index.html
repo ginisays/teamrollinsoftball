@@ -659,13 +659,17 @@ footer a{color:var(--silver2);}
 
     <!-- MEMBERS SECTION -->
     <div id="lsec-members" style="display:none;">
-    <div class="card" id="members-card" style="max-width:600px;">
-        <div class="card-head"><div class="card-title">Member Requests</div></div>
+    <div class="card" id="members-card">
+        <div class="card-head"><div class="card-title">Members</div></div>
         <div class="card-body">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">Pending <span id="pending-ct" style="color:var(--red);"></span></div>
+          <!-- Alpha list -->
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">All Members <span style="color:var(--silver3);font-weight:400;">(A–Z)</span></div>
+          <div id="member-alpha-list" style="margin-bottom:24px;overflow-x:auto;"></div>
+          <!-- Pending requests -->
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">Pending Requests <span id="pending-ct" style="color:var(--red);"></span></div>
           <div id="pending-list" style="margin-bottom:16px;"></div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">Approved</div>
-          <div id="approved-list"></div>
+          <!-- Approved (keep for backward compat but hide) -->
+          <div id="approved-list" style="display:none;"></div>
         </div>
       </div>
     </div>
@@ -1731,7 +1735,31 @@ function renderMembersPanel() {
   updatePendingBadge();
   var pl = document.getElementById('pending-list');
   var al = document.getElementById('approved-list');
+  var ml = document.getElementById('member-alpha-list');
   if(!pl||!al) return;
+
+  // Alphabetized full member list
+  if(ml) {
+    var sorted = approved.slice().sort(function(a,b){ return a.name.localeCompare(b.name); });
+    if(!sorted.length) {
+      ml.innerHTML = '<div style="font-size:13px;color:var(--muted);">No approved members yet.</div>';
+    } else {
+      var html = '<table class="t" style="width:100%;">';
+      html += '<thead><tr><th>Player</th><th>Team</th><th>Parent</th><th>Email</th><th>PIN</th><th></th></tr></thead><tbody>';
+      sorted.forEach(function(m) {
+        html += '<tr>';
+        html += '<td style="font-weight:600;font-size:13px;">'+m.name+'</td>';
+        html += '<td><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:var(--faint);border:1px solid var(--border2);">'+m.team+'</span></td>';
+        html += '<td style="font-size:12px;color:var(--muted);">'+m.parentName+'</td>';
+        html += '<td style="font-size:12px;color:var(--muted);">'+m.parentEmail+'</td>';
+        html += '<td style="font-family:monospace;font-size:12px;color:var(--silver);">'+m.pin+'</td>';
+        html += '<td style="display:flex;gap:4px;"><button class="btn btn-g btn-sm" data-editmember="'+m.id+'">Edit</button><button class="btn btn-d btn-sm" data-deletemember="'+m.id+'">✕</button></td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      ml.innerHTML = html;
+    }
+  }
   if(!pending.length) {
     pl.innerHTML = '<div style="font-size:13px;color:var(--muted);">No pending requests.</div>';
   } else {
