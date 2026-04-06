@@ -1527,10 +1527,13 @@ function addBulk() {
   }
   allSlots.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
   save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView();
-  document.getElementById('view-coach').style.display='none';
-  document.getElementById('view-player').style.display='block';
-  renderSlots();
-  toast('✓ Created '+added+' slots!','ok');
+  if(added > 0) {
+    toast('✓ '+added+' hitting slots created!','ok');
+    document.querySelectorAll('#b-days .day-chip.on').forEach(function(c){ c.classList.remove('on'); });
+    document.getElementById('coach-tbody').scrollIntoView({behavior:'smooth', block:'nearest'});
+  } else {
+    toast('No slots added — check dates and days','err');
+  }
 }
 
 // ====== TOURNAMENTS ======
@@ -2085,12 +2088,15 @@ function addPitchBulk() {
   }
   pitchSlots.sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
   save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView();
-  // Switch to player view to confirm
-  document.getElementById('pitch-view-coach').style.display='none';
-  document.getElementById('pitch-view-player').style.display='block';
-  document.querySelectorAll('.tabs .tab').forEach(function(t){t.classList.remove('active');});
-  renderPitchSlots();
-  toast('✓ Created '+added+' pitching slots!','ok');
+  if(added > 0) {
+    toast('✓ '+added+' pitching slots created!','ok');
+    // Reset days selection
+    document.querySelectorAll('#pb-days .day-chip.on').forEach(function(c){ c.classList.remove('on'); });
+    // Scroll up to show the table
+    document.getElementById('pitch-tbody').scrollIntoView({behavior:'smooth', block:'nearest'});
+  } else {
+    toast('No slots added — check dates and days','err');
+  }
 }
 
 function delAllOpenPitch(){
