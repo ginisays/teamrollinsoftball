@@ -1432,8 +1432,8 @@ function confirmCoachBook() {
   var realId = isPitch ? id.replace('pitch_','') : id;
   var pool = isPitch ? pitchSlots : allSlots;
   var s = pool.find(function(x){ return x.id===realId; });
-  if(!s) return;
-  if(s.booked_by) { toast('Slot already booked','err'); return; }
+  if(!s) { toast('Slot not found','err'); closeModal('modal-cbook'); return; }
+  if(s.booked_by) { toast('Slot already booked','err'); closeModal('modal-cbook'); return; }
   s.booked_by = playerName;
   s.booked_team = playerTeam;
   if(isPitch){ save(PITCH_KEY, pitchSlots); sbSavePitchSlots(); }
