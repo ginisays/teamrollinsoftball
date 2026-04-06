@@ -120,7 +120,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* TABS */
 .tabs{display:flex;gap:3px;background:var(--black);border:1px solid var(--border);border-radius:6px;padding:3px;}
 .tab{padding:5px 14px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;color:var(--muted);border:none;background:transparent;transition:all .15s;}
-.tab.active{background:var(--white);color:var(--black);border-bottom:2px solid var(--royal);}
+.tab.active{background:var(--white);color:var(--black);border-bottom:2px solid var(--royal);font-weight:800;}
 
 /* CHECKLIST */
 .chk{display:flex;gap:8px;margin-bottom:8px;font-size:13px;}
@@ -1313,19 +1313,18 @@ function schedView(view, el) {
       el.classList.remove('active');
       document.querySelector('.tabs .tab').classList.add('active');
       openModal('modal-id');
-      document.querySelectorAll('#modal-id .modal-tabs:first-of-type .modal-tab')[1].click();
       return;
     }
     isCoach = true;
-    document.querySelectorAll('.tabs .tab').forEach(function(t){ t.classList.remove('active'); });
-    el.classList.add('active');
+    el.closest('.tabs').querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); t.style.background=''; t.style.color=''; });
+    el.classList.add('active'); el.style.background='var(--white)'; el.style.color='var(--black)';
     document.getElementById('view-player').style.display='none';
     document.getElementById('view-coach').style.display='block';
     renderCoachView();
   } else {
     isCoach = false;
-    document.querySelectorAll('.tabs .tab').forEach(function(t){ t.classList.remove('active'); });
-    el.classList.add('active');
+    el.closest('.tabs').querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); t.style.background=''; t.style.color=''; });
+    el.classList.add('active'); el.style.background='var(--white)'; el.style.color='var(--black)';
     document.getElementById('view-player').style.display='block';
     document.getElementById('view-coach').style.display='none';
     renderSlots();
@@ -1934,10 +1933,14 @@ function pitchView(view, el) {
       openModal('modal-id');
       return;
     }
-    document.querySelectorAll('#pitch-view-player').forEach(function(e){ e.style.display='none'; });
+    el.closest('.tabs').querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); t.style.background=''; t.style.color=''; });
+    el.classList.add('active'); el.style.background='var(--white)'; el.style.color='var(--black)';
+    document.getElementById('pitch-view-player').style.display='none';
     document.getElementById('pitch-view-coach').style.display='block';
     renderPitchCoachView();
   } else {
+    el.closest('.tabs').querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); t.style.background=''; t.style.color=''; });
+    el.classList.add('active'); el.style.background='var(--white)'; el.style.color='var(--black)';
     document.getElementById('pitch-view-player').style.display='block';
     document.getElementById('pitch-view-coach').style.display='none';
     renderPitchSlots();
