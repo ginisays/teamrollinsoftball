@@ -473,7 +473,8 @@ footer a{color:var(--silver2);}
         <div class="card-body" id="view-player">
           <div id="id-strip-el"></div>
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;"><div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="tab active" onclick="filterSlots('all',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">All</button><button class="tab" onclick="filterSlots('12U',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">12U</button><button class="tab" onclick="filterSlots('16U',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">16U</button></div><button id="my-lessons-btn" onclick="toggleMyLessons()" style="display:none;padding:4px 14px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">My Lessons</button></div>
-          <div id="player-slots"><div class="empty">No slots available yet.</div></div>
+          <div id="hitting-week-tabs" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;flex-wrap:nowrap;"></div>
+            <div id="player-slots"><div class="empty">No slots available yet.</div></div>
         </div>
         <div class="card-body" id="view-coach" style="display:none">
           <div class="c-stats" id="c-stats"></div>
@@ -582,6 +583,7 @@ footer a{color:var(--silver2);}
               <button id="my-pitch-btn" onclick="toggleMyPitching()" style="display:none;padding:4px 14px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">My Lessons</button>
             </div>
             <div id="pitching-week-tabs" style="display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;"></div>
+            <div id="pitching-week-tabs" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;flex-wrap:nowrap;"></div>
             <div id="pitch-slots"><div class="empty">No pitching slots available yet.</div></div>
           </div>
           <div class="card-body" id="pitch-view-coach" style="display:none">
