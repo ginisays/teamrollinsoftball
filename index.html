@@ -2142,7 +2142,6 @@ function buildWeekTabs(slots, containerId, currentWeekVar, onClickFn) {
   if(!el) return;
   // Find which weeks have slots
   var weeks = new Set();
-  var now = new Date(); now.setHours(0,0,0,0);
   slots.forEach(function(s) {
     var d = new Date(s.date+'T00:00:00');
     var day = d.getDay();
@@ -2154,12 +2153,13 @@ function buildWeekTabs(slots, containerId, currentWeekVar, onClickFn) {
     var offsetWeeks = Math.round(offsetMs / (7*24*60*60*1000));
     if(offsetWeeks >= 0) weeks.add(offsetWeeks);
   });
-  var weekArr = Array.from(weeks).sort(function(a,b){return a-b;}).slice(0,6);
-  if(!weekArr.length) { el.innerHTML=''; return; }
-  var html = '<button onclick="'+onClickFn+'(-1,this)" style="padding:5px 10px;border-radius:20px;border:1px solid '+(currentWeekVar===-1?'var(--scarlet)':'var(--border2)')+';background:'+(currentWeekVar===-1?'var(--scarlet)':'transparent')+';color:'+(currentWeekVar===-1?'var(--white)':'var(--muted)')+';font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;white-space:nowrap;flex-shrink:0;">All Weeks</button>';
+  var weekArr = Array.from(weeks).sort(function(a,b){return a-b;}).slice(0,8);
+  if(!weekArr.length) { el.innerHTML='<div style="font-size:12px;color:var(--muted);">No slots scheduled yet.</div>'; return; }
+  var html = '';
   weekArr.forEach(function(w) {
     var active = currentWeekVar === w;
-    html += '<button onclick="'+onClickFn+'('+w+',this)" style="padding:5px 10px;border-radius:20px;border:1px solid '+(active?'var(--royal)':'var(--border2)')+';background:'+(active?'var(--royal)':'transparent')+';color:'+(active?'var(--white)':'var(--muted)')+';font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;white-space:nowrap;flex-shrink:0;">'+getWeekLabel(w)+'</button>';
+    var label = w === 0 ? 'This Week' : getWeekLabel(w);
+    html += '<button onclick="'+onClickFn+'('+w+',this)" style="padding:5px 12px;border-radius:20px;border:1px solid '+(active?'var(--royal)':'var(--border2)')+';background:'+(active?'var(--royal)':'transparent')+';color:'+(active?'var(--white)':'var(--muted)')+';font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;white-space:nowrap;flex-shrink:0;">'+(w===0?'This Week (':'')+getWeekLabel(w)+(w===0?')':'')+'</button>';
   });
   el.innerHTML = html;
 }
