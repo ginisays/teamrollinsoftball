@@ -446,7 +446,19 @@ footer a{color:var(--silver2);}
 <!-- LESSONS (requires login) -->
 <div class="page" id="page-lessons">
   <div class="sec-head"><span class="eyebrow">Private Lessons</span><h2 class="sec-title">Book Your Session</h2></div>
+
+  <!-- Main Lesson Tabs -->
+  <div style="padding:0 5%;margin-bottom:0;border-bottom:1px solid var(--border);">
+    <div style="display:flex;gap:0;">
+      <button onclick="lessonTab('hitting',this)" id="ltab-hitting" style="padding:14px 24px;border:none;border-bottom:3px solid var(--scarlet);background:transparent;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Jaz — Hitting</button>
+      <button onclick="lessonTab('pitching',this)" id="ltab-pitching" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Laurie — Pitching</button>
+      <button onclick="lessonTab('members',this)" id="ltab-members" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Members</button>
+    </div>
+  </div>
+
   <div class="sec">
+    <!-- HITTING SECTION -->
+    <div id="lsec-hitting">
     <div class="grid2">
       <div class="card">
         <div class="card-head">
@@ -546,8 +558,11 @@ footer a{color:var(--silver2);}
       <!-- MEMBERS PANEL (coach only) -->
     </div>
 
-    <!-- PITCHING LESSONS -->
-    <div style="margin-top:32px;">
+    </div><!-- end lsec-hitting -->
+
+    <!-- PITCHING SECTION -->
+    <div id="lsec-pitching" style="display:none;">
+    <div style="margin-top:0;">
       <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Pitching Lessons</div>
       <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Coach Laurie · Book your weekly slot</div>
       <div class="grid2">
@@ -638,8 +653,12 @@ footer a{color:var(--silver2);}
       </div>
     </div>
 
-    <div style="display:none"><!-- spacer --></div>
-    <div class="card" id="members-card" style="display:none">
+    </div><!-- end pitching inner -->
+    </div><!-- end lsec-pitching -->
+
+    <!-- MEMBERS SECTION -->
+    <div id="lsec-members" style="display:none;">
+    <div class="card" id="members-card" style="max-width:600px;">
         <div class="card-head"><div class="card-title">Member Requests</div></div>
         <div class="card-body">
           <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">Pending <span id="pending-ct" style="color:var(--red);"></span></div>
@@ -2030,6 +2049,25 @@ function openPitchCoachBook(id){
   if(s.team!=='both') approved=approved.filter(function(m){return m.team===s.team;});
   approved.forEach(function(m){var opt=document.createElement('option');opt.value=m.name+'|'+m.team;opt.textContent=m.name+' ('+m.team+')';sel.appendChild(opt);});
   openModal('modal-cbook');
+}
+
+function lessonTab(tab, el) {
+  // Hide all sections
+  ['hitting','pitching','members'].forEach(function(t) {
+    var sec = document.getElementById('lsec-'+t);
+    if(sec) sec.style.display = 'none';
+    var btn = document.getElementById('ltab-'+t);
+    if(btn) { btn.style.borderBottomColor='transparent'; btn.style.color='var(--muted)'; }
+  });
+  // Show selected
+  var sec = document.getElementById('lsec-'+tab);
+  if(sec) sec.style.display = 'block';
+  var btn = document.getElementById('ltab-'+tab);
+  if(btn) { btn.style.borderBottomColor='var(--scarlet)'; btn.style.color='var(--white)'; }
+  // Render content
+  if(tab==='hitting') { renderSlots(); if(identity&&identity.type==='coach') renderCoachView(); }
+  if(tab==='pitching') { renderPitchSlots(); if(identity&&identity.type==='coach') renderPitchCoachView(); }
+  if(tab==='members') { renderMembersPanel(); }
 }
 
 function volTab(team, el) {
