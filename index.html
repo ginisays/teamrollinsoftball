@@ -452,7 +452,7 @@ footer a{color:var(--silver2);}
     <div style="display:flex;gap:0;">
       <button onclick="lessonTab('hitting',this)" id="ltab-hitting" style="padding:14px 24px;border:none;border-bottom:3px solid var(--scarlet);background:transparent;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Jaz — Hitting</button>
       <button onclick="lessonTab('pitching',this)" id="ltab-pitching" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Laurie — Pitching</button>
-      <button onclick="lessonTab('members',this)" id="ltab-members" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Members</button>
+      <button onclick="lessonTab('members',this)" id="ltab-members" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:none;">Members</button>
     </div>
   </div>
 
@@ -577,11 +577,12 @@ footer a{color:var(--silver2);}
             </div>
           </div>
           <div class="card-body" id="pitch-view-player">
-            <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+            <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
               <button class="tab active" onclick="filterPitch('all',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">All</button>
               <button class="tab" onclick="filterPitch('12U',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">12U</button>
               <button class="tab" onclick="filterPitch('16U',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">16U</button>
             </div>
+            <div id="pitching-week-tabs" style="display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;"></div>
             <div id="pitch-slots"><div class="empty">No pitching slots available yet.</div></div>
           </div>
           <div class="card-body" id="pitch-view-coach" style="display:none">
@@ -1141,6 +1142,8 @@ function updateAuthUI() {
   if(btn) btn.textContent = identity ? identity.name : 'Sign In';
   var sob = document.getElementById('signout-btn');
   if(sob) sob.style.display = identity ? '' : 'none';
+  var ltabM = document.getElementById('ltab-members');
+  if(ltabM) ltabM.style.display = (identity && identity.type==='coach') ? '' : 'none';
   var isC = identity && identity.type==='coach';
   var isIn = !!identity;
   var navIds = ['nav-checklist','nav-faq','nav-lessons'];
@@ -1179,9 +1182,11 @@ function filterSlots(val, el) {
 function renderSlots() {
   var el = document.getElementById('player-slots');
   if(!el) return;
+  buildWeekTabs(allSlots, 'hitting-week-tabs', currentHitWeek, 'setHitWeek');
   var data = allSlots.slice();
   if(slotFilter==='12U') data = data.filter(function(s){ return s.team==='both'||s.team==='12U'; });
   if(slotFilter==='16U') data = data.filter(function(s){ return s.team==='both'||s.team==='16U'; });
+  data = filterSlotsByWeek(data, currentHitWeek);
   if(!data.length) { el.innerHTML='<div class="empty">No slots available yet.</div>'; return; }
   var groups={};
   data.forEach(function(s){ if(!groups[s.date]) groups[s.date]=[]; groups[s.date].push(s); });
@@ -1886,9 +1891,11 @@ function filterPitch(val, el) {
 function renderPitchSlots() {
   var el = document.getElementById('pitch-slots');
   if(!el) return;
+  buildWeekTabs(pitchSlots, 'pitching-week-tabs', currentPitchWeek, 'setPitchWeek');
   var data = pitchSlots.slice();
   if(pitchFilter==='12U') data = data.filter(function(s){ return s.team==='both'||s.team==='12U'; });
   if(pitchFilter==='16U') data = data.filter(function(s){ return s.team==='both'||s.team==='16U'; });
+  data = filterSlotsByWeek(data, currentPitchWeek);
   if(!data.length) { el.innerHTML='<div class="empty">No pitching slots available yet.</div>'; return; }
   var groups={};
   data.forEach(function(s){ if(!groups[s.date]) groups[s.date]=[]; groups[s.date].push(s); });
@@ -2068,6 +2075,75 @@ function lessonTab(tab, el) {
   if(tab==='hitting') { renderSlots(); if(identity&&identity.type==='coach') renderCoachView(); }
   if(tab==='pitching') { renderPitchSlots(); if(identity&&identity.type==='coach') renderPitchCoachView(); }
   if(tab==='members') { renderMembersPanel(); }
+}
+
+// ====== WEEK TABS ======
+var currentHitWeek = 0;
+var currentPitchWeek = 0;
+
+function getWeekStart(offsetWeeks) {
+  var d = new Date();
+  var day = d.getDay();
+  var diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday
+  d.setDate(diff + (offsetWeeks * 7));
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function getWeekLabel(offsetWeeks) {
+  var start = getWeekStart(offsetWeeks);
+  var end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  var fmt2 = function(d) { return MONTHS[d.getMonth()]+' '+d.getDate(); };
+  return fmt2(start) + ' – ' + fmt2(end);
+}
+
+function buildWeekTabs(slots, containerId, currentWeekVar, onClickFn) {
+  var el = document.getElementById(containerId);
+  if(!el) return;
+  // Find which weeks have slots
+  var weeks = new Set();
+  var now = new Date(); now.setHours(0,0,0,0);
+  slots.forEach(function(s) {
+    var d = new Date(s.date+'T00:00:00');
+    var day = d.getDay();
+    var diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    var mon = new Date(d);
+    mon.setDate(diff); mon.setHours(0,0,0,0);
+    var weekStart = getWeekStart(0);
+    var offsetMs = mon - weekStart;
+    var offsetWeeks = Math.round(offsetMs / (7*24*60*60*1000));
+    if(offsetWeeks >= 0) weeks.add(offsetWeeks);
+  });
+  var weekArr = Array.from(weeks).sort(function(a,b){return a-b;}).slice(0,6);
+  if(!weekArr.length) { el.innerHTML=''; return; }
+  var html = '<button onclick="'+onClickFn+'(-1,this)" style="padding:5px 10px;border-radius:20px;border:1px solid '+(currentWeekVar===-1?'var(--scarlet)':'var(--border2)')+';background:'+(currentWeekVar===-1?'var(--scarlet)':'transparent')+';color:'+(currentWeekVar===-1?'var(--white)':'var(--muted)')+';font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;white-space:nowrap;flex-shrink:0;">All Weeks</button>';
+  weekArr.forEach(function(w) {
+    var active = currentWeekVar === w;
+    html += '<button onclick="'+onClickFn+'('+w+',this)" style="padding:5px 10px;border-radius:20px;border:1px solid '+(active?'var(--royal)':'var(--border2)')+';background:'+(active?'var(--royal)':'transparent')+';color:'+(active?'var(--white)':'var(--muted)')+';font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;white-space:nowrap;flex-shrink:0;">'+getWeekLabel(w)+'</button>';
+  });
+  el.innerHTML = html;
+}
+
+function setHitWeek(w, el) {
+  currentHitWeek = w;
+  buildWeekTabs(allSlots, 'hitting-week-tabs', currentHitWeek, 'setHitWeek');
+  renderSlots();
+}
+function setPitchWeek(w, el) {
+  currentPitchWeek = w;
+  buildWeekTabs(pitchSlots, 'pitching-week-tabs', currentPitchWeek, 'setPitchWeek');
+  renderPitchSlots();
+}
+
+function filterSlotsByWeek(slots, weekOffset) {
+  if(weekOffset === -1) return slots;
+  var start = getWeekStart(weekOffset);
+  var end = new Date(start); end.setDate(end.getDate()+6); end.setHours(23,59,59,999);
+  return slots.filter(function(s){
+    var d = new Date(s.date+'T00:00:00');
+    return d >= start && d <= end;
+  });
 }
 
 function volTab(team, el) {
