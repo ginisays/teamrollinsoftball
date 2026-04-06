@@ -1022,7 +1022,7 @@ function go(page) {
   var el = document.getElementById('page-'+page);
   if (el) el.classList.add('active');
   window.scrollTo(0,0);
-  if (page === 'lessons') { renderSlots(); if(isCoach) renderCoachView(); renderMembersPanel(); }
+  if (page === 'lessons') { renderSlots(); renderPitchSlots(); if(isCoach){ renderCoachView(); renderPitchCoachView(); } renderMembersPanel(); updateAuthUI(); lessonTab('hitting', document.getElementById('ltab-hitting')); }
   if (page === 'schedule') renderTourneys();
   if (page === 'teams') { renderRoster('12U'); renderRoster('16U'); }
 }
