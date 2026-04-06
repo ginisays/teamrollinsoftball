@@ -949,7 +949,8 @@ async function syncFromSupabase() {
     console.log('Synced from Supabase');
     // Re-render everything
     renderTourneys(); renderRoster('12U'); renderRoster('16U');
-    if(document.getElementById('page-lessons').classList.contains('active')) renderSlots();
+    if(document.getElementById('page-lessons').classList.contains('active')) { renderSlots(); renderPitchSlots(); }
+    else { buildWeekTabs(allSlots, 'hitting-week-tabs', currentHitWeek, 'setHitWeek'); buildWeekTabs(pitchSlots, 'pitching-week-tabs', currentPitchWeek, 'setPitchWeek'); }
     updatePendingBadge();
   } catch(e){ console.error('Supabase sync failed',e); }
 }
