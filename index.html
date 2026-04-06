@@ -941,6 +941,15 @@ async function syncFromSupabase() {
       tourneys = r3.data.map(function(t){ return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:t.notes||''}; });
       save(TOURN_KEY, tourneys);
     }
+    // Pitch Slots
+    var rp = await sb.from('pitch_slots').select('*');
+    if(rp.data) {
+      var nowP = new Date(); nowP.setHours(0,0,0,0);
+      pitchSlots = rp.data.filter(function(s){ return new Date(s.date+'T00:00:00')>=nowP; })
+        .map(function(s){ return {id:s.id,date:s.date,time:s.time,team:s.team,duration:s.duration,booked_by:s.booked_by||null,booked_team:s.booked_team||null}; });
+      pitchSlots.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
+      save(PITCH_KEY, pitchSlots);
+    }
     // Roster
     var r4 = await sb.from('roster').select('*').order('sort_order');
     if(r4.data && r4.data.length) {
@@ -976,16 +985,28 @@ async function sendNotification(subject, message) {
 async function sbSavePitchSlots() {
   if(!sb) return;
   try {
-    await sb.from('pitch_slots').delete().neq('id','__none__');
-    if(pitchSlots.length) await sb.from('pitch_slots').insert(pitchSlots.map(function(s){ return {id:s.id,date:s.date,time:s.time,team:s.team,duration:s.duration,booked_by:s.booked_by||null,booked_team:s.booked_team||null}; }));
+    if(pitchSlots.length) {
+      await sb.from('pitch_slots').upsert(pitchSlots.map(function(s){ return {id:s.id,date:s.date,time:s.time,team:s.team,duration:s.duration,booked_by:s.booked_by||null,booked_team:s.booked_team||null}; }), {onConflict:'id'});
+    }
   } catch(e){ console.error('sbSavePitchSlots',e); }
+}
+
+async function sbDeletePitchSlot(id) {
+  if(!sb) return;
+  try { await sb.from('pitch_slots').delete().eq('id', id); } catch(e){ console.error('sbDeletePitchSlot',e); }
 }
 async function sbSaveSlots() {
   if(!sb) return;
   try {
-    await sb.from('slots').delete().neq('id','__none__');
-    if(allSlots.length) await sb.from('slots').insert(allSlots.map(function(s){ return {id:s.id,date:s.date,time:s.time,team:s.team,duration:s.duration,booked_by:s.booked_by||null,booked_team:s.booked_team||null}; }));
+    if(allSlots.length) {
+      await sb.from('slots').upsert(allSlots.map(function(s){ return {id:s.id,date:s.date,time:s.time,team:s.team,duration:s.duration,booked_by:s.booked_by||null,booked_team:s.booked_team||null}; }), {onConflict:'id'});
+    }
   } catch(e){ console.error('sbSaveSlots',e); }
+}
+
+async function sbDeleteSlot(id) {
+  if(!sb) return;
+  try { await sb.from('slots').delete().eq('id', id); } catch(e){ console.error('sbDeleteSlot',e); }
 }
 async function sbSaveMembers() {
   if(!sb) return;
@@ -1376,7 +1397,7 @@ function coachRm(id) {
 function coachDel(id) {
   if(!confirm('Delete slot?')) return;
   allSlots = allSlots.filter(function(x){ return x.id!==id; });
-  save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView(); toast('Deleted','');
+  save(SLOTS_KEY, allSlots); sbDeleteSlot(id); renderCoachView(); toast('Deleted','');
 }
 
 function openCoachBook(id) {
@@ -2084,7 +2105,7 @@ function pitchCoachRm(id){
 function pitchCoachDel(id){
   if(!confirm('Delete pitching slot?'))return;
   pitchSlots=pitchSlots.filter(function(x){return x.id!==id;});
-  save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView(); toast('Deleted','');
+  save(PITCH_KEY,pitchSlots); sbDeletePitchSlot(id); renderPitchCoachView(); toast('Deleted','');
 }
 function openPitchCoachBook(id){
   var s=pitchSlots.find(function(x){return x.id===id;});
