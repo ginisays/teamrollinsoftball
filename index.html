@@ -758,6 +758,23 @@ footer a{color:var(--silver2);}
   </div>
 </div>
 
+<div class="overlay" id="modal-edit-member">
+  <div class="modal">
+    <div class="modal-title">Edit Member Account</div>
+    <input type="hidden" id="em-id">
+    <div class="fg"><label>Player Name</label><input id="em-name" type="text" placeholder="Full name"></div>
+    <div class="fg"><label>Team</label><select id="em-team"><option value="12U">12U Team Rollin</option><option value="16U">16U Team Rollin</option></select></div>
+    <div class="fg"><label>Parent Name</label><input id="em-parent" type="text" placeholder="Parent name"></div>
+    <div class="fg"><label>Parent Email</label><input id="em-email" type="email" placeholder="parent@email.com"></div>
+    <div class="fg"><label>PIN</label><input id="em-pin" type="text" inputmode="numeric" maxlength="6" placeholder="PIN"></div>
+    <div class="fg"><label>Status</label><select id="em-status"><option value="approved">Approved</option><option value="pending">Pending</option><option value="denied">Denied</option></select></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-w" style="flex:1;justify-content:center;" onclick="saveEditMember()">Save</button>
+      <button class="btn btn-g" style="flex:1;justify-content:center;" onclick="closeModal('modal-edit-member')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="modal-approve">
   <div class="modal">
     <div class="modal-title">Approve Member</div>
@@ -1715,7 +1732,10 @@ function renderMembersPanel() {
       html2 += '<div style="background:var(--black);border:1px solid rgba(110,231,183,.2);border-radius:var(--r);padding:10px 14px;margin-bottom:8px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:center;">';
       html2 += '<div><div style="font-weight:600;font-size:13px;">'+m.name+' <span style="font-size:11px;color:var(--silver2);">'+m.team+'</span></div>';
       html2 += '<div style="font-size:11px;color:var(--muted);">PIN: <strong style="color:var(--white);">'+m.pin+'</strong> &#183; '+m.parentEmail+'</div></div>';
+      html2 += '<div style="display:flex;gap:6px;">';
+      html2 += '<button class="btn btn-g btn-sm" data-editmember="'+m.id+'">Edit</button>';
       html2 += '<button class="btn btn-d btn-sm" data-deletemember="'+m.id+'">Remove</button>';
+      html2 += '</div>';
       html2 += '</div>';
     });
     al.innerHTML = html2;
@@ -1759,6 +1779,35 @@ function deleteMember(id) {
   if(!confirm('Remove this member?')) return;
   members = members.filter(function(x){ return x.id!==id; });
   save(MEMBERS_KEY, members); sbSaveMembers(); renderMembersPanel(); updatePendingBadge(); toast('Removed','');
+}
+
+function openEditMember(id) {
+  var m = members.find(function(x){ return x.id===id; });
+  if(!m) return;
+  document.getElementById('em-id').value = m.id;
+  document.getElementById('em-name').value = m.name || '';
+  document.getElementById('em-team').value = m.team || '12U';
+  document.getElementById('em-parent').value = m.parentName || '';
+  document.getElementById('em-email').value = m.parentEmail || '';
+  document.getElementById('em-pin').value = m.pin || '';
+  document.getElementById('em-status').value = m.status || 'approved';
+  openModal('modal-edit-member');
+}
+
+function saveEditMember() {
+  var id = document.getElementById('em-id').value;
+  var m = members.find(function(x){ return x.id===id; });
+  if(!m) return;
+  m.name = document.getElementById('em-name').value.trim();
+  m.team = document.getElementById('em-team').value;
+  m.parentName = document.getElementById('em-parent').value.trim();
+  m.parentEmail = document.getElementById('em-email').value.trim();
+  m.pin = document.getElementById('em-pin').value.trim();
+  m.status = document.getElementById('em-status').value;
+  save(MEMBERS_KEY, members); sbSaveMembers();
+  closeModal('modal-edit-member');
+  renderMembersPanel(); updatePendingBadge();
+  toast(m.name + ' updated!', 'ok');
 }
 
 // ====== CONTACT ======
@@ -2063,6 +2112,8 @@ document.addEventListener('click', function(e) {
   if(deny) { denyMember(deny.getAttribute('data-deny')); return; }
   var dm = e.target.closest('[data-deletemember]');
   if(dm) { deleteMember(dm.getAttribute('data-deletemember')); return; }
+  var em = e.target.closest('[data-editmember]');
+  if(em) { openEditMember(em.getAttribute('data-editmember')); return; }
   var pbook = e.target.closest('[data-pbook]');
   if(pbook) { openPitchBook(pbook.getAttribute('data-pbook')); return; }
   var pcancel = e.target.closest('[data-pcancel]');
