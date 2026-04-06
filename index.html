@@ -2066,8 +2066,12 @@ function addPitchSingle() {
 }
 
 function addPitchBulk() {
-  var start=document.getElementById('pb-start').value;
-  var end=document.getElementById('pb-end').value;
+  var startRaw=document.getElementById('pb-start').value;
+  var endRaw=document.getElementById('pb-end').value;
+  // Handle both YYYY-MM-DD and MM/DD/YYYY formats
+  function toISO(d){ if(!d) return ''; if(d.includes('-')) return d; var p=d.split('/'); return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0'); }
+  var start=toISO(startRaw);
+  var end=toISO(endRaw);
   var st=getTime('pb-hr','pb-min','pb-ampm2');
   var count=parseInt(document.getElementById('pb-count').value);
   var dur=parseInt(document.getElementById('pb-dur').value);
@@ -2357,6 +2361,9 @@ flatpickr('#b-end', fpOpts);
 flatpickr('#t-date', fpOpts);
 flatpickr('#del-start', Object.assign({}, fpOpts, {onChange: function(sel,str){ var fp2=document.querySelector('#del-end')._flatpickr; if(fp2) fp2.set('minDate',str); }}));
 flatpickr('#del-end', fpOpts);
+flatpickr('#pb-start', Object.assign({}, fpOpts, {onChange: function(sel,str){ var fp2=document.querySelector('#pb-end')._flatpickr; if(fp2) fp2.set('minDate',str); }}));
+flatpickr('#pb-end', fpOpts);
+flatpickr('#ps-date', fpOpts);
 </script>
 </body>
 </html>
