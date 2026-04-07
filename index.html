@@ -453,6 +453,7 @@ footer a{color:var(--silver2);}
       <button onclick="lessonTab('hitting',this)" id="ltab-hitting" style="padding:14px 24px;border:none;border-bottom:3px solid var(--scarlet);background:transparent;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Jaz — Hitting</button>
       <button onclick="lessonTab('pitching',this)" id="ltab-pitching" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Laurie — Pitching</button>
       <button onclick="lessonTab('members',this)" id="ltab-members" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:none;">Members</button>
+      <button onclick="lessonTab('practices',this)" id="ltab-practices" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Team Practices</button>
     </div>
   </div>
 
@@ -866,7 +867,7 @@ footer a{color:var(--silver2);}
 
 <script>
 // ====== STATE ======
-var PW_KEY='tr_pw', ID_KEY='tr_id', SLOTS_KEY='tr_slots', PITCH_KEY='tr_pitch_slots', MEMBERS_KEY='tr_members', ROSTER_KEY='tr_roster', TOURN_KEY='tr_tourn';
+var PW_KEY='tr_pw', ID_KEY='tr_id', SLOTS_KEY='tr_slots', PITCH_KEY='tr_pitch_slots', PRAC_KEY='tr_practices', MEMBERS_KEY='tr_members', ROSTER_KEY='tr_roster', TOURN_KEY='tr_tourn';
 var COACH_EMAILS = ['ginisays@gmail.com','Teamrollinfastpitch@gmail.com'];
 var sb = null;
 try { sb = supabase.createClient('https://hjmjrzgpogqqmtdshgpb.supabase.co', 'sb_publishable_bOdplw_95ydxVo4-L-o1WA_totrMbhz'); console.log('Supabase connected'); } catch(e){ console.error('Supabase failed',e); }
@@ -877,6 +878,7 @@ var DAYS_S = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 var identity = null;
 var allSlots = [];
 var pitchSlots = [];
+var practices = [];
 var members = [];
 var roster = {};
 var tourneys = [];
@@ -907,6 +909,7 @@ function load() {
   try { var d=localStorage.getItem(ID_KEY); if(d) identity=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(SLOTS_KEY); if(d) allSlots=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(PITCH_KEY); if(d) pitchSlots=JSON.parse(d); } catch(e){}
+  try { var d=localStorage.getItem(PRAC_KEY); if(d) practices=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(MEMBERS_KEY); if(d) members=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(ROSTER_KEY); if(d) roster=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(TOURN_KEY); if(d) tourneys=JSON.parse(d); else tourneys=DEFAULT_TOURNEYS.slice(); } catch(e){ tourneys=DEFAULT_TOURNEYS.slice(); }
@@ -2204,6 +2207,7 @@ function lessonTab(tab, el) {
   if(tab==='hitting') { renderSlots(); if(identity&&identity.type==='coach') renderCoachView(); }
   if(tab==='pitching') { renderPitchSlots(); if(identity&&identity.type==='coach') renderPitchCoachView(); }
   if(tab==='members') { renderMembersPanel(); }
+  if(tab==='practices') { renderPractices(); }
 }
 
 // ====== WEEK TABS ======
@@ -2333,6 +2337,81 @@ function generateICS(title, date, time, duration) {
   URL.revokeObjectURL(url);
 }
 
+// ====== TEAM PRACTICES ======
+function renderPractices() {
+  var el = document.getElementById('practices-list');
+  if(!el) return;
+  var isC = identity && identity.type==='coach';
+  // Show admin card
+  var adminCard = document.getElementById('practice-admin-card');
+  if(adminCard) adminCard.style.display = isC ? 'block' : 'none';
+
+  if(!practices.length) { el.innerHTML='<div class="empty">No practices scheduled yet.</div>'; return; }
+  var sorted = practices.slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
+  var html = '';
+  sorted.forEach(function(p) {
+    var d = new Date(p.date+'T00:00:00');
+    var dateStr = DAYS[d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate();
+    var timeStr = fmt(p.time);
+    var durStr = p.duration >= 60 ? (p.duration/60)+'hr' : p.duration+'min';
+    html += '<div style="background:var(--black);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">';
+    html += '<div>';
+    html += '<div style="font-family:sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;">'+p.title+'</div>';
+    html += '<div style="font-size:13px;color:var(--silver);margin-top:2px;">'+dateStr+' · '+timeStr+' · '+durStr+'</div>';
+    if(p.location) html += '<div style="font-size:12px;color:var(--muted);margin-top:2px;">📍 '+p.location+'</div>';
+    if(p.notes) html += '<div style="font-size:12px;color:var(--muted);margin-top:2px;">'+p.notes+'</div>';
+    html += '<span style="font-size:11px;padding:2px 8px;border-radius:20px;background:var(--faint);border:1px solid var(--border2);margin-top:6px;display:inline-block;">'+( p.team==='both'?'Both Teams':p.team)+'</span>';
+    html += '</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">';
+    html += '<button data-addprac="'+p.id+'" style="padding:6px 12px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--silver);font-size:12px;cursor:pointer;white-space:nowrap;">📅 Add to Calendar</button>';
+    if(isC) html += '<button data-delprac="'+p.id+'" style="padding:4px 10px;border-radius:6px;border:1px solid var(--red);background:transparent;color:var(--red);font-size:11px;cursor:pointer;">Remove</button>';
+    html += '</div>';
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+}
+
+function addPractice() {
+  var title = document.getElementById('prac-title').value.trim();
+  var dateRaw = document.getElementById('prac-date').value;
+  function toISOp(d){ if(!d) return ''; if(d.includes('-')) return d; var p=d.split('/'); return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0'); }
+  var date = toISOp(dateRaw);
+  var time = getTime('prac-hr','prac-min','prac-ampm');
+  var dur = parseInt(document.getElementById('prac-dur').value);
+  var loc = document.getElementById('prac-loc').value.trim();
+  var team = document.getElementById('prac-team').value;
+  var notes = document.getElementById('prac-notes').value.trim();
+  if(!title||!date) { toast('Enter title and date','err'); return; }
+  practices.push({id:uid(), title:title, date:date, time:time, duration:dur, location:loc, team:team, notes:notes});
+  practices.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  localStorage.setItem(PRAC_KEY, JSON.stringify(practices));
+  document.getElementById('prac-title').value='';
+  document.getElementById('prac-date').value='';
+  document.getElementById('prac-loc').value='';
+  document.getElementById('prac-notes').value='';
+  renderPractices();
+  var banner = document.createElement('div');
+  banner.textContent = '✓ Practice added!';
+  banner.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--green);color:var(--black);padding:14px 28px;border-radius:8px;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:18px;z-index:9999;';
+  document.body.appendChild(banner);
+  setTimeout(function(){ if(banner.parentNode) document.body.removeChild(banner); }, 2500);
+}
+
+function deletePractice(id) {
+  if(!confirm('Remove this practice?')) return;
+  practices = practices.filter(function(p){ return p.id!==id; });
+  localStorage.setItem(PRAC_KEY, JSON.stringify(practices));
+  renderPractices();
+  toast('Removed','');
+}
+
+function addPracticeToCalendar(id) {
+  var p = practices.find(function(x){ return x.id===id; });
+  if(!p) return;
+  generateICS('Team Rollin TX: '+p.title+(p.location?' @ '+p.location:''), p.date, p.time, p.duration);
+}
+
 function volTab(team, el) {
   document.getElementById('vol-12U').style.display = team==='12U' ? 'block' : 'none';
   document.getElementById('vol-16U').style.display = team==='16U' ? 'block' : 'none';
@@ -2415,6 +2494,10 @@ document.addEventListener('click', function(e) {
   if(dm) { deleteMember(dm.getAttribute('data-deletemember')); return; }
   var em = e.target.closest('[data-editmember]');
   if(em) { openEditMember(em.getAttribute('data-editmember')); return; }
+  var addprac = e.target.closest('[data-addprac]');
+  if(addprac) { addPracticeToCalendar(addprac.getAttribute('data-addprac')); return; }
+  var delprac = e.target.closest('[data-delprac]');
+  if(delprac) { deletePractice(delprac.getAttribute('data-delprac')); return; }
   var addcal = e.target.closest('[data-addcal]');
   if(addcal) {
     var parts = addcal.getAttribute('data-addcal').split('|');
@@ -2447,6 +2530,7 @@ flatpickr('#del-end', fpOpts);
 flatpickr('#pb-start', Object.assign({}, fpOpts, {onChange: function(sel,str){ var fp2=document.querySelector('#pb-end')._flatpickr; if(fp2) fp2.set('minDate',str); }}));
 flatpickr('#pb-end', fpOpts);
 flatpickr('#ps-date', fpOpts);
+flatpickr('#prac-date', fpOpts);
 </script>
 </body>
 </html>
