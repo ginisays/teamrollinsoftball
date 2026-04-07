@@ -1261,7 +1261,8 @@ function renderSlot(s) {
     return '<div class="slot taken" style="opacity:1;border-color:rgba(248,113,113,.2);""><div class="slot-time">'+time+'</div><div style="font-size:10px;"><span class="dot dot-t"></span>Booked</div>'+bookedInfo+'</div>';
   }
   if(isMe) {
-    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-cancel="'+s.id+'">✕ Cancel</div></div>';
+    var calBtn = '<div style="font-size:9px;color:var(--silver2);margin-top:3px;cursor:pointer;" data-addcal="'+s.date+'|'+s.time+'|'+s.duration+'|hitting">📅 Add to Calendar</div>';
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-cancel="'+s.id+'">✕ Cancel</div>'+calBtn+'</div>';
   }
   var canBook = identity && identity.type==='player';
   var click = canBook ? 'data-book="'+s.id+'"' : (isC ? '' : 'data-signin="1"');
@@ -2020,7 +2021,8 @@ function renderPitchSlot(s) {
     return '<div class="slot taken" style="opacity:1;border-color:rgba(248,113,113,.2);"><div class="slot-time">'+time+'</div><div style="font-size:10px;"><span class="dot dot-t"></span>Booked</div>'+info+'</div>';
   }
   if(isMe) {
-    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-pcancel="'+s.id+'">✕ Cancel</div></div>';
+    var pcalBtn = '<div style="font-size:9px;color:var(--silver2);margin-top:3px;cursor:pointer;" data-addcal="'+s.date+'|'+s.time+'|'+s.duration+'|pitching">📅 Add to Calendar</div>';
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-pcancel="'+s.id+'">✕ Cancel</div>'+pcalBtn+'</div>';
   }
   var canBook = identity && identity.type==='player';
   var click = canBook ? 'data-pbook="'+s.id+'"' : 'data-signin="1"';
@@ -2298,6 +2300,39 @@ function toggleMyPitching() {
   renderPitchSlots();
 }
 
+function generateICS(title, date, time, duration) {
+  // date = YYYY-MM-DD, time = HH:MM (24hr), duration = minutes
+  var parts = date.split('-');
+  var timeParts = time.split(':');
+  var yr = parts[0], mo = parts[1], dy = parts[2];
+  var hr = timeParts[0], mn = timeParts[1];
+  // Format start: YYYYMMDDTHHMMSS
+  var start = yr+mo+dy+'T'+hr+mn+'00';
+  // Calculate end time
+  var totalMins = parseInt(hr)*60 + parseInt(mn) + parseInt(duration);
+  var endHr = Math.floor(totalMins/60) % 24;
+  var endMn = totalMins % 60;
+  var end = yr+mo+dy+'T'+(endHr<10?'0':'')+endHr+(endMn<10?'0':'')+endMn+'00';
+  var ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'BEGIN:VEVENT',
+    'SUMMARY:'+title,
+    'DTSTART:'+start,
+    'DTEND:'+end,
+    'DESCRIPTION:Team Rollin TX - teamrollinsoftball.net',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+  var blob = new Blob([ics], {type:'text/calendar'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'lesson.ics';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function volTab(team, el) {
   document.getElementById('vol-12U').style.display = team==='12U' ? 'block' : 'none';
   document.getElementById('vol-16U').style.display = team==='16U' ? 'block' : 'none';
@@ -2380,6 +2415,13 @@ document.addEventListener('click', function(e) {
   if(dm) { deleteMember(dm.getAttribute('data-deletemember')); return; }
   var em = e.target.closest('[data-editmember]');
   if(em) { openEditMember(em.getAttribute('data-editmember')); return; }
+  var addcal = e.target.closest('[data-addcal]');
+  if(addcal) {
+    var parts = addcal.getAttribute('data-addcal').split('|');
+    var calType = parts[3] === 'pitching' ? 'Pitching Lesson - Coach Laurie' : 'Hitting Lesson - Coach Jaz';
+    generateICS('Team Rollin TX: '+calType, parts[0], parts[1], parts[2]);
+    return;
+  }
   var pbook = e.target.closest('[data-pbook]');
   if(pbook) { openPitchBook(pbook.getAttribute('data-pbook')); return; }
   var pcancel = e.target.closest('[data-pcancel]');
