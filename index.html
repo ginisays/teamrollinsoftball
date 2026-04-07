@@ -1494,7 +1494,13 @@ function addSingle() {
   if(!date) { toast('Pick a date','err'); return; }
   allSlots.push({id:uid(), date:date, time:time, team:team, duration:dur, booked_by:null, booked_team:null});
   allSlots.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
-  save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView(); toast('Slot added!','ok');
+  save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView();
+  document.getElementById('s-date').value = '';
+  var banner4 = document.createElement('div');
+  banner4.textContent = '✓ Hitting slot added!';
+  banner4.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--green);color:var(--black);padding:14px 28px;border-radius:8px;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:18px;letter-spacing:1px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.5);';
+  document.body.appendChild(banner4);
+  setTimeout(function(){ if(banner4.parentNode) document.body.removeChild(banner4); }, 2500);
 }
 
 function addBulk() {
@@ -2075,8 +2081,15 @@ function addPitchSingle() {
   pitchSlots.push({id:'p'+uid(),date:date,time:time,team:team,duration:dur,booked_by:null,booked_team:null});
   pitchSlots.sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
   save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView();
-  toast('✓ Pitching slot added for '+date+'!','ok');
   document.getElementById('ps-date').value = '';
+  // Show banner and scroll to table
+  var banner3 = document.createElement('div');
+  banner3.textContent = '✓ Slot added: ' + date + ' @ ' + getTime('ps-hr','ps-min','ps-ampm');
+  banner3.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--green);color:var(--black);padding:14px 28px;border-radius:8px;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:18px;letter-spacing:1px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.5);';
+  document.body.appendChild(banner3);
+  setTimeout(function(){ if(banner3.parentNode) document.body.removeChild(banner3); }, 2500);
+  var tbody = document.getElementById('pitch-tbody');
+  if(tbody) tbody.closest('table').scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
 function addPitchBulk() {
