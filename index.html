@@ -453,7 +453,7 @@ footer a{color:var(--silver2);}
       <button onclick="lessonTab('hitting',this)" id="ltab-hitting" style="padding:14px 24px;border:none;border-bottom:3px solid var(--scarlet);background:transparent;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Jaz — Hitting</button>
       <button onclick="lessonTab('pitching',this)" id="ltab-pitching" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Laurie — Pitching</button>
       <button onclick="lessonTab('members',this)" id="ltab-members" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:none;">Members</button>
-      <button onclick="lessonTab('practices',this)" id="ltab-practices" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Team Practices</button>
+      <button onclick="lessonTab('practices',this)" id="ltab-practices" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:none;">Team Practices</button>
     </div>
   </div>
 
@@ -1295,6 +1295,8 @@ function updateAuthUI() {
   if(sob) sob.style.display = identity ? '' : 'none';
   var ltabM = document.getElementById('ltab-members');
   if(ltabM) ltabM.style.display = (identity && identity.type==='coach') ? '' : 'none';
+  var ltabP = document.getElementById('ltab-practices');
+  if(ltabP) ltabP.style.display = identity ? '' : 'none';
   var mlBtn = document.getElementById('my-lessons-btn');
   if(mlBtn) mlBtn.style.display = (identity && identity.type==='player') ? '' : 'none';
   var mpBtn = document.getElementById('my-pitch-btn');
