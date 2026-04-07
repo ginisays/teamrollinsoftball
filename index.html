@@ -985,10 +985,16 @@ async function sendNotification(subject, message) {
 async function sbSavePitchSlots() {
   if(!sb) return;
   try {
-    // Delete all then reinsert to keep Supabase in sync
-    await sb.from('pitch_slots').delete().neq('id','__none__');
+    // Get existing IDs and delete them one by one if needed
+    var existing = await sb.from('pitch_slots').select('id');
+    if(existing.data && existing.data.length) {
+      var ids = existing.data.map(function(r){ return r.id; });
+      await sb.from('pitch_slots').delete().in('id', ids);
+    }
     if(pitchSlots.length) {
-      await sb.from('pitch_slots').insert(pitchSlots.map(function(s){ return {id:s.id,date:s.date,time:s.time,team:s.team,duration:s.duration,booked_by:s.booked_by||null,booked_team:s.booked_team||null}; }));
+      var rows = pitchSlots.map(function(s){ return {id:s.id,date:s.date,time:s.time,team:s.team,duration:s.duration,booked_by:s.booked_by||null,booked_team:s.booked_team||null}; });
+      var resp = await sb.from('pitch_slots').insert(rows);
+      if(resp.error) console.error('pitch insert error:', resp.error);
     }
   } catch(e){ console.error('sbSavePitchSlots',e); }
 }
