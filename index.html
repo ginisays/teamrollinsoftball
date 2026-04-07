@@ -1043,6 +1043,13 @@ async function syncFromSupabase() {
       r4.data.forEach(function(p){ if(!roster[p.team]) roster[p.team]=[]; roster[p.team].push({name:p.name,pos:p.pos,num:p.num,ig:p.ig,url:p.url||'',photo:p.photo||''}); });
       save(ROSTER_KEY, roster);
     }
+    // Practices
+    var rpr = await sb.from('practices').select('*');
+    if(rpr.data) {
+      practices = rpr.data.map(function(p){ return {id:p.id,title:p.title,date:p.date,time:p.time,duration:p.duration,location:p.location||'',team:p.team||'both',notes:p.notes||''}; });
+      practices.sort(function(a,b){ return a.date.localeCompare(b.date); });
+      localStorage.setItem(PRAC_KEY, JSON.stringify(practices));
+    }
     console.log('Synced from Supabase');
     // Re-render everything
     renderTourneys(); renderRoster('12U'); renderRoster('16U');
@@ -1068,6 +1075,24 @@ async function sendNotification(subject, message) {
 }
 
 // Supabase sync helpers
+async function sbSavePractices() {
+  if(!sb) return;
+  try {
+    // Get all existing practice IDs and delete them
+    var existingPr = await sb.from('practices').select('id');
+    if(existingPr.data && existingPr.data.length) {
+      var prIds = existingPr.data.map(function(r){ return r.id; });
+      await sb.from('practices').delete().in('id', prIds);
+    }
+    if(practices.length) {
+      var rows = practices.map(function(p){ return {id:p.id,title:p.title,date:p.date,time:p.time,duration:parseInt(p.duration)||120,location:p.location||'',team:p.team||'both',notes:p.notes||''}; });
+      var resp = await sb.from('practices').insert(rows);
+      if(resp.error) console.error('practices insert error:', JSON.stringify(resp.error));
+      else console.log('Practices saved:', rows.length);
+    }
+  } catch(e){ console.error('sbSavePractices',e); }
+}
+
 async function sbSavePitchSlots() {
   if(!sb) return;
   try {
@@ -2472,6 +2497,7 @@ function addPractice() {
   practices.push({id:uid(), title:title, date:date, time:time, duration:dur, location:loc, team:team, notes:notes});
   practices.sort(function(a,b){ return a.date.localeCompare(b.date); });
   localStorage.setItem(PRAC_KEY, JSON.stringify(practices));
+  sbSavePractices();
   document.getElementById('prac-title').value='';
   document.getElementById('prac-date').value='';
   document.getElementById('prac-loc').value='';
@@ -2528,6 +2554,7 @@ function saveEditPractice() {
   p.notes = document.getElementById('ep2-notes').value.trim();
   practices.sort(function(a,b){ return a.date.localeCompare(b.date); });
   localStorage.setItem(PRAC_KEY, JSON.stringify(practices));
+  sbSavePractices();
   closeModal('modal-edit-prac');
   renderPractices();
   toast('Practice updated!','ok');
@@ -2537,6 +2564,7 @@ function deletePractice(id) {
   if(!confirm('Remove this practice?')) return;
   practices = practices.filter(function(p){ return p.id!==id; });
   localStorage.setItem(PRAC_KEY, JSON.stringify(practices));
+  sbSavePractices();
   renderPractices();
   toast('Removed','');
 }
