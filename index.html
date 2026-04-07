@@ -1483,7 +1483,9 @@ function addTab(tab, el) {
 document.querySelectorAll('#b-days .day-chip').forEach(function(c){ c.addEventListener('click', function(){ c.classList.toggle('on'); }); });
 
 function addSingle() {
-  var date = document.getElementById('s-date').value;
+  var dateRaw = document.getElementById('s-date').value;
+  function toISO3(d){ if(!d) return ''; if(d.includes('-')) return d; var p=d.split('/'); return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0'); }
+  var date = toISO3(dateRaw);
   var time = getTime('s-hr','s-min','s-ampm');
   var team = document.getElementById('s-team').value;
   var dur = parseInt(document.getElementById('s-dur').value);
@@ -1494,8 +1496,11 @@ function addSingle() {
 }
 
 function addBulk() {
-  var start = document.getElementById('b-start').value;
-  var end = document.getElementById('b-end').value;
+  var startRaw2 = document.getElementById('b-start').value;
+  var endRaw2 = document.getElementById('b-end').value;
+  function toISO4(d){ if(!d) return ''; if(d.includes('-')) return d; var p=d.split('/'); return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0'); }
+  var start = toISO4(startRaw2);
+  var end = toISO4(endRaw2);
   var st = getTime('b-hr','b-min','b-ampm2');
   var count = parseInt(document.getElementById('b-count').value);
   var dur = parseInt(document.getElementById('b-dur').value);
@@ -1528,9 +1533,12 @@ function addBulk() {
   allSlots.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
   save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView();
   if(added > 0) {
-    toast('✓ '+added+' hitting slots created!','ok');
+    var banner2 = document.createElement('div');
+    banner2.textContent = '✓ ' + added + ' hitting slots created!';
+    banner2.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--green);color:var(--black);padding:14px 28px;border-radius:8px;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:20px;letter-spacing:1px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.5);';
+    document.body.appendChild(banner2);
+    setTimeout(function(){ document.body.removeChild(banner2); }, 3000);
     document.querySelectorAll('#b-days .day-chip.on').forEach(function(c){ c.classList.remove('on'); });
-    document.getElementById('coach-tbody').scrollIntoView({behavior:'smooth', block:'nearest'});
   } else {
     toast('No slots added — check dates and days','err');
   }
@@ -2055,14 +2063,18 @@ function pitchAddTab(tab, el) {
 document.querySelectorAll('#pb-days .day-chip').forEach(function(c){ c.addEventListener('click', function(){ c.classList.toggle('on'); }); });
 
 function addPitchSingle() {
-  var date=document.getElementById('ps-date').value;
+  var dateRaw=document.getElementById('ps-date').value;
+  function toISO2(d){ if(!d) return ''; if(d.includes('-')) return d; var p=d.split('/'); return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0'); }
+  var date=toISO2(dateRaw);
   var time=getTime('ps-hr','ps-min','ps-ampm');
   var team=document.getElementById('ps-team').value;
   var dur=parseInt(document.getElementById('ps-dur').value);
   if(!date){toast('Pick a date','err');return;}
   pitchSlots.push({id:'p'+uid(),date:date,time:time,team:team,duration:dur,booked_by:null,booked_team:null});
   pitchSlots.sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
-  save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView(); toast('Pitching slot added!','ok');
+  save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView();
+  toast('✓ Pitching slot added for '+date+'!','ok');
+  document.getElementById('ps-date').value = '';
 }
 
 function addPitchBulk() {
@@ -2093,11 +2105,13 @@ function addPitchBulk() {
   pitchSlots.sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
   save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView();
   if(added > 0) {
-    toast('✓ '+added+' pitching slots created!','ok');
-    // Reset days selection
+    // Flash a big success banner
+    var banner = document.createElement('div');
+    banner.textContent = '✓ ' + added + ' pitching slots created!';
+    banner.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--green);color:var(--black);padding:14px 28px;border-radius:8px;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:20px;letter-spacing:1px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.5);';
+    document.body.appendChild(banner);
+    setTimeout(function(){ document.body.removeChild(banner); }, 3000);
     document.querySelectorAll('#pb-days .day-chip.on').forEach(function(c){ c.classList.remove('on'); });
-    // Scroll up to show the table
-    document.getElementById('pitch-tbody').scrollIntoView({behavior:'smooth', block:'nearest'});
   } else {
     toast('No slots added — check dates and days','err');
   }
