@@ -678,6 +678,51 @@ footer a{color:var(--silver2);}
   </div>
 </div>
 
+    <!-- PRACTICES SECTION -->
+    <div id="lsec-practices" style="display:none;">
+      <div class="grid2">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Team Practices</div></div>
+          <div class="card-body">
+            <div id="practices-list"><div class="empty">No practices scheduled yet.</div></div>
+          </div>
+        </div>
+        <div class="card" id="practice-admin-card" style="display:none;">
+          <div class="card-head"><div class="card-title">Add Practice</div></div>
+          <div class="card-body">
+            <div class="fg"><label>Title</label><input id="prac-title" type="text" placeholder="e.g. 12U Practice"></div>
+            <div class="fg"><label>Date</label><input id="prac-date" type="text" placeholder="Select date"></div>
+            <div class="fg"><label>Time</label>
+              <div class="time-pick">
+                <select id="prac-hr"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option><option>11</option><option>12</option></select>
+                <select id="prac-min"><option value="00">00</option><option value="30">30</option></select>
+                <select id="prac-ampm"><option>AM</option><option selected>PM</option></select>
+              </div>
+            </div>
+            <div class="fg"><label>Duration</label>
+              <select id="prac-dur">
+                <option value="60">1 hour</option>
+                <option value="90">1.5 hours</option>
+                <option value="120" selected>2 hours</option>
+                <option value="150">2.5 hours</option>
+                <option value="180">3 hours</option>
+              </select>
+            </div>
+            <div class="fg"><label>Location</label><input id="prac-loc" type="text" placeholder="e.g. Cedar Park Fields"></div>
+            <div class="fg"><label>Team</label>
+              <select id="prac-team">
+                <option value="both">Both Teams</option>
+                <option value="12U">12U Only</option>
+                <option value="16U">16U Only</option>
+              </select>
+            </div>
+            <div class="fg"><label>Notes (optional)</label><input id="prac-notes" type="text" placeholder="Bring helmets, etc."></div>
+            <button class="btn btn-w btn-full" onclick="addPractice()">Add Practice</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 <!-- CONTACT -->
 <div class="page" id="page-contact">
   <div class="sec-head"><span class="eyebrow">Reach Out</span><h2 class="sec-title">Contact Us</h2></div>
