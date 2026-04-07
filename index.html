@@ -985,18 +985,24 @@ async function sendNotification(subject, message) {
 async function sbSavePitchSlots() {
   if(!sb) return;
   try {
-    // Get existing IDs and delete them one by one if needed
-    var existing = await sb.from('pitch_slots').select('id');
-    if(existing.data && existing.data.length) {
-      var ids = existing.data.map(function(r){ return r.id; });
-      await sb.from('pitch_slots').delete().in('id', ids);
-    }
+    // Delete all existing pitch slots first
+    await sb.from('pitch_slots').delete().gte('date', '2000-01-01');
+    // Insert current slots
     if(pitchSlots.length) {
-      var rows = pitchSlots.map(function(s){ return {id:s.id,date:s.date,time:s.time,team:s.team,duration:s.duration,booked_by:s.booked_by||null,booked_team:s.booked_team||null}; });
+      var rows = pitchSlots.map(function(s){ return {
+        id: s.id,
+        date: s.date,
+        time: s.time,
+        team: s.team,
+        duration: parseInt(s.duration) || 30,
+        booked_by: s.booked_by || null,
+        booked_team: s.booked_team || null
+      }; });
       var resp = await sb.from('pitch_slots').insert(rows);
-      if(resp.error) console.error('pitch insert error:', resp.error);
+      if(resp.error) console.error('pitch insert error:', JSON.stringify(resp.error));
+      else console.log('Pitch slots saved:', rows.length);
     }
-  } catch(e){ console.error('sbSavePitchSlots',e); }
+  } catch(e){ console.error('sbSavePitchSlots exception:',e); }
 }
 
 async function sbDeletePitchSlot(id) {
