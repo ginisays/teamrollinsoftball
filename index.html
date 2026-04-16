@@ -667,6 +667,9 @@ footer a{color:var(--silver2);}
           <!-- Alpha list -->
           <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">All Members <span style="color:var(--silver3);font-weight:400;">(A–Z)</span></div>
           <div id="member-alpha-list" style="margin-bottom:24px;overflow-x:auto;"></div>
+          <!-- Booking History -->
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;margin-top:8px;">Booking History</div>
+          <div id="history-list" style="overflow-x:auto;margin-bottom:16px;"></div>
           <!-- Pending requests -->
           <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">Pending Requests <span id="pending-ct" style="color:var(--red);"></span></div>
           <div id="pending-list" style="margin-bottom:16px;"></div>
@@ -949,7 +952,7 @@ footer a{color:var(--silver2);}
 
 <script>
 // ====== STATE ======
-var PW_KEY='tr_pw', ID_KEY='tr_id', SLOTS_KEY='tr_slots', PITCH_KEY='tr_pitch_slots', PRAC_KEY='tr_practices', MEMBERS_KEY='tr_members', ROSTER_KEY='tr_roster', TOURN_KEY='tr_tourn';
+var PW_KEY='tr_pw', ID_KEY='tr_id', SLOTS_KEY='tr_slots', PITCH_KEY='tr_pitch_slots', HIST_KEY='tr_history', PRAC_KEY='tr_practices', MEMBERS_KEY='tr_members', ROSTER_KEY='tr_roster', TOURN_KEY='tr_tourn';
 var COACH_EMAILS = ['ginisays@gmail.com','Teamrollinfastpitch@gmail.com'];
 var sb = null;
 try { sb = supabase.createClient('https://hjmjrzgpogqqmtdshgpb.supabase.co', 'sb_publishable_bOdplw_95ydxVo4-L-o1WA_totrMbhz'); console.log('Supabase connected'); } catch(e){ console.error('Supabase failed',e); }
@@ -960,6 +963,7 @@ var DAYS_S = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 var identity = null;
 var allSlots = [];
 var pitchSlots = [];
+var bookingHistory = [];
 var practices = [];
 var members = [];
 var roster = {};
@@ -991,6 +995,7 @@ function load() {
   try { var d=localStorage.getItem(ID_KEY); if(d) identity=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(SLOTS_KEY); if(d) allSlots=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(PITCH_KEY); if(d) pitchSlots=JSON.parse(d); } catch(e){}
+  try { var d=localStorage.getItem(HIST_KEY); if(d) bookingHistory=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(PRAC_KEY); if(d) practices=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(MEMBERS_KEY); if(d) members=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(ROSTER_KEY); if(d) roster=JSON.parse(d); } catch(e){}
@@ -1406,6 +1411,9 @@ function confirmBook() {
   }
   var s = allSlots.find(function(x){ return x.id===bookingId; });
   if(!s || s.booked_by) { toast('No longer available','err'); closeModal('modal-book'); return; }
+  // Prevent same player booking same date+time twice
+  var sameSlot = allSlots.find(function(x){ return x.date===s.date && x.time===s.time && x.booked_by===identity.name && x.booked_team===identity.team && x.id!==s.id; });
+  if(sameSlot) { toast('You already have a lesson at this time!','err'); closeModal('modal-book'); return; }
   s.booked_by = identity.name;
   s.booked_team = identity.team;
   save(SLOTS_KEY, allSlots); sbSaveSlots();
@@ -1576,6 +1584,11 @@ function delAllOpen() {
 function delPast() {
   if(!confirm('Clear past slots?')) return;
   var now = new Date().toISOString().slice(0,10);
+  var past = allSlots.filter(function(s){ return s.date<now && s.booked_by; });
+  past.forEach(function(s){
+    bookingHistory.push({id:s.id, date:s.date, time:s.time, team:s.team, duration:s.duration, player:s.booked_by, playerTeam:s.booked_team, type:'hitting', showed:false, paid:false, archivedAt:now});
+  });
+  localStorage.setItem(HIST_KEY, JSON.stringify(bookingHistory));
   allSlots = allSlots.filter(function(s){ return s.date>=now; });
   save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView(); toast('Cleared','ok');
 }
@@ -1917,6 +1930,7 @@ function renderMembersPanel() {
   if(!pl||!al) return;
 
   // Alphabetized full member list
+  renderHistory();
   if(ml) {
     var sorted = approved.slice().sort(function(a,b){ return a.name.localeCompare(b.name); });
     if(!sorted.length) {
@@ -2266,6 +2280,11 @@ function delAllOpenPitch(){
 function delPastPitch(){
   if(!confirm('Clear past pitching slots?'))return;
   var now=new Date().toISOString().slice(0,10);
+  var pastP = pitchSlots.filter(function(s){ return s.date<now && s.booked_by; });
+  pastP.forEach(function(s){
+    bookingHistory.push({id:s.id, date:s.date, time:s.time, team:s.team, duration:s.duration, player:s.booked_by, playerTeam:s.booked_team, type:'pitching', showed:false, paid:false, archivedAt:now});
+  });
+  localStorage.setItem(HIST_KEY, JSON.stringify(bookingHistory));
   pitchSlots=pitchSlots.filter(function(s){return s.date>=now;});
   save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView(); toast('Cleared','ok');
 }
@@ -2576,6 +2595,43 @@ function addPracticeToCalendar(id) {
   generateICS('Team Rollin TX: '+p.title+(p.location?' @ '+p.location:''), p.date, p.time, p.duration);
 }
 
+// ====== BOOKING HISTORY ======
+function renderHistory() {
+  var el = document.getElementById('history-list');
+  if(!el) return;
+  if(!bookingHistory.length) { el.innerHTML='<div class="empty">No history yet. Use "Clear Past" to archive completed lessons.</div>'; return; }
+  var sorted = bookingHistory.slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
+  var html = '<table class="t" style="width:100%;"><thead><tr><th>Date</th><th>Time</th><th>Player</th><th>Type</th><th>Showed</th><th>Paid</th><th></th></tr></thead><tbody>';
+  sorted.forEach(function(h) {
+    var d = new Date(h.date+'T00:00:00');
+    var dateStr = MONTHS[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+    html += '<tr>';
+    html += '<td style="font-size:12px;">'+dateStr+'</td>';
+    html += '<td style="font-family:monospace;font-size:12px;color:#4a7fff;">'+fmt(h.time)+'</td>';
+    html += '<td style="font-weight:600;font-size:13px;">'+h.player+'<div style="font-size:10px;color:var(--muted);">'+h.playerTeam+'</div></td>';
+    html += '<td style="font-size:11px;color:var(--muted);">'+h.type+'</td>';
+    html += '<td><input type="checkbox" '+(h.showed?'checked':'')+' data-histid="'+h.id+'" data-histfield="showed" onchange="toggleHistory(this.dataset.histid,this.dataset.histfield,this.checked)" style="width:16px;height:16px;cursor:pointer;"></td>';
+    html += '<td><input type="checkbox" '+(h.paid?'checked':'')+' data-histid="'+h.id+'" data-histfield="paid" onchange="toggleHistory(this.dataset.histid,this.dataset.histfield,this.checked)" style="width:16px;height:16px;cursor:pointer;"></td>';
+    html += '<td><button data-delhist="'+h.id+'" style="font-size:10px;color:var(--red);background:none;border:none;cursor:pointer;">✕</button></td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+function toggleHistory(id, field, val) {
+  var h = bookingHistory.find(function(x){ return x.id===id; });
+  if(!h) return;
+  h[field] = val;
+  localStorage.setItem(HIST_KEY, JSON.stringify(bookingHistory));
+}
+
+function deleteHistory(id) {
+  bookingHistory = bookingHistory.filter(function(x){ return x.id!==id; });
+  localStorage.setItem(HIST_KEY, JSON.stringify(bookingHistory));
+  renderHistory();
+}
+
 function volTab(team, el) {
   document.getElementById('vol-12U').style.display = team==='12U' ? 'block' : 'none';
   document.getElementById('vol-16U').style.display = team==='16U' ? 'block' : 'none';
@@ -2656,6 +2712,8 @@ document.addEventListener('click', function(e) {
   if(deny) { denyMember(deny.getAttribute('data-deny')); return; }
   var dm = e.target.closest('[data-deletemember]');
   if(dm) { deleteMember(dm.getAttribute('data-deletemember')); return; }
+  var delhist = e.target.closest('[data-delhist]');
+  if(delhist) { deleteHistory(delhist.getAttribute('data-delhist')); return; }
   var em = e.target.closest('[data-editmember]');
   if(em) { openEditMember(em.getAttribute('data-editmember')); return; }
   var addprac = e.target.closest('[data-addprac]');
