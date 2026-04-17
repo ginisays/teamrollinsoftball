@@ -374,54 +374,80 @@ footer a{color:var(--silver2);}
 <div class="page" id="page-checklist">
   <div class="sec-head"><span class="eyebrow">Team Rollin TX</span><h2 class="sec-title">TR Families</h2></div>
   <div class="sec">
-    <div class="grid2">
-      <div>
-        <div class="card">
-          <div class="card-head"><div class="card-title">To-Do List</div></div>
-          <div class="card-body">
-            <div class="chk"><span class="chk-icon">□</span><span>Fill out <a href="https://docs.google.com/forms/d/e/1FAIpQLSeJbTHwdSxOMYduG_sI776F_M-nrcQ7brgbMGQCmsiDyzqiPg/viewform" target="_blank" style="color:var(--silver);text-decoration:underline;">Intake Form</a></span></div>
-            <div class="chk"><span class="chk-icon">□</span><span>Email birth certificate to Allison (for 12U)</span></div>
-            <div class="chk"><span class="chk-icon">□</span><span>Sign up for <a onclick="go('lessons')" style="color:var(--silver);text-decoration:underline;cursor:pointer;">Privates / Semi-Privates</a></span></div>
-            <div class="chk"><span class="chk-icon">□</span><span>Sign and return contract page (in binder)</span></div>
-            <div class="chk"><span class="chk-icon">□</span><span>Join <strong>GroupMe Official</strong> (by invite)</span></div>
-            <div class="chk"><span class="chk-icon">□</span><span>Join <strong>GroupMe Parents</strong> (by invite)</span></div>
-            <div class="chk"><span class="chk-icon">□</span><span>Join <a href="http://web.gc.com/teams/hO7PpnLBZi22/live" target="_blank" style="color:var(--silver);text-decoration:underline;">12U Game Changer</a></span></div>
-            <div class="chk"><span class="chk-icon">□</span><span>Join <strong>Player GroupMe</strong> (by invite)</span></div>
-            <div class="chk"><span class="chk-icon">□</span><span>Join <strong>NCS Softball Reg</strong> (email invite)</span></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-head"><div class="card-title">Team Equipment to Collect</div></div>
-          <div class="card-body">
-            <div class="chk"><span class="chk-icon">□</span><span>Binder</span></div>
-            <div class="chk"><span class="chk-icon">□</span><span>Helmet (see Allison to get sized)</span></div>
-            <div class="chk"><span class="chk-icon">□</span><span>PVC Pipe</span></div>
-            <div class="chk"><span class="chk-icon">□</span><span>Practice Jerseys + Game Jerseys</span></div>
-            <div class="chk"><span class="chk-icon">□</span><span>3 Socks / Belts · Hitting Jacket · Beanie</span></div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div class="card">
-          <div class="card-head"><div class="card-title">Purchase on Your Own</div></div>
-          <div class="card-body">
-            <div class="chk"><span class="chk-icon">•</span><span><a href="https://www.amazon.com/Easton-Backpack-Equipment-Fastpitch-Softball/dp/B0BFBQMBNL" target="_blank" style="color:var(--silver);text-decoration:underline;">Bat Bag</a> or <a href="https://a.co/d/8QkmIuB" target="_blank" style="color:var(--silver);text-decoration:underline;">Catcher Bag</a></span></div>
-            <div class="chk"><span class="chk-icon">•</span><span><a href="https://www.amazon.com/New-Balance-Womens-Molded-Softball/dp/B09K4TYBTQ" target="_blank" style="color:var(--silver);text-decoration:underline;">Cleats</a> · <a href="https://www.newbalance.com/pd/fresh-foam-3000v7-rubber-molded/J3000V7-45219.html" target="_blank" style="color:var(--silver);text-decoration:underline;">Youth sizes</a></span></div>
-            <div class="chk"><span class="chk-icon">•</span><span><a href="https://www.amazon.com/New-Balance-Unisex-Child-FuelCell-Turf-Trainer/dp/B0BJ82GQY6" target="_blank" style="color:var(--silver);text-decoration:underline;">Turf Shoes (youth)</a> · <a href="https://a.co/d/9FvRx7I" target="_blank" style="color:var(--silver);text-decoration:underline;">Adult</a></span></div>
-            <div class="chk"><span class="chk-icon">•</span><span>Game Day <strong>Black pants</strong> (your choice)</span></div>
-            <div class="chk"><span class="chk-icon">•</span><span>Practice <strong>Charcoal pants</strong> · Black face mask · Black batting gloves</span></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-head"><div class="card-title">Important Contacts</div></div>
-          <div class="card-body">
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0;font-size:13px;"><span style="color:var(--muted)">Coach Jaz</span><strong>(801) 719-4750</strong></div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0;font-size:13px;"><span style="color:var(--muted)">Allison (12s)</span><strong>(808) 753-3882</strong></div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0;font-size:13px;"><span style="color:var(--muted)">Xiomara (16s)</span><strong>(512) 496-0808</strong></div>
+    <!-- Age group tabs -->
+    <div style="display:flex;gap:4px;margin-bottom:24px;flex-wrap:wrap;">
+      <button onclick="famTab('10U',this)" id="fam-tab-10U" style="padding:5px 18px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">10U</button>
+      <button onclick="famTab('12U',this)" id="fam-tab-12U" style="padding:5px 18px;border-radius:20px;border:1px solid var(--scarlet);background:var(--scarlet);color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">12U</button>
+      <button onclick="famTab('14U',this)" id="fam-tab-14U" style="padding:5px 18px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">14U</button>
+      <button onclick="famTab('16U',this)" id="fam-tab-16U" style="padding:5px 18px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">16U</button>
+    </div>
 
+    <!-- 10U content -->
+    <div id="fam-10U" style="display:none;">
+      <div style="font-size:14px;color:var(--muted);font-style:italic;text-align:center;padding:60px 20px;">10U content coming soon.</div>
+    </div>
+
+    <!-- 12U content -->
+    <div id="fam-12U">
+      <div class="grid2">
+        <div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">To-Do List</div></div>
+            <div class="card-body">
+              <div class="chk"><span class="chk-icon">□</span><span>Fill out <a href="https://docs.google.com/forms/d/e/1FAIpQLSeJbTHwdSxOMYduG_sI776F_M-nrcQ7brgbMGQCmsiDyzqiPg/viewform" target="_blank" style="color:var(--silver);text-decoration:underline;">Intake Form</a></span></div>
+              <div class="chk"><span class="chk-icon">□</span><span>Email birth certificate to Allison (for 12U)</span></div>
+              <div class="chk"><span class="chk-icon">□</span><span>Sign up for <a onclick="go('lessons')" style="color:var(--silver);text-decoration:underline;cursor:pointer;">Privates / Semi-Privates</a></span></div>
+              <div class="chk"><span class="chk-icon">□</span><span>Sign and return contract page (in binder)</span></div>
+              <div class="chk"><span class="chk-icon">□</span><span>Join <strong>GroupMe Official</strong> (by invite)</span></div>
+              <div class="chk"><span class="chk-icon">□</span><span>Join <strong>GroupMe Parents</strong> (by invite)</span></div>
+              <div class="chk"><span class="chk-icon">□</span><span>Join <a href="http://web.gc.com/teams/hO7PpnLBZi22/live" target="_blank" style="color:var(--silver);text-decoration:underline;">12U Game Changer</a></span></div>
+              <div class="chk"><span class="chk-icon">□</span><span>Join <strong>Player GroupMe</strong> (by invite)</span></div>
+              <div class="chk"><span class="chk-icon">□</span><span>Join <strong>NCS Softball Reg</strong> (email invite)</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Team Equipment to Collect</div></div>
+            <div class="card-body">
+              <div class="chk"><span class="chk-icon">□</span><span>Binder</span></div>
+              <div class="chk"><span class="chk-icon">□</span><span>Helmet (see Allison to get sized)</span></div>
+              <div class="chk"><span class="chk-icon">□</span><span>PVC Pipe</span></div>
+              <div class="chk"><span class="chk-icon">□</span><span>Practice Jerseys + Game Jerseys</span></div>
+              <div class="chk"><span class="chk-icon">□</span><span>3 Socks / Belts · Hitting Jacket · Beanie</span></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Purchase on Your Own</div></div>
+            <div class="card-body">
+              <div class="chk"><span class="chk-icon">•</span><span><a href="https://www.amazon.com/Easton-Backpack-Equipment-Fastpitch-Softball/dp/B0BFBQMBNL" target="_blank" style="color:var(--silver);text-decoration:underline;">Bat Bag</a> or <a href="https://a.co/d/8QkmIuB" target="_blank" style="color:var(--silver);text-decoration:underline;">Catcher Bag</a></span></div>
+              <div class="chk"><span class="chk-icon">•</span><span><a href="https://www.amazon.com/New-Balance-Womens-Molded-Softball/dp/B09K4TYBTQ" target="_blank" style="color:var(--silver);text-decoration:underline;">Cleats</a> · <a href="https://www.newbalance.com/pd/fresh-foam-3000v7-rubber-molded/J3000V7-45219.html" target="_blank" style="color:var(--silver);text-decoration:underline;">Youth sizes</a></span></div>
+              <div class="chk"><span class="chk-icon">•</span><span><a href="https://www.amazon.com/New-Balance-Unisex-Child-FuelCell-Turf-Trainer/dp/B0BJ82GQY6" target="_blank" style="color:var(--silver);text-decoration:underline;">Turf Shoes (youth)</a> · <a href="https://a.co/d/9FvRx7I" target="_blank" style="color:var(--silver);text-decoration:underline;">Adult</a></span></div>
+              <div class="chk"><span class="chk-icon">•</span><span>Game Day <strong>Black pants</strong> (your choice)</span></div>
+              <div class="chk"><span class="chk-icon">•</span><span>Practice <strong>Charcoal pants</strong> · Black face mask · Black batting gloves</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Important Contacts</div></div>
+            <div class="card-body">
+              <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0;font-size:13px;"><span style="color:var(--muted)">Coach Jaz</span><strong>(801) 719-4750</strong></div>
+              <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0;font-size:13px;"><span style="color:var(--muted)">Allison (12s)</span><strong>(808) 753-3882</strong></div>
+              <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0;font-size:13px;"><span style="color:var(--muted)">Xiomara (16s)</span><strong>(512) 496-0808</strong></div>
+
+            </div>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- 14U content -->
+    <div id="fam-14U" style="display:none;">
+      <div style="font-size:14px;color:var(--muted);font-style:italic;text-align:center;padding:60px 20px;">14U content coming soon.</div>
+    </div>
+
+    <!-- 16U content -->
+    <div id="fam-16U" style="display:none;">
+      <div style="font-size:14px;color:var(--muted);font-style:italic;text-align:center;padding:60px 20px;">16U content coming soon.</div>
     </div>
   </div>
 </div>
@@ -2685,6 +2711,19 @@ function volTab(team, el) {
   document.getElementById('vol-16U').style.display = team==='16U' ? 'block' : 'none';
   ['12U','16U'].forEach(function(t) {
     var btn = document.getElementById('vol-tab-'+t);
+    if(btn) {
+      btn.style.background = t===team ? 'var(--scarlet)' : 'transparent';
+      btn.style.borderColor = t===team ? 'var(--scarlet)' : 'var(--border2)';
+      btn.style.color = t===team ? 'var(--white)' : 'var(--muted)';
+    }
+  });
+}
+
+function famTab(team, el) {
+  ['10U','12U','14U','16U'].forEach(function(t) {
+    var pane = document.getElementById('fam-'+t);
+    if(pane) pane.style.display = t===team ? 'block' : 'none';
+    var btn = document.getElementById('fam-tab-'+t);
     if(btn) {
       btn.style.background = t===team ? 'var(--scarlet)' : 'transparent';
       btn.style.borderColor = t===team ? 'var(--scarlet)' : 'var(--border2)';
