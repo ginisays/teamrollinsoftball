@@ -255,9 +255,36 @@ footer a{color:var(--silver2);}
 
 <!-- TEAMS -->
 <div class="page" id="page-teams">
-  <div class="sec-head"><span class="eyebrow">Our Teams</span><h2 class="sec-title">12U &amp; 16U</h2></div>
+  <div class="sec-head"><span class="eyebrow">Our Teams</span><h2 class="sec-title">10U · 12U · 14U · 16U</h2></div>
   <div class="sec">
     <div class="grid2">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">16U Team Rollin</div>
+          <button class="btn btn-g btn-sm" id="edit16-btn" style="display:none" onclick="toggleAddPlayer('16U')">Edit Roster</button>
+        </div>
+        <div class="card-body">
+          <p style="font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.6;">High-level competition for players with college aspirations — hitting, pitching, defense, every rep.</p>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">Roster</div>
+          <div class="roster-grid" id="roster-16u"></div>
+          <div id="add-player-16U" style="display:none;margin-top:12px;">
+            <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p16-name" type="text" placeholder="Player name"></div><div class="fg" style="margin:0"><input id="p16-pos" type="text" placeholder="Position"></div></div>
+            <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p16-num" type="text" placeholder="#"></div><div class="fg" style="margin:0"><input id="p16-ig" type="text" placeholder="@instagram"></div></div>
+            <div class="fg" style="margin-bottom:8px;"><label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:5px;">Headshot (optional)</label><input id="p16-photo" type="file" accept="image/*" style="font-size:12px;color:var(--muted);width:100%;"></div>
+            <button class="btn btn-w btn-full" onclick="addPlayer('16U')">Add Player</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">14U Team Rollin</div>
+        </div>
+        <div class="card-body">
+          <p style="font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.6;">Building the bridge to high school ball — sharper mechanics, smarter situational play, tougher competition.</p>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">Roster</div>
+          <div style="font-size:13px;color:var(--muted);font-style:italic;">Roster coming soon.</div>
+        </div>
+      </div>
       <div class="card">
         <div class="card-head">
           <div class="card-title">12U Team Rollin</div>
@@ -277,19 +304,12 @@ footer a{color:var(--silver2);}
       </div>
       <div class="card">
         <div class="card-head">
-          <div class="card-title">16U Team Rollin</div>
-          <button class="btn btn-g btn-sm" id="edit16-btn" style="display:none" onclick="toggleAddPlayer('16U')">Edit Roster</button>
+          <div class="card-title">10U Team Rollin</div>
         </div>
         <div class="card-body">
-          <p style="font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.6;">High-level competition for players with college aspirations — hitting, pitching, defense, every rep.</p>
+          <p style="font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.6;">Where it starts — fundamentals, confidence, and a love of the game for our youngest Team Rollin players.</p>
           <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">Roster</div>
-          <div class="roster-grid" id="roster-16u"></div>
-          <div id="add-player-16U" style="display:none;margin-top:12px;">
-            <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p16-name" type="text" placeholder="Player name"></div><div class="fg" style="margin:0"><input id="p16-pos" type="text" placeholder="Position"></div></div>
-            <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p16-num" type="text" placeholder="#"></div><div class="fg" style="margin:0"><input id="p16-ig" type="text" placeholder="@instagram"></div></div>
-            <div class="fg" style="margin-bottom:8px;"><label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:5px;">Headshot (optional)</label><input id="p16-photo" type="file" accept="image/*" style="font-size:12px;color:var(--muted);width:100%;"></div>
-            <button class="btn btn-w btn-full" onclick="addPlayer('16U')">Add Player</button>
-          </div>
+          <div style="font-size:13px;color:var(--muted);font-style:italic;">Roster coming soon.</div>
         </div>
       </div>
     </div>
