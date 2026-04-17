@@ -373,6 +373,24 @@ footer a{color:var(--silver2);}
 <!-- NEW MEMBERS (requires login) -->
 <div class="page" id="page-checklist">
   <div class="sec-head"><span class="eyebrow">Team Rollin TX</span><h2 class="sec-title">TR Families</h2></div>
+  <div style="padding:0 5%;margin-bottom:16px;">
+    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+      <button onclick="famTab('10U',this)" id="fam-tab-10U" style="padding:5px 18px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">10U</button>
+      <button onclick="famTab('12U',this)" id="fam-tab-12U" style="padding:5px 18px;border-radius:20px;border:1px solid var(--scarlet);background:var(--scarlet);color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">12U</button>
+      <button onclick="famTab('14U',this)" id="fam-tab-14U" style="padding:5px 18px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">14U</button>
+      <button onclick="famTab('16U',this)" id="fam-tab-16U" style="padding:5px 18px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">16U</button>
+    </div>
+  </div>
+  <div id="fam-10U" style="display:none;">
+    <div class="sec"><div class="empty">10U content coming soon.</div></div>
+  </div>
+  <div id="fam-14U" style="display:none;">
+    <div class="sec"><div class="empty">14U content coming soon.</div></div>
+  </div>
+  <div id="fam-16U" style="display:none;">
+    <div class="sec"><div class="empty">16U content coming soon.</div></div>
+  </div>
+  <div id="fam-12U">
   <div class="sec">
     <div class="grid2">
       <div>
@@ -423,6 +441,7 @@ footer a{color:var(--silver2);}
         </div>
       </div>
     </div>
+  </div>
   </div>
 </div>
 
@@ -3086,6 +3105,19 @@ function volTab(team, el) {
   document.getElementById('vol-16U').style.display = team==='16U' ? 'block' : 'none';
   ['12U','16U'].forEach(function(t) {
     var btn = document.getElementById('vol-tab-'+t);
+    if(btn) {
+      btn.style.background = t===team ? 'var(--scarlet)' : 'transparent';
+      btn.style.borderColor = t===team ? 'var(--scarlet)' : 'var(--border2)';
+      btn.style.color = t===team ? 'var(--white)' : 'var(--muted)';
+    }
+  });
+}
+
+function famTab(team, el) {
+  ['10U','12U','14U','16U'].forEach(function(t) {
+    var panel = document.getElementById('fam-'+t);
+    if(panel) panel.style.display = t===team ? 'block' : 'none';
+    var btn = document.getElementById('fam-tab-'+t);
     if(btn) {
       btn.style.background = t===team ? 'var(--scarlet)' : 'transparent';
       btn.style.borderColor = t===team ? 'var(--scarlet)' : 'var(--border2)';
