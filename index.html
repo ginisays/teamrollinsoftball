@@ -255,9 +255,43 @@ footer a{color:var(--silver2);}
 
 <!-- TEAMS -->
 <div class="page" id="page-teams">
-  <div class="sec-head"><span class="eyebrow">Our Teams</span><h2 class="sec-title">12U &amp; 16U</h2></div>
+  <div class="sec-head"><span class="eyebrow">Our Teams</span><h2 class="sec-title">10U · 12U · 14U · 16U</h2></div>
   <div class="sec">
     <div class="grid2">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">16U Team Rollin</div>
+          <button class="btn btn-g btn-sm" id="edit16-btn" style="display:none" onclick="toggleAddPlayer('16U')">Edit Roster</button>
+        </div>
+        <div class="card-body">
+          <p style="font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.6;">High-level competition for players with college aspirations — hitting, pitching, defense, every rep.</p>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">Roster</div>
+          <div class="roster-grid" id="roster-16u"></div>
+          <div id="add-player-16U" style="display:none;margin-top:12px;">
+            <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p16-name" type="text" placeholder="Player name"></div><div class="fg" style="margin:0"><input id="p16-pos" type="text" placeholder="Position"></div></div>
+            <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p16-num" type="text" placeholder="#"></div><div class="fg" style="margin:0"><input id="p16-ig" type="text" placeholder="@instagram"></div></div>
+            <div class="fg" style="margin-bottom:8px;"><label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:5px;">Headshot (optional)</label><input id="p16-photo" type="file" accept="image/*" style="font-size:12px;color:var(--muted);width:100%;"></div>
+            <button class="btn btn-w btn-full" onclick="addPlayer('16U')">Add Player</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">14U Team Rollin</div>
+          <button class="btn btn-g btn-sm" id="edit14-btn" style="display:none" onclick="toggleAddPlayer('14U')">Edit Roster</button>
+        </div>
+        <div class="card-body">
+          <p style="font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.6;">Bridging the gap to high-school ball — refining pitch recognition, field awareness, and competitive edge.</p>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">Roster</div>
+          <div class="roster-grid" id="roster-14u"></div>
+          <div id="add-player-14U" style="display:none;margin-top:12px;">
+            <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p14-name" type="text" placeholder="Player name"></div><div class="fg" style="margin:0"><input id="p14-pos" type="text" placeholder="Position"></div></div>
+            <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p14-num" type="text" placeholder="#"></div><div class="fg" style="margin:0"><input id="p14-ig" type="text" placeholder="@instagram"></div></div>
+            <div class="fg" style="margin-bottom:8px;"><label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:5px;">Headshot (optional)</label><input id="p14-photo" type="file" accept="image/*" style="font-size:12px;color:var(--muted);width:100%;"></div>
+            <button class="btn btn-w btn-full" onclick="addPlayer('14U')">Add Player</button>
+          </div>
+        </div>
+      </div>
       <div class="card">
         <div class="card-head">
           <div class="card-title">12U Team Rollin</div>
@@ -277,18 +311,18 @@ footer a{color:var(--silver2);}
       </div>
       <div class="card">
         <div class="card-head">
-          <div class="card-title">16U Team Rollin</div>
-          <button class="btn btn-g btn-sm" id="edit16-btn" style="display:none" onclick="toggleAddPlayer('16U')">Edit Roster</button>
+          <div class="card-title">10U Team Rollin</div>
+          <button class="btn btn-g btn-sm" id="edit10-btn" style="display:none" onclick="toggleAddPlayer('10U')">Edit Roster</button>
         </div>
         <div class="card-body">
-          <p style="font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.6;">High-level competition for players with college aspirations — hitting, pitching, defense, every rep.</p>
+          <p style="font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.6;">Where it starts — building a love for the game with strong fundamentals, confidence, and teamwork.</p>
           <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--silver2);margin-bottom:8px;">Roster</div>
-          <div class="roster-grid" id="roster-16u"></div>
-          <div id="add-player-16U" style="display:none;margin-top:12px;">
-            <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p16-name" type="text" placeholder="Player name"></div><div class="fg" style="margin:0"><input id="p16-pos" type="text" placeholder="Position"></div></div>
-            <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p16-num" type="text" placeholder="#"></div><div class="fg" style="margin:0"><input id="p16-ig" type="text" placeholder="@instagram"></div></div>
-            <div class="fg" style="margin-bottom:8px;"><label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:5px;">Headshot (optional)</label><input id="p16-photo" type="file" accept="image/*" style="font-size:12px;color:var(--muted);width:100%;"></div>
-            <button class="btn btn-w btn-full" onclick="addPlayer('16U')">Add Player</button>
+          <div class="roster-grid" id="roster-10u"></div>
+          <div id="add-player-10U" style="display:none;margin-top:12px;">
+            <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p10-name" type="text" placeholder="Player name"></div><div class="fg" style="margin:0"><input id="p10-pos" type="text" placeholder="Position"></div></div>
+            <div class="form-row" style="margin-bottom:8px;"><div class="fg" style="margin:0"><input id="p10-num" type="text" placeholder="#"></div><div class="fg" style="margin:0"><input id="p10-ig" type="text" placeholder="@instagram"></div></div>
+            <div class="fg" style="margin-bottom:8px;"><label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:5px;">Headshot (optional)</label><input id="p10-photo" type="file" accept="image/*" style="font-size:12px;color:var(--muted);width:100%;"></div>
+            <button class="btn btn-w btn-full" onclick="addPlayer('10U')">Add Player</button>
           </div>
         </div>
       </div>
@@ -1056,7 +1090,7 @@ async function syncFromSupabase() {
     }
     console.log('Synced from Supabase');
     // Re-render everything
-    renderTourneys(); renderRoster('12U'); renderRoster('16U');
+    renderTourneys(); renderRoster('10U'); renderRoster('12U'); renderRoster('14U'); renderRoster('16U');
     if(document.getElementById('page-lessons').classList.contains('active')) { renderSlots(); renderPitchSlots(); }
     else { buildWeekTabs(allSlots, 'hitting-week-tabs', currentHitWeek, 'setHitWeek'); buildWeekTabs(pitchSlots, 'pitching-week-tabs', currentPitchWeek, 'setPitchWeek'); }
     updatePendingBadge();
@@ -1177,7 +1211,7 @@ function go(page) {
   window.scrollTo(0,0);
   if (page === 'lessons') { renderSlots(); renderPitchSlots(); if(isCoach){ renderCoachView(); renderPitchCoachView(); } renderMembersPanel(); updateAuthUI(); lessonTab('hitting', document.getElementById('ltab-hitting')); }
   if (page === 'schedule') renderTourneys();
-  if (page === 'teams') { renderRoster('12U'); renderRoster('16U'); }
+  if (page === 'teams') { renderRoster('10U'); renderRoster('12U'); renderRoster('14U'); renderRoster('16U'); }
 }
 
 // ====== MODALS ======
@@ -1317,9 +1351,13 @@ function updateAuthUI() {
   if(mc) mc.style.display = isC ? 'block' : 'none';
   var ab = document.getElementById('add-tourn-btn');
   if(ab) ab.style.display = isC ? '' : 'none';
+  var e10 = document.getElementById('edit10-btn');
   var e12 = document.getElementById('edit12-btn');
+  var e14 = document.getElementById('edit14-btn');
   var e16 = document.getElementById('edit16-btn');
+  if(e10) e10.style.display = isC ? '' : 'none';
   if(e12) e12.style.display = isC ? '' : 'none';
+  if(e14) e14.style.display = isC ? '' : 'none';
   if(e16) e16.style.display = isC ? '' : 'none';
   renderIdStrip();
   if(isC) updatePendingBadge();
@@ -1774,7 +1812,7 @@ function renderTourneys() {
   el.innerHTML = html;
 }
 function renderRoster(team) {
-  var id = 'roster-'+(team==='12U'?'12u':'16u');
+  var id = 'roster-'+team.toLowerCase();
   var el = document.getElementById(id);
   if(!el) return;
   var players = roster[team] || [];
@@ -1841,7 +1879,7 @@ function compressPhoto(file, callback) {
 }
 
 function addPlayer(team) {
-  var prefix = team==='12U' ? 'p12' : 'p16';
+  var prefix = 'p'+team.replace('U','');
   var name = document.getElementById(prefix+'-name').value.trim();
   if(!name) { toast('Enter player name','err'); return; }
   if(!roster[team]) roster[team]=[];
@@ -2659,7 +2697,9 @@ load();
 identity = null; try { var d=localStorage.getItem(ID_KEY); if(d) identity=JSON.parse(d); } catch(e){}
 updateAuthUI();
 renderTourneys();
+renderRoster('10U');
 renderRoster('12U');
+renderRoster('14U');
 renderRoster('16U');
 // Sync latest data from Supabase in background
 syncFromSupabase();
