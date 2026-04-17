@@ -486,6 +486,7 @@ footer a{color:var(--silver2);}
     <div style="display:flex;gap:0;">
       <button onclick="lessonTab('hitting',this)" id="ltab-hitting" style="padding:14px 24px;border:none;border-bottom:3px solid var(--scarlet);background:transparent;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Jaz — Hitting</button>
       <button onclick="lessonTab('pitching',this)" id="ltab-pitching" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Laurie — Pitching</button>
+      <button onclick="lessonTab('defense',this)" id="ltab-defense" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Mo — Defense</button>
       <button onclick="lessonTab('members',this)" id="ltab-members" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:none;">Members</button>
       <button onclick="lessonTab('practices',this)" id="ltab-practices" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:none;">Team Practices</button>
     </div>
@@ -692,6 +693,104 @@ footer a{color:var(--silver2);}
 
     </div><!-- end pitching inner -->
     </div><!-- end lsec-pitching -->
+
+    <!-- DEFENSE SECTION -->
+    <div id="lsec-defense" style="display:none;">
+    <div style="margin-top:0;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Defense Lessons</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Coach Mo · Book your weekly slot</div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Defense Scheduler</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <div class="tabs">
+                <button class="tab active" onclick="defView('player',this)">Player</button>
+                <button class="tab" onclick="defView('coach',this)">Coach</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body" id="def-view-player">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="tab active" onclick="filterDef('all',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">All</button>
+                <button class="tab" onclick="filterDef('12U',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">12U</button>
+                <button class="tab" onclick="filterDef('16U',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">16U</button>
+              </div>
+              <button id="my-def-btn" onclick="toggleMyDefense()" style="display:none;padding:4px 14px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">My Lessons</button>
+            </div>
+            <div id="defense-week-tabs" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;flex-wrap:nowrap;"></div>
+            <div id="def-slots"><div class="empty">No defense slots available yet.</div></div>
+          </div>
+          <div class="card-body" id="def-view-coach" style="display:none">
+            <div class="c-stats" id="def-stats"></div>
+            <div style="overflow-x:auto;">
+              <table class="t"><thead><tr><th>Date</th><th>Time</th><th>Player</th><th>Team</th><th></th></tr></thead><tbody id="def-tbody"></tbody></table>
+            </div>
+            <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Add Defense Slots</div>
+              <div class="add-tabs">
+                <button class="add-tab active" onclick="defAddTab('single',this)">Single</button>
+                <button class="add-tab" onclick="defAddTab('bulk',this)">Bulk Week</button>
+              </div>
+              <div id="def-panel-single">
+                <div class="fg"><label>Date</label><input type="date" id="ds-date"></div>
+                <div class="fg"><label>Time</label>
+                  <div class="time-pick">
+                    <select id="ds-hr"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option><option>11</option><option>12</option></select>
+                    <select id="ds-min"><option value="00">00</option><option value="30">30</option></select>
+                    <select id="ds-ampm"><option>AM</option><option selected>PM</option></select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="fg"><label>Team</label><select id="ds-team"><option value="both">Both</option><option value="12U">12U</option><option value="16U">16U</option></select></div>
+                  <div class="fg"><label>Duration</label><select id="ds-dur"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>60 min</option></select></div>
+                </div>
+                <button class="btn btn-w btn-full" onclick="addDefSingle()">Add Slot</button>
+              </div>
+              <div id="def-panel-bulk" style="display:none">
+                <div class="form-row">
+                  <div class="fg"><label>Start</label><input type="date" id="db-start"></div>
+                  <div class="fg"><label>End</label><input type="date" id="db-end"></div>
+                </div>
+                <div class="fg"><label>Days</label>
+                  <div class="days-grid" id="db-days">
+                    <button class="day-chip" data-d="0">Su</button><button class="day-chip" data-d="1">Mo</button><button class="day-chip" data-d="2">Tu</button><button class="day-chip" data-d="3">We</button><button class="day-chip" data-d="4">Th</button><button class="day-chip" data-d="5">Fr</button><button class="day-chip" data-d="6">Sa</button>
+                  </div>
+                </div>
+                <div class="fg"><label>Start Time</label>
+                  <div class="time-pick">
+                    <select id="db-hr"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option><option>11</option><option>12</option></select>
+                    <select id="db-min"><option value="00">00</option><option value="30">30</option></select>
+                    <select id="db-ampm2"><option>AM</option><option selected>PM</option></select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="fg"><label>Slots/Day</label><select id="db-count"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="8">8</option><option value="10">10</option><option value="12">12</option><option value="15">15</option></select></div>
+                  <div class="fg"><label>Duration</label><select id="db-dur"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>60 min</option></select></div>
+                </div>
+                <div class="form-row">
+                  <div class="fg"><label>Team</label><select id="db-team"><option value="both">Both</option><option value="12U">12U</option><option value="16U">16U</option></select></div>
+                  <div class="fg"><label>Copies per Slot</label><select id="db-copies"><option value="1">1</option><option value="2">2</option></select></div>
+                </div>
+                <button class="btn btn-w btn-full" onclick="addDefBulk()">Generate Slots</button>
+              </div>
+              <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn btn-d btn-sm" onclick="delAllOpenDef()">Delete All Open</button>
+                <button class="btn btn-d btn-sm" onclick="delPastDef()">Clear Past</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" id="def-members-card" style="display:none">
+          <div class="card-head"><div class="card-title">Book a Defense Slot</div></div>
+          <div class="card-body">
+            <p style="font-size:13px;color:var(--muted);line-height:1.6;">Admin can manually book a player into a defense slot from the Coach view table.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div><!-- end lsec-defense -->
 
     <!-- MEMBERS SECTION -->
     <div id="lsec-members" style="display:none;">
@@ -986,7 +1085,7 @@ footer a{color:var(--silver2);}
 
 <script>
 // ====== STATE ======
-var PW_KEY='tr_pw', ID_KEY='tr_id', SLOTS_KEY='tr_slots', PITCH_KEY='tr_pitch_slots', HIST_KEY='tr_history', PRAC_KEY='tr_practices', MEMBERS_KEY='tr_members', ROSTER_KEY='tr_roster', TOURN_KEY='tr_tourn';
+var PW_KEY='tr_pw', ID_KEY='tr_id', SLOTS_KEY='tr_slots', PITCH_KEY='tr_pitch_slots', DEF_KEY='tr_def_slots', HIST_KEY='tr_history', PRAC_KEY='tr_practices', MEMBERS_KEY='tr_members', ROSTER_KEY='tr_roster', TOURN_KEY='tr_tourn';
 var COACH_EMAILS = ['ginisays@gmail.com','Teamrollinfastpitch@gmail.com'];
 var sb = null;
 try { sb = supabase.createClient('https://hjmjrzgpogqqmtdshgpb.supabase.co', 'sb_publishable_bOdplw_95ydxVo4-L-o1WA_totrMbhz'); console.log('Supabase connected'); } catch(e){ console.error('Supabase failed',e); }
@@ -997,6 +1096,7 @@ var DAYS_S = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 var identity = null;
 var allSlots = [];
 var pitchSlots = [];
+var defSlots = [];
 var bookingHistory = [];
 var practices = [];
 var members = [];
@@ -1029,6 +1129,7 @@ function load() {
   try { var d=localStorage.getItem(ID_KEY); if(d) identity=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(SLOTS_KEY); if(d) allSlots=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(PITCH_KEY); if(d) pitchSlots=JSON.parse(d); } catch(e){}
+  try { var d=localStorage.getItem(DEF_KEY); if(d) defSlots=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(HIST_KEY); if(d) bookingHistory=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(PRAC_KEY); if(d) practices=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(MEMBERS_KEY); if(d) members=JSON.parse(d); } catch(e){}
@@ -1039,6 +1140,8 @@ function load() {
   allSlots.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
   pitchSlots = pitchSlots.filter(function(s){ return new Date(s.date+'T00:00:00') >= now; });
   pitchSlots.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
+  defSlots = defSlots.filter(function(s){ return new Date(s.date+'T00:00:00') >= now; });
+  defSlots.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
 }
 
 async function syncFromSupabase() {
@@ -1074,6 +1177,17 @@ async function syncFromSupabase() {
       pitchSlots.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
       save(PITCH_KEY, pitchSlots);
     }
+    // Defense Slots
+    try {
+      var rd = await sb.from('def_slots').select('*');
+      if(rd && rd.data) {
+        var nowD = new Date(); nowD.setHours(0,0,0,0);
+        defSlots = rd.data.filter(function(s){ return new Date(s.date+'T00:00:00')>=nowD; })
+          .map(function(s){ return {id:s.id,date:s.date,time:s.time,team:s.team,duration:s.duration,booked_by:s.booked_by||null,booked_team:s.booked_team||null}; });
+        defSlots.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
+        save(DEF_KEY, defSlots);
+      }
+    } catch(e) { /* def_slots table may not exist yet — localStorage-only fallback */ }
     // Roster
     var r4 = await sb.from('roster').select('*').order('sort_order');
     if(r4.data && r4.data.length) {
@@ -1091,8 +1205,8 @@ async function syncFromSupabase() {
     console.log('Synced from Supabase');
     // Re-render everything
     renderTourneys(); renderRoster('10U'); renderRoster('12U'); renderRoster('14U'); renderRoster('16U');
-    if(document.getElementById('page-lessons').classList.contains('active')) { renderSlots(); renderPitchSlots(); }
-    else { buildWeekTabs(allSlots, 'hitting-week-tabs', currentHitWeek, 'setHitWeek'); buildWeekTabs(pitchSlots, 'pitching-week-tabs', currentPitchWeek, 'setPitchWeek'); }
+    if(document.getElementById('page-lessons').classList.contains('active')) { renderSlots(); renderPitchSlots(); renderDefSlots(); }
+    else { buildWeekTabs(allSlots, 'hitting-week-tabs', currentHitWeek, 'setHitWeek'); buildWeekTabs(pitchSlots, 'pitching-week-tabs', currentPitchWeek, 'setPitchWeek'); buildWeekTabs(defSlots, 'defense-week-tabs', currentDefWeek, 'setDefWeek'); }
     updatePendingBadge();
   } catch(e){ console.error('Supabase sync failed',e); }
 }
@@ -1158,6 +1272,30 @@ async function sbDeletePitchSlot(id) {
   if(!sb) return;
   try { await sb.from('pitch_slots').delete().eq('id', id); } catch(e){ console.error('sbDeletePitchSlot',e); }
 }
+async function sbSaveDefSlots() {
+  if(!sb) return;
+  try {
+    await sb.from('def_slots').delete().gte('date', '2000-01-01');
+    if(defSlots.length) {
+      var rows = defSlots.map(function(s){ return {
+        id: s.id,
+        date: s.date,
+        time: s.time,
+        team: s.team,
+        duration: parseInt(s.duration) || 30,
+        booked_by: s.booked_by || null,
+        booked_team: s.booked_team || null
+      }; });
+      var resp = await sb.from('def_slots').insert(rows);
+      if(resp.error) console.error('def insert error:', JSON.stringify(resp.error));
+      else console.log('Def slots saved:', rows.length);
+    }
+  } catch(e){ console.error('sbSaveDefSlots exception:',e); }
+}
+async function sbDeleteDefSlot(id) {
+  if(!sb) return;
+  try { await sb.from('def_slots').delete().eq('id', id); } catch(e){ console.error('sbDeleteDefSlot',e); }
+}
 async function sbSaveSlots() {
   if(!sb) return;
   try {
@@ -1209,7 +1347,7 @@ function go(page) {
   var el = document.getElementById('page-'+page);
   if (el) el.classList.add('active');
   window.scrollTo(0,0);
-  if (page === 'lessons') { renderSlots(); renderPitchSlots(); if(isCoach){ renderCoachView(); renderPitchCoachView(); } renderMembersPanel(); updateAuthUI(); lessonTab('hitting', document.getElementById('ltab-hitting')); }
+  if (page === 'lessons') { renderSlots(); renderPitchSlots(); renderDefSlots(); if(isCoach){ renderCoachView(); renderPitchCoachView(); renderDefCoachView(); } renderMembersPanel(); updateAuthUI(); lessonTab('hitting', document.getElementById('ltab-hitting')); }
   if (page === 'schedule') renderTourneys();
   if (page === 'teams') { renderRoster('10U'); renderRoster('12U'); renderRoster('14U'); renderRoster('16U'); }
 }
@@ -1447,6 +1585,18 @@ function confirmBook() {
     toast('Pitching lesson booked!','ok');
     return;
   }
+  if(bookingId && bookingId.startsWith('def_')) {
+    var did = bookingId.replace('def_','');
+    var ds = defSlots.find(function(x){ return x.id===did; });
+    if(!ds || ds.booked_by) { toast('No longer available','err'); closeModal('modal-book'); return; }
+    ds.booked_by = identity.name;
+    ds.booked_team = identity.team;
+    save(DEF_KEY, defSlots); sbSaveDefSlots();
+    closeModal('modal-book');
+    renderDefSlots();
+    toast('Defense lesson booked!','ok');
+    return;
+  }
   var s = allSlots.find(function(x){ return x.id===bookingId; });
   if(!s || s.booked_by) { toast('No longer available','err'); closeModal('modal-book'); return; }
   // Prevent same player booking same date+time twice
@@ -1601,17 +1751,19 @@ function confirmCoachBook() {
   var playerName = parts[0];
   var playerTeam = parts[1];
   var isPitch = id.startsWith('pitch_');
-  var realId = isPitch ? id.replace('pitch_','') : id;
-  var pool = isPitch ? pitchSlots : allSlots;
+  var isDef = id.startsWith('def_');
+  var realId = isPitch ? id.replace('pitch_','') : isDef ? id.replace('def_','') : id;
+  var pool = isPitch ? pitchSlots : isDef ? defSlots : allSlots;
   var s = pool.find(function(x){ return x.id===realId; });
   if(!s) { toast('Slot not found','err'); closeModal('modal-cbook'); return; }
   if(s.booked_by) { toast('Slot already booked','err'); closeModal('modal-cbook'); return; }
   s.booked_by = playerName;
   s.booked_team = playerTeam;
   if(isPitch){ save(PITCH_KEY, pitchSlots); sbSavePitchSlots(); }
+  else if(isDef){ save(DEF_KEY, defSlots); sbSaveDefSlots(); }
   else { save(SLOTS_KEY, allSlots); sbSaveSlots(); }
   closeModal('modal-cbook');
-  renderCoachView(); renderSlots(); renderPitchSlots(); renderPitchCoachView();
+  renderCoachView(); renderSlots(); renderPitchSlots(); renderPitchCoachView(); renderDefSlots(); renderDefCoachView();
   toast('✓ '+playerName+' booked!','ok');
 }
 function delAllOpen() {
@@ -2356,9 +2508,263 @@ function openPitchCoachBook(id){
   openModal('modal-cbook');
 }
 
+// ====== DEFENSE (Coach Mo) ======
+var defFilter = 'all';
+var showMyDefense = false;
+var currentDefWeek = 0;
+
+function defView(view, el) {
+  if(view==='coach') {
+    if(!identity || identity.type!=='coach') {
+      el.classList.remove('active');
+      openModal('modal-id');
+      return;
+    }
+    el.closest('.tabs').querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); t.style.background=''; t.style.color=''; });
+    el.classList.add('active'); el.style.background='var(--white)'; el.style.color='var(--black)';
+    document.getElementById('def-view-player').style.display='none';
+    document.getElementById('def-view-coach').style.display='block';
+    renderDefCoachView();
+  } else {
+    el.closest('.tabs').querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); t.style.background=''; t.style.color=''; });
+    el.classList.add('active'); el.style.background='var(--white)'; el.style.color='var(--black)';
+    document.getElementById('def-view-player').style.display='block';
+    document.getElementById('def-view-coach').style.display='none';
+    renderDefSlots();
+  }
+}
+
+function filterDef(val, el) {
+  document.querySelectorAll('#def-view-player .tab').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  defFilter = val;
+  renderDefSlots();
+}
+
+function setDefWeek(w, el) {
+  currentDefWeek = w;
+  buildWeekTabs(defSlots, 'defense-week-tabs', currentDefWeek, 'setDefWeek');
+  renderDefSlots();
+}
+
+function toggleMyDefense() {
+  showMyDefense = !showMyDefense;
+  var btn = document.getElementById('my-def-btn');
+  if(btn) {
+    btn.style.background = showMyDefense ? 'var(--royal)' : 'transparent';
+    btn.style.borderColor = showMyDefense ? 'var(--royal)' : 'var(--border2)';
+    btn.style.color = showMyDefense ? 'var(--white)' : 'var(--muted)';
+  }
+  renderDefSlots();
+}
+
+function renderDefSlots() {
+  var el = document.getElementById('def-slots');
+  if(!el) return;
+  buildWeekTabs(defSlots, 'defense-week-tabs', currentDefWeek, 'setDefWeek');
+  var data = defSlots.slice();
+  if(showMyDefense && identity && identity.type==='player') {
+    data = data.filter(function(s){ return s.booked_by===identity.name && s.booked_team===identity.team; });
+  } else {
+    if(defFilter==='12U') data = data.filter(function(s){ return s.team==='both'||s.team==='12U'; });
+    if(defFilter==='16U') data = data.filter(function(s){ return s.team==='both'||s.team==='16U'; });
+  }
+  data = filterSlotsByWeek(data, currentDefWeek);
+  if(!data.length) { el.innerHTML='<div class="empty">No defense slots available yet.</div>'; return; }
+  var groups={};
+  data.forEach(function(s){ if(!groups[s.date]) groups[s.date]=[]; groups[s.date].push(s); });
+  var html='';
+  Object.keys(groups).sort().forEach(function(date){
+    var d = new Date(date+'T00:00:00');
+    html += '<div class="day-group"><div class="day-head"><div class="day-name">'+DAYS[d.getDay()]+'</div><div class="day-date">'+MONTHS[d.getMonth()]+' '+d.getDate()+'</div></div><div class="slots-grid">';
+    groups[date].forEach(function(s){ html += renderDefSlot(s); });
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+}
+
+function renderDefSlot(s) {
+  var isMe = identity && identity.type==='player' && s.booked_by===identity.name && s.booked_team===identity.team;
+  var taken = !!s.booked_by && !isMe;
+  var isIn = !!identity;
+  var time = fmt(s.time);
+  if(taken) {
+    var info = isIn ? '<div style="font-size:11px;font-weight:600;color:var(--white);margin-top:2px;">'+s.booked_by+'</div><div style="font-size:10px;color:var(--silver2);">'+s.booked_team+'</div>' : '';
+    return '<div class="slot taken" style="opacity:1;border-color:rgba(248,113,113,.2);"><div class="slot-time">'+time+'</div><div style="font-size:10px;"><span class="dot dot-t"></span>Booked</div>'+info+'</div>';
+  }
+  if(isMe) {
+    var dcalBtn = '<div style="font-size:9px;color:var(--silver2);margin-top:3px;cursor:pointer;" data-addcal="'+s.date+'|'+s.time+'|'+s.duration+'|defense">📅 Add to Calendar</div>';
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-dcancel="'+s.id+'">✕ Cancel</div>'+dcalBtn+'</div>';
+  }
+  var canBook = identity && identity.type==='player';
+  var click = canBook ? 'data-dbook="'+s.id+'"' : 'data-signin="1"';
+  return '<div class="slot open" '+click+'><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--silver);"><span class="dot dot-o"></span>Open</div><div style="font-size:9px;color:var(--silver3);margin-top:2px;">'+s.duration+'min</div></div>';
+}
+
+function openDefBook(id) {
+  if(!identity || identity.type!=='player') { openModal('modal-id'); return; }
+  var s = defSlots.find(function(x){ return x.id===id; });
+  if(!s) return;
+  var sameTime = defSlots.find(function(x){ return x.date===s.date && x.time===s.time && x.booked_by===identity.name && x.booked_team===identity.team && x.id!==id; });
+  if(sameTime) { toast('You already have a defense slot at this time','err'); return; }
+  bookingId = 'def_'+id;
+  var d = new Date(s.date+'T00:00:00');
+  document.getElementById('book-info').textContent = 'Defense · '+DAYS[d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate()+' @ '+fmt(s.time)+' · '+s.duration+'min';
+  document.getElementById('book-for').textContent = identity.name+' ('+identity.team+')';
+  openModal('modal-book');
+}
+
+function cancelDefSlot(id) {
+  if(!confirm('Cancel this defense booking?')) return;
+  var s = defSlots.find(function(x){ return x.id===id; });
+  if(!s) return;
+  var playerName=s.booked_by, playerTeam=s.booked_team, slotDate=s.date, slotTime=fmt(s.time);
+  s.booked_by=null; s.booked_team=null;
+  save(DEF_KEY, defSlots); sbSaveDefSlots();
+  renderDefSlots();
+  toast('Defense booking cancelled','');
+  sendNotification('Team Rollin: Defense Cancellation — '+playerName, 'Player: '+playerName+'\nTeam: '+playerTeam+'\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nSlot is now open.');
+}
+
+function renderDefCoachView() {
+  var booked = defSlots.filter(function(s){ return s.booked_by; });
+  var open = defSlots.filter(function(s){ return !s.booked_by; });
+  var statsEl = document.getElementById('def-stats');
+  if(statsEl) statsEl.innerHTML =
+    '<div class="cs"><div class="cs-n">'+booked.length+'</div><div class="cs-l">Booked</div></div>'+
+    '<div class="cs"><div class="cs-n">'+open.length+'</div><div class="cs-l">Open</div></div>'+
+    '<div class="cs"><div class="cs-n">'+booked.filter(function(s){return s.booked_team==='12U';}).length+'</div><div class="cs-l">12U</div></div>'+
+    '<div class="cs"><div class="cs-n">'+booked.filter(function(s){return s.booked_team==='16U';}).length+'</div><div class="cs-l">16U</div></div>';
+  var tbody = document.getElementById('def-tbody');
+  if(!tbody) return;
+  if(!defSlots.length){tbody.innerHTML='<tr><td colspan="5" class="empty">No slots</td></tr>';return;}
+  var html='';
+  defSlots.forEach(function(s){
+    var d=new Date(s.date+'T00:00:00');
+    var dateStr=DAYS_S[d.getDay()]+' '+MONTHS[d.getMonth()]+' '+d.getDate();
+    var player=s.booked_by?'<strong>'+s.booked_by+'</strong>':'<span style="color:var(--silver3)">&#8212;</span>';
+    var rmBtn=s.booked_by?'<button class="btn btn-d btn-sm" data-dcrm="'+s.id+'">Remove</button>':'<button class="btn btn-w btn-sm" data-dcbook="'+s.id+'">Book</button>';
+    html+='<tr><td style="font-size:11px;">'+dateStr+'</td><td style="font-size:11px;">'+fmt(s.time)+'</td><td style="font-size:12px;">'+player+'</td><td style="font-size:11px;color:var(--silver2);">'+(s.booked_team||s.team)+'</td><td style="display:flex;gap:4px;">'+rmBtn+'<button class="btn btn-g btn-sm" data-dcdel="'+s.id+'">Del</button></td></tr>';
+  });
+  tbody.innerHTML=html;
+}
+
+function defAddTab(tab, el) {
+  document.querySelectorAll('#def-view-coach .add-tab').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('def-panel-single').style.display = tab==='single'?'block':'none';
+  document.getElementById('def-panel-bulk').style.display = tab==='bulk'?'block':'none';
+}
+document.querySelectorAll('#db-days .day-chip').forEach(function(c){ c.addEventListener('click', function(){ c.classList.toggle('on'); }); });
+
+function addDefSingle() {
+  var dateRaw=document.getElementById('ds-date').value;
+  function toISO2(d){ if(!d) return ''; if(d.includes('-')) return d; var p=d.split('/'); return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0'); }
+  var date=toISO2(dateRaw);
+  var time=getTime('ds-hr','ds-min','ds-ampm');
+  var team=document.getElementById('ds-team').value;
+  var dur=parseInt(document.getElementById('ds-dur').value);
+  if(!date){toast('Pick a date','err');return;}
+  defSlots.push({id:'d'+uid(),date:date,time:time,team:team,duration:dur,booked_by:null,booked_team:null});
+  defSlots.sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
+  save(DEF_KEY,defSlots); sbSaveDefSlots(); renderDefCoachView();
+  document.getElementById('ds-date').value = '';
+  var banner = document.createElement('div');
+  banner.textContent = '✓ Defense slot added: ' + date + ' @ ' + time;
+  banner.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--green);color:var(--black);padding:14px 28px;border-radius:8px;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:18px;letter-spacing:1px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.5);';
+  document.body.appendChild(banner);
+  setTimeout(function(){ if(banner.parentNode) document.body.removeChild(banner); }, 2500);
+  var tbody = document.getElementById('def-tbody');
+  if(tbody) tbody.closest('table').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function addDefBulk() {
+  var startRaw=document.getElementById('db-start').value;
+  var endRaw=document.getElementById('db-end').value;
+  function toISO(d){ if(!d) return ''; if(d.includes('-')) return d; var p=d.split('/'); return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0'); }
+  var start=toISO(startRaw);
+  var end=toISO(endRaw);
+  var st=getTime('db-hr','db-min','db-ampm2');
+  var count=parseInt(document.getElementById('db-count').value);
+  var dur=parseInt(document.getElementById('db-dur').value);
+  var team=document.getElementById('db-team').value;
+  var copies=parseInt(document.getElementById('db-copies').value)||1;
+  var days=[];
+  document.querySelectorAll('#db-days .day-chip.on').forEach(function(c){days.push(parseInt(c.getAttribute('data-d')));});
+  if(!start||!end||!days.length){toast('Fill all fields + pick days','err');return;}
+  var parts=st.split(':'), sh=parseInt(parts[0]), sm=parseInt(parts[1]);
+  var times=[];
+  for(var i=0;i<count;i++){var tot=sh*60+sm+(i*dur);var h=Math.floor(tot/60)%24,m=tot%60;times.push((h<10?'0':'')+h+':'+(m<10?'0':'')+m);}
+  var s=new Date(start+'T00:00:00'),e=new Date(end+'T00:00:00'),added=0;
+  for(var d=new Date(s);d<=e;d.setDate(d.getDate()+1)){
+    if(days.indexOf(d.getDay())>=0){
+      var ds=d.toISOString().slice(0,10);
+      times.forEach(function(time){for(var c=0;c<copies;c++){defSlots.push({id:'d'+uid(),date:ds,time:time,team:team,duration:dur,booked_by:null,booked_team:null});added++;}});
+    }
+  }
+  defSlots.sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
+  save(DEF_KEY,defSlots); sbSaveDefSlots(); renderDefCoachView();
+  if(added > 0) {
+    var banner = document.createElement('div');
+    banner.textContent = '✓ ' + added + ' defense slots created!';
+    banner.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--green);color:var(--black);padding:14px 28px;border-radius:8px;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:20px;letter-spacing:1px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.5);';
+    document.body.appendChild(banner);
+    setTimeout(function(){ document.body.removeChild(banner); }, 3000);
+    document.querySelectorAll('#db-days .day-chip.on').forEach(function(c){ c.classList.remove('on'); });
+  } else {
+    toast('No slots added — check dates and days','err');
+  }
+}
+
+function delAllOpenDef(){
+  if(!confirm('Delete all open defense slots?'))return;
+  defSlots=defSlots.filter(function(s){return s.booked_by;});
+  save(DEF_KEY,defSlots); sbSaveDefSlots(); renderDefCoachView(); toast('Done','ok');
+}
+function delPastDef(){
+  if(!confirm('Clear past defense slots?'))return;
+  var now=new Date().toISOString().slice(0,10);
+  var pastD = defSlots.filter(function(s){ return s.date<now && s.booked_by; });
+  pastD.forEach(function(s){
+    bookingHistory.push({id:s.id, date:s.date, time:s.time, team:s.team, duration:s.duration, player:s.booked_by, playerTeam:s.booked_team, type:'defense', showed:false, paid:false, archivedAt:now});
+  });
+  localStorage.setItem(HIST_KEY, JSON.stringify(bookingHistory));
+  defSlots=defSlots.filter(function(s){return s.date>=now;});
+  save(DEF_KEY,defSlots); sbSaveDefSlots(); renderDefCoachView(); toast('Cleared','ok');
+}
+function defCoachRm(id){
+  var s=defSlots.find(function(x){return x.id===id;});
+  if(!s||!confirm('Remove booking for '+s.booked_by+'?'))return;
+  var playerName=s.booked_by,playerTeam=s.booked_team,slotDate=s.date,slotTime=fmt(s.time);
+  var member=members.find(function(m){return m.name.toLowerCase()===playerName.toLowerCase()&&m.team===playerTeam;});
+  var parentEmail=member?member.parentEmail:null;
+  s.booked_by=null;s.booked_team=null;
+  save(DEF_KEY,defSlots); sbSaveDefSlots(); renderDefCoachView(); toast('Removed','');
+  sendNotification('Team Rollin: Defense Cancellation — '+playerName,'Coach removed defense booking.\nPlayer: '+playerName+'\nTeam: '+playerTeam+'\nDate: '+slotDate+'\nTime: '+slotTime);
+  if(parentEmail){fetch('https://formspree.io/f/xpqorjjj',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({_replyto:parentEmail,subject:'Team Rollin TX: Defense lesson cancelled for '+playerName,message:'Hi '+(member?member.parentName:playerName)+',\n\nYour defense lesson has been cancelled by Coach Mo.\n\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nVisit teamrollinsoftball.net to rebook.\n\n— Team Rollin TX'})}).catch(function(){});}
+}
+function defCoachDel(id){
+  if(!confirm('Delete defense slot?'))return;
+  defSlots=defSlots.filter(function(x){return x.id!==id;});
+  save(DEF_KEY,defSlots); sbDeleteDefSlot(id); renderDefCoachView(); toast('Deleted','');
+}
+function openDefCoachBook(id){
+  var s=defSlots.find(function(x){return x.id===id;});
+  if(!s)return;
+  document.getElementById('cbook-slot-id').value='def_'+id;
+  var d=new Date(s.date+'T00:00:00');
+  document.getElementById('cbook-slot-info').textContent='Defense · '+DAYS[d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate()+' @ '+fmt(s.time)+' · '+s.duration+'min';
+  var sel=document.getElementById('cbook-player');
+  sel.innerHTML='<option value="">— choose a player —</option>';
+  var approved=members.filter(function(m){return m.status==='approved';});
+  if(s.team!=='both') approved=approved.filter(function(m){return m.team===s.team;});
+  approved.forEach(function(m){var opt=document.createElement('option');opt.value=m.name+'|'+m.team;opt.textContent=m.name+' ('+m.team+')';sel.appendChild(opt);});
+  openModal('modal-cbook');
+}
+
 function lessonTab(tab, el) {
   // Hide all sections
-  ['hitting','pitching','members'].forEach(function(t) {
+  ['hitting','pitching','defense','members','practices'].forEach(function(t) {
     var sec = document.getElementById('lsec-'+t);
     if(sec) sec.style.display = 'none';
     var btn = document.getElementById('ltab-'+t);
@@ -2372,6 +2778,7 @@ function lessonTab(tab, el) {
   // Render content
   if(tab==='hitting') { renderSlots(); if(identity&&identity.type==='coach') renderCoachView(); }
   if(tab==='pitching') { renderPitchSlots(); if(identity&&identity.type==='coach') renderPitchCoachView(); }
+  if(tab==='defense') { renderDefSlots(); if(identity&&identity.type==='coach') renderDefCoachView(); }
   if(tab==='members') { renderMembersPanel(); }
   if(tab==='practices') { renderPractices(); }
 }
@@ -2765,7 +3172,7 @@ document.addEventListener('click', function(e) {
   var addcal = e.target.closest('[data-addcal]');
   if(addcal) {
     var parts = addcal.getAttribute('data-addcal').split('|');
-    var calType = parts[3] === 'pitching' ? 'Pitching Lesson - Coach Laurie' : 'Hitting Lesson - Coach Jaz';
+    var calType = parts[3] === 'pitching' ? 'Pitching Lesson - Coach Laurie' : parts[3] === 'defense' ? 'Defense Lesson - Coach Mo' : 'Hitting Lesson - Coach Jaz';
     generateICS('Team Rollin TX: '+calType, parts[0], parts[1], parts[2]);
     return;
   }
@@ -2779,6 +3186,16 @@ document.addEventListener('click', function(e) {
   if(pcdel) { pitchCoachDel(pcdel.getAttribute('data-pcdel')); return; }
   var pcbook = e.target.closest('[data-pcbook]');
   if(pcbook) { openPitchCoachBook(pcbook.getAttribute('data-pcbook')); return; }
+  var dbook = e.target.closest('[data-dbook]');
+  if(dbook) { openDefBook(dbook.getAttribute('data-dbook')); return; }
+  var dcancel = e.target.closest('[data-dcancel]');
+  if(dcancel) { cancelDefSlot(dcancel.getAttribute('data-dcancel')); return; }
+  var dcrm = e.target.closest('[data-dcrm]');
+  if(dcrm) { defCoachRm(dcrm.getAttribute('data-dcrm')); return; }
+  var dcdel = e.target.closest('[data-dcdel]');
+  if(dcdel) { defCoachDel(dcdel.getAttribute('data-dcdel')); return; }
+  var dcbook = e.target.closest('[data-dcbook]');
+  if(dcbook) { openDefCoachBook(dcbook.getAttribute('data-dcbook')); return; }
 });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
@@ -2794,6 +3211,9 @@ flatpickr('#del-end', fpOpts);
 flatpickr('#pb-start', Object.assign({}, fpOpts, {onChange: function(sel,str){ var fp2=document.querySelector('#pb-end')._flatpickr; if(fp2) fp2.set('minDate',str); }}));
 flatpickr('#pb-end', fpOpts);
 flatpickr('#ps-date', fpOpts);
+flatpickr('#db-start', Object.assign({}, fpOpts, {onChange: function(sel,str){ var fp2=document.querySelector('#db-end')._flatpickr; if(fp2) fp2.set('minDate',str); }}));
+flatpickr('#db-end', fpOpts);
+flatpickr('#ds-date', fpOpts);
 flatpickr('#prac-date', fpOpts);
 </script>
 </body>
