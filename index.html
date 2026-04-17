@@ -746,6 +746,7 @@ footer a{color:var(--silver2);}
                   <div class="fg"><label>Team</label><select id="ds-team"><option value="both">Both</option><option value="12U">12U</option><option value="16U">16U</option></select></div>
                   <div class="fg"><label>Duration</label><select id="ds-dur"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>60 min</option></select></div>
                 </div>
+                <div class="fg"><label>Openings (players per time slot)</label><select id="ds-copies"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option></select></div>
                 <button class="btn btn-w btn-full" onclick="addDefSingle()">Add Slot</button>
               </div>
               <div id="def-panel-bulk" style="display:none">
@@ -771,7 +772,7 @@ footer a{color:var(--silver2);}
                 </div>
                 <div class="form-row">
                   <div class="fg"><label>Team</label><select id="db-team"><option value="both">Both</option><option value="12U">12U</option><option value="16U">16U</option></select></div>
-                  <div class="fg"><label>Copies per Slot</label><select id="db-copies"><option value="1">1</option><option value="2">2</option></select></div>
+                  <div class="fg"><label>Copies per Slot</label><select id="db-copies"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
                 </div>
                 <button class="btn btn-w btn-full" onclick="addDefBulk()">Generate Slots</button>
               </div>
@@ -2664,13 +2665,16 @@ function addDefSingle() {
   var time=getTime('ds-hr','ds-min','ds-ampm');
   var team=document.getElementById('ds-team').value;
   var dur=parseInt(document.getElementById('ds-dur').value);
+  var copies=parseInt(document.getElementById('ds-copies').value)||1;
   if(!date){toast('Pick a date','err');return;}
-  defSlots.push({id:'d'+uid(),date:date,time:time,team:team,duration:dur,booked_by:null,booked_team:null});
+  for(var c=0;c<copies;c++){
+    defSlots.push({id:'d'+uid(),date:date,time:time,team:team,duration:dur,booked_by:null,booked_team:null});
+  }
   defSlots.sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
   save(DEF_KEY,defSlots); sbSaveDefSlots(); renderDefCoachView();
   document.getElementById('ds-date').value = '';
   var banner = document.createElement('div');
-  banner.textContent = '✓ Defense slot added: ' + date + ' @ ' + time;
+  banner.textContent = '✓ Defense slot'+(copies>1?'s ('+copies+')':'')+' added: ' + date + ' @ ' + time;
   banner.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--green);color:var(--black);padding:14px 28px;border-radius:8px;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:18px;letter-spacing:1px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.5);';
   document.body.appendChild(banner);
   setTimeout(function(){ if(banner.parentNode) document.body.removeChild(banner); }, 2500);
