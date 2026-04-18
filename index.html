@@ -1187,7 +1187,13 @@ async function syncFromSupabase() {
     // Tournaments
     var r3 = await sb.from('tournaments').select('*');
     if(r3.data && r3.data.length) {
-      tourneys = r3.data.map(function(t){ return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:t.notes||'',link:t.link||''}; });
+      tourneys = r3.data.map(function(t){
+        var notes = t.notes || '';
+        var link = t.link || '';
+        var m = notes.match(/\s*\[\[LINK:([^\]]+)\]\]\s*/);
+        if(m) { if(!link) link = m[1]; notes = notes.replace(m[0],'').trim(); }
+        return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:notes,link:link};
+      });
       save(TOURN_KEY, tourneys);
     }
     // Pitch Slots
@@ -1343,8 +1349,17 @@ async function sbSaveTourneys() {
   try {
     await sb.from('tournaments').delete().neq('id','__none__');
     if(!tourneys.length) return;
-    var rows = tourneys.map(function(t){ return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:t.notes||'',link:t.link||''}; });
-    await sb.from('tournaments').insert(rows);
+    var rows = tourneys.map(function(t){
+      var notes = t.notes || '';
+      if(t.link) notes = (notes ? notes + ' ' : '') + '[[LINK:'+t.link+']]';
+      return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:notes,link:t.link||''};
+    });
+    var res = await sb.from('tournaments').insert(rows);
+    if(res && res.error) {
+      var fallback = rows.map(function(r){ return {id:r.id,name:r.name,date:r.date,location:r.location,team:r.team,notes:r.notes}; });
+      var res2 = await sb.from('tournaments').insert(fallback);
+      if(res2 && res2.error) console.error('sbSaveTourneys fallback error:', JSON.stringify(res2.error));
+    }
   } catch(e){ console.error('sbSaveTourneys',e); }
 }
 async function sbSaveRoster() {
