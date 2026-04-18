@@ -1060,6 +1060,7 @@ footer a{color:var(--silver2);}
     <div class="fg"><label>Location</label><input id="et-loc" type="text"></div>
     <div class="fg"><label>Team</label><select id="et-team"><option value="both">Both Teams</option><option value="12U">12U Only</option><option value="16U">16U Only</option></select></div>
     <div class="fg"><label>Notes</label><input id="et-notes" type="text"></div>
+    <div class="fg"><label>Tournament Website Link</label><input id="et-link" type="url" placeholder="https://example.com (optional)"></div>
     <div style="display:flex;gap:10px;">
       <button class="btn btn-w" style="flex:1;justify-content:center;" onclick="saveEditTourn()">Save</button>
       <button class="btn btn-g" style="flex:1;justify-content:center;" onclick="closeModal('modal-edit-tourn')">Cancel</button>
@@ -1093,6 +1094,7 @@ footer a{color:var(--silver2);}
     <div class="fg"><label>Location</label><input id="t-loc" type="text" placeholder="e.g. Round Rock, TX"></div>
     <div class="fg"><label>Team</label><select id="t-team"><option value="both">Both Teams</option><option value="12U">12U Only</option><option value="16U">16U Only</option></select></div>
     <div class="fg"><label>Notes</label><input id="t-notes" type="text" placeholder="Optional"></div>
+    <div class="fg"><label>Tournament Website Link</label><input id="t-link" type="url" placeholder="https://example.com (optional)"></div>
     <div style="display:flex;gap:10px;">
       <button class="btn btn-w" style="flex:1;justify-content:center;" onclick="addTournament()">Add</button>
       <button class="btn btn-g" style="flex:1;justify-content:center;" onclick="closeModal('modal-tourn')">Cancel</button>
@@ -1185,7 +1187,7 @@ async function syncFromSupabase() {
     // Tournaments
     var r3 = await sb.from('tournaments').select('*');
     if(r3.data && r3.data.length) {
-      tourneys = r3.data.map(function(t){ return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:t.notes||''}; });
+      tourneys = r3.data.map(function(t){ return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:t.notes||'',link:t.link||''}; });
       save(TOURN_KEY, tourneys);
     }
     // Pitch Slots
@@ -1340,7 +1342,13 @@ async function sbSaveTourneys() {
   if(!sb) return;
   try {
     await sb.from('tournaments').delete().neq('id','__none__');
-    if(tourneys.length) await sb.from('tournaments').insert(tourneys.map(function(t){ return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:t.notes||''}; }));
+    if(!tourneys.length) return;
+    var withLink = tourneys.map(function(t){ return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:t.notes||'',link:t.link||''}; });
+    var res = await sb.from('tournaments').insert(withLink);
+    if(res && res.error) {
+      var fallback = tourneys.map(function(t){ return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:t.notes||''}; });
+      await sb.from('tournaments').insert(fallback);
+    }
   } catch(e){ console.error('sbSaveTourneys',e); }
 }
 async function sbSaveRoster() {
@@ -1907,11 +1915,14 @@ function addTournament() {
   var loc = document.getElementById('t-loc').value.trim();
   var team = document.getElementById('t-team').value;
   var notes = document.getElementById('t-notes').value.trim();
+  var link = document.getElementById('t-link').value.trim();
   if(!name||!date||!loc) { toast('Fill name, date, location','err'); return; }
-  tourneys.push({id:uid(), name:name, date:date, location:loc, team:team, notes:notes});
+  if(link && !/^https?:\/\//i.test(link)) link = 'https://' + link;
+  tourneys.push({id:uid(), name:name, date:date, location:loc, team:team, notes:notes, link:link});
   tourneys.sort(function(a,b){ return a.date.localeCompare(b.date); });
   save(TOURN_KEY, tourneys); sbSaveTourneys();
   closeModal('modal-tourn');
+  document.getElementById('t-link').value = '';
   renderTourneys(); toast('Tournament added!','ok');
 }
 
@@ -1930,6 +1941,7 @@ function openEditTourn(id) {
   document.getElementById('et-loc').value = t.location || '';
   document.getElementById('et-team').value = t.team || 'both';
   document.getElementById('et-notes').value = t.notes || '';
+  document.getElementById('et-link').value = t.link || '';
   openModal('modal-edit-tourn');
   // Init flatpickr on edit date field
   if(window.flatpickr) {
@@ -1950,6 +1962,9 @@ function saveEditTourn() {
   t.name = name; t.date = date; t.location = loc;
   t.team = document.getElementById('et-team').value;
   t.notes = document.getElementById('et-notes').value.trim();
+  var link = document.getElementById('et-link').value.trim();
+  if(link && !/^https?:\/\//i.test(link)) link = 'https://' + link;
+  t.link = link;
   tourneys.sort(function(a,b){ return a.date.localeCompare(b.date); });
   save(TOURN_KEY, tourneys); sbSaveTourneys();
   closeModal('modal-edit-tourn');
@@ -1967,14 +1982,22 @@ function renderTourneys() {
   upcoming.forEach(function(t) {
     var d = new Date(t.date+'T00:00:00');
     var tl = t.team==='both' ? '12U + 16U' : t.team;
+    var safeLink = t.link ? String(t.link).replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : '';
     html += '<div class="tourn">';
     html += '<div><div class="t-month">'+MONTHS[d.getMonth()]+'</div><div class="t-day">'+d.getDate()+'</div><div class="t-month">'+d.getFullYear()+'</div></div>';
     html += '<div>';
-    html += '<div class="t-name">'+t.name+'</div>';
+    if(safeLink) {
+      html += '<div class="t-name"><a href="'+safeLink+'" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;text-decoration-color:var(--silver3);text-underline-offset:3px;">'+t.name+'</a></div>';
+    } else {
+      html += '<div class="t-name">'+t.name+'</div>';
+    }
     html += '<div class="t-loc">&#128205; '+t.location+'</div>';
     if(t.notes) html += '<div style="font-size:11px;color:var(--silver3);margin-top:4px;">'+t.notes+'</div>';
-    html += '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;">';
+    html += '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">';
     html += '<span style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid var(--border2);color:var(--silver2);">'+tl+'</span>';
+    if(safeLink) {
+      html += '<a href="'+safeLink+'" target="_blank" rel="noopener noreferrer" style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid var(--border2);color:var(--white);text-decoration:none;">Tournament Link &#8599;</a>';
+    }
     if(isC) {
       html += '<button class="btn btn-g btn-sm" data-tedit="'+t.id+'">Edit</button>';
       html += '<button class="btn btn-d btn-sm" data-tdelete="'+t.id+'">Remove</button>';
