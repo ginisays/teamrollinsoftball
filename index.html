@@ -1343,12 +1343,8 @@ async function sbSaveTourneys() {
   try {
     await sb.from('tournaments').delete().neq('id','__none__');
     if(!tourneys.length) return;
-    var withLink = tourneys.map(function(t){ return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:t.notes||'',link:t.link||''}; });
-    var res = await sb.from('tournaments').insert(withLink);
-    if(res && res.error) {
-      var fallback = tourneys.map(function(t){ return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:t.notes||''}; });
-      await sb.from('tournaments').insert(fallback);
-    }
+    var rows = tourneys.map(function(t){ return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:t.notes||'',link:t.link||''}; });
+    await sb.from('tournaments').insert(rows);
   } catch(e){ console.error('sbSaveTourneys',e); }
 }
 async function sbSaveRoster() {
