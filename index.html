@@ -126,12 +126,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .chk{display:flex;gap:8px;margin-bottom:8px;font-size:13px;}
 .chk-icon{color:var(--silver3);flex-shrink:0;}
 
-/* FAQ */
-.faq-item{border-bottom:1px solid var(--border);padding:18px 0;}
-.faq-item:first-child{border-top:1px solid var(--border);}
-.faq-q{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
-.faq-a{font-size:14px;color:var(--muted);line-height:1.7;}
-.faq-a strong{color:var(--white);}
 
 /* TOURNAMENT */
 .tourn{background:var(--black3);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:center;margin-bottom:10px;transition:border-color .2s;}
@@ -229,7 +223,6 @@ footer a{color:var(--silver2);}
     <a onclick="go('schedule');closeMob()">Schedule</a>
     <a onclick="go('coach');closeMob()">About Us</a>
     <a onclick="go('checklist');closeMob()" id="nav-checklist" style="display:none">TR Families</a>
-    <a onclick="go('faq');closeMob()" id="nav-faq" style="display:none">FAQs</a>
     <a onclick="go('lessons');closeMob()" id="nav-lessons" style="display:none">Lessons</a>
     <a onclick="go('contact');closeMob()">Contact</a>
     <button class="nav-btn" onclick="openModal('modal-id');closeMob()" id="signin-btn">Sign In</button>
@@ -374,6 +367,9 @@ footer a{color:var(--silver2);}
 <div class="page" id="page-checklist">
   <div class="sec-head"><span class="eyebrow">Team Rollin TX</span><h2 class="sec-title">TR Families</h2></div>
   <div style="padding:0 5%;margin-bottom:16px;">
+    <a href="https://docs.google.com/document/d/13LXDpUokiMGbo9Blhb57jKQvc7wehigdGgzULtYze-o/edit?tab=t.0" target="_blank" rel="noopener" style="color:var(--silver);text-decoration:underline;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;">TR Families Document</a>
+  </div>
+  <div style="padding:0 5%;margin-bottom:16px;">
     <div style="display:flex;gap:4px;flex-wrap:wrap;">
       <button onclick="famTab('10U',this)" id="fam-tab-10U" style="padding:5px 18px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">10U</button>
       <button onclick="famTab('12U',this)" id="fam-tab-12U" style="padding:5px 18px;border-radius:20px;border:1px solid var(--scarlet);background:var(--scarlet);color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">12U</button>
@@ -442,57 +438,6 @@ footer a{color:var(--silver2);}
       </div>
     </div>
   </div>
-  </div>
-</div>
-
-<!-- FAQ (requires login) -->
-<div class="page" id="page-faq">
-  <div class="sec-head"><span class="eyebrow">Team Rollin TX</span><h2 class="sec-title">FAQs</h2></div>
-  <div class="sec" style="max-width:800px;">
-    <div class="faq-item"><div class="faq-q">When and where do I pay monthly dues?</div><div class="faq-a">
-  <div style="margin-bottom:6px;"><strong>12U:</strong> By the <strong>15th of each month</strong> via Zelle: <strong>(801) 719-4750</strong></div>
-  <div><strong>16U:</strong> By the <strong>1st of each month</strong> via Zelle: <strong>(801) 719-4750</strong></div>
-</div></div>
-    <div class="faq-item"><div class="faq-q">How many privates a week do I need?</div><div class="faq-a"><strong>1 mandatory private</strong> and <strong>1 mandatory semi-private</strong> per week. Pitchers and Catchers may do additional work.</div></div>
-    <div class="faq-item"><div class="faq-q">How do I sign up for privates?</div><div class="faq-a">Use the <strong>Lessons</strong> tab on this site to book your slot.</div></div>
-    <div class="faq-item"><div class="faq-q">Can parents attend practices?</div><div class="faq-a"><strong>Privates and Semi-Privates are closed to parent viewing.</strong> For Fielding at T&amp;C, sit in right or left field — not behind the dugout.</div></div>
-    <div class="faq-item"><div class="faq-q">Can parents engage during games?</div><div class="faq-a">No coaching from the stands. No approaching the dugout. General cheering is always welcome! Players must be self-sufficient during games.</div></div>
-    <div class="faq-item"><div class="faq-q">When does my player need to arrive?</div><div class="faq-a"><strong>At least 30 minutes early.</strong> Players must be warmed up and ready when coaches arrive at start time.</div></div>
-    <div class="faq-item"><div class="faq-q">Is play time guaranteed?</div><div class="faq-a">No. Play time is earned during practice. There is a <strong>24-hour post-tournament contact rule</strong> — please wait before reaching out about anything from that weekend.</div></div>
-    <div class="faq-item"><div class="faq-q">Can my daughter play for other teams?</div><div class="faq-a"><strong>No.</strong></div></div>
-    <div class="faq-item"><div class="faq-q">What shoes at tournaments?</div><div class="faq-a">Turf shoes when not in cleats. No crocs.</div></div>
-    <div class="faq-item"><div class="faq-q">Parent Volunteer Jobs &amp; Uniforms</div><div class="faq-a">
-      <!-- Team tabs -->
-      <div style="display:flex;gap:4px;margin-bottom:16px;margin-top:8px;">
-        <button onclick="volTab('12U',this)" style="padding:5px 18px;border-radius:20px;border:1px solid var(--scarlet);background:var(--scarlet);color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;" id="vol-tab-12U">12U</button>
-        <button onclick="volTab('16U',this)" style="padding:5px 18px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;" id="vol-tab-16U">16U</button>
-      </div>
-      <!-- 12U content -->
-      <div id="vol-12U">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
-          <div>
-            <div style="font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--silver2);margin-bottom:8px;">Staff</div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span>Team Mom</span><strong style="color:var(--white);">Allison</strong></div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span>Food Coords</span><strong style="color:var(--white);">Lauren / Molly</strong></div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span>Social Media</span><strong style="color:var(--white);">Christy</strong></div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span>Score Book</span><strong style="color:var(--white);">Megan / Lauren</strong></div>
-            <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;"><span>Streaming</span><strong style="color:var(--white);">Allison</strong></div>
-          </div>
-          <div>
-            <div style="font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--silver2);margin-bottom:8px;">Practice Uniforms</div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span>Sundays</span><strong style="color:var(--white);">Black</strong></div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span>Tuesdays</span><strong style="color:var(--white);">Grey</strong></div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;"><span>Semis</span><strong style="color:var(--white);">Black shirt + black shorts</strong></div>
-            <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;"><span>Privates</span><strong style="color:var(--white);">Anything (no other team logos)</strong></div>
-          </div>
-        </div>
-      </div>
-      <!-- 16U content -->
-      <div id="vol-16U" style="display:none;">
-        <div style="font-size:13px;color:var(--muted);font-style:italic;">16U volunteer jobs coming soon. Contact Coach Jaz for details.</div>
-      </div>
-    </div></div>
-    <div class="faq-item"><div class="faq-q">Who do I contact with questions?</div><div class="faq-a"><strong>Playing time / coaching / hitting:</strong> have your player communicate directly with Coach Jaz.<br><strong>Uniforms / food / logistics (12U):</strong> contact Allison.<br><strong>Uniforms / food / logistics (16U):</strong> contact Xiomara.</div></div>
   </div>
 </div>
 
@@ -1131,7 +1076,7 @@ var isCoach = false;
 var pendingPage = null;
 var approvingId = null;
 
-var PROTECTED = ['checklist','faq','lessons'];
+var PROTECTED = ['checklist','lessons'];
 var DEFAULT_TOURNEYS = [
   {id:'t1',name:'Shaking Off Rust',date:'2026-01-24',location:'Seguin, TX',team:'both',notes:'1-Day Saturday'},
   {id:'t2',name:'Knockin Off The Ice',date:'2026-01-31',location:'Seguin, TX',team:'both',notes:''},
@@ -1519,7 +1464,7 @@ function updateAuthUI() {
   if(mpBtn) mpBtn.style.display = (identity && identity.type==='player') ? '' : 'none';
   var isC = identity && identity.type==='coach';
   var isIn = !!identity;
-  var navIds = ['nav-checklist','nav-faq','nav-lessons'];
+  var navIds = ['nav-checklist','nav-lessons'];
   navIds.forEach(function(id){
     var el = document.getElementById(id);
     if(el) el.style.display = isIn ? '' : 'none';
@@ -3132,19 +3077,6 @@ function deleteHistory(id) {
   bookingHistory = bookingHistory.filter(function(x){ return x.id!==id; });
   localStorage.setItem(HIST_KEY, JSON.stringify(bookingHistory));
   renderHistory();
-}
-
-function volTab(team, el) {
-  document.getElementById('vol-12U').style.display = team==='12U' ? 'block' : 'none';
-  document.getElementById('vol-16U').style.display = team==='16U' ? 'block' : 'none';
-  ['12U','16U'].forEach(function(t) {
-    var btn = document.getElementById('vol-tab-'+t);
-    if(btn) {
-      btn.style.background = t===team ? 'var(--scarlet)' : 'transparent';
-      btn.style.borderColor = t===team ? 'var(--scarlet)' : 'var(--border2)';
-      btn.style.color = t===team ? 'var(--white)' : 'var(--muted)';
-    }
-  });
 }
 
 function famTab(team, el) {
