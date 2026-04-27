@@ -621,7 +621,7 @@ footer a{color:var(--silver2);}
           <div style="overflow-x:auto;">
             <table class="t"><thead><tr><th>Date</th><th>Time</th><th>Player</th><th>Team</th><th></th></tr></thead><tbody id="coach-tbody"></tbody></table>
           </div>
-          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);" id="manage-hitting">
             <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Add Slots</div>
             <div class="add-tabs">
               <button class="add-tab active" onclick="addTab('single',this)">Single</button>
@@ -731,7 +731,7 @@ footer a{color:var(--silver2);}
             <div style="overflow-x:auto;">
               <table class="t"><thead><tr><th>Date</th><th>Time</th><th>Player</th><th>Team</th><th></th></tr></thead><tbody id="pitch-tbody"></tbody></table>
             </div>
-            <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+            <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);" id="manage-pitching">
               <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Add Pitching Slots</div>
               <div class="add-tabs">
                 <button class="add-tab active" onclick="pitchAddTab('single',this)">Single</button>
@@ -831,7 +831,7 @@ footer a{color:var(--silver2);}
             <div style="overflow-x:auto;">
               <table class="t"><thead><tr><th>Date</th><th>Time</th><th>Player</th><th>Team</th><th></th></tr></thead><tbody id="def-tbody"></tbody></table>
             </div>
-            <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+            <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);" id="manage-defense">
               <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Add Defense Slots</div>
               <div class="add-tabs">
                 <button class="add-tab active" onclick="defAddTab('single',this)">Single</button>
@@ -1042,6 +1042,13 @@ footer a{color:var(--silver2);}
       </div>
     </div>
     <div id="id-coach" style="display:none">
+      <div class="fg"><label>Coach</label>
+        <select id="c-who">
+          <option value="jaz">Coach Jaz — Hitting</option>
+          <option value="laurie">Coach Laurie — Pitching</option>
+          <option value="mo">Coach Mo — Defense</option>
+        </select>
+      </div>
       <div class="fg"><label>Password</label><input id="c-pw" type="password" placeholder="Password"></div>
       <button class="btn btn-w btn-full" onclick="loginCoach()">Coach Login</button>
     </div>
@@ -1202,6 +1209,16 @@ footer a{color:var(--silver2);}
 <script>
 // ====== STATE ======
 var PW_KEY='tr_pw', ID_KEY='tr_id', SLOTS_KEY='tr_slots', PITCH_KEY='tr_pitch_slots', DEF_KEY='tr_def_slots', HIST_KEY='tr_history', PRAC_KEY='tr_practices', MEMBERS_KEY='tr_members', ROSTER_KEY='tr_roster', TOURN_KEY='tr_tourn';
+var COACHES = {
+  jaz:    {name:'Coach Jaz',    specialty:'hitting',  pwKey:'tr_pw',        defaultPw:'softball', role:'Hitting · Founder'},
+  laurie: {name:'Coach Laurie', specialty:'pitching', pwKey:'tr_pw_laurie', defaultPw:'pitching', role:'Pitching'},
+  mo:     {name:'Coach Mo',     specialty:'defense',  pwKey:'tr_pw_mo',     defaultPw:'defense',  role:'Defense'}
+};
+function canManage(area) {
+  if(!identity || identity.type!=='coach') return false;
+  if(identity.specialty==='all') return true;
+  return identity.specialty===area;
+}
 var COACH_EMAILS = ['ginisays@gmail.com','Teamrollinfastpitch@gmail.com'];
 var sb = null;
 try { sb = supabase.createClient('https://hjmjrzgpogqqmtdshgpb.supabase.co', 'sb_publishable_bOdplw_95ydxVo4-L-o1WA_totrMbhz'); console.log('Supabase connected'); } catch(e){ console.error('Supabase failed',e); }
@@ -1243,6 +1260,13 @@ var DEFAULT_TOURNEYS = [
 // ====== INIT ======
 function load() {
   try { var d=localStorage.getItem(ID_KEY); if(d) identity=JSON.parse(d); } catch(e){}
+  if(identity && identity.type==='coach' && !identity.specialty) {
+    var match = null;
+    for(var k in COACHES) { if(COACHES[k].name===identity.name) { match = COACHES[k]; break; } }
+    identity.specialty = match ? match.specialty : 'hitting';
+    identity.role = match ? match.role : (identity.role || 'Hitting · Founder');
+    save(ID_KEY, identity);
+  }
   try { var d=localStorage.getItem(SLOTS_KEY); if(d) allSlots=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(PITCH_KEY); if(d) pitchSlots=JSON.parse(d); } catch(e){}
   try { var d=localStorage.getItem(DEF_KEY); if(d) defSlots=JSON.parse(d); } catch(e){}
@@ -1559,14 +1583,17 @@ function loginPlayer() {
 }
 
 function loginCoach() {
+  var who = document.getElementById('c-who').value;
+  var coach = COACHES[who];
+  if(!coach) { toast('Pick a coach','err'); return; }
   var pw = document.getElementById('c-pw').value;
-  var stored = localStorage.getItem(PW_KEY) || 'softball';
+  var stored = localStorage.getItem(coach.pwKey) || coach.defaultPw;
   if(pw !== stored) { toast('Wrong password','err'); return; }
-  identity = {type:'coach', name:'Coach Jaz', team:'all'};
+  identity = {type:'coach', name:coach.name, team:'all', specialty:coach.specialty, role:coach.role};
   save(ID_KEY, identity);
   closeModal('modal-id');
   updateAuthUI();
-  toast('Coach mode on','ok');
+  toast(coach.name+' signed in','ok');
   if(pendingPage) { go(pendingPage); pendingPage=null; }
 }
 
@@ -1639,7 +1666,7 @@ function renderIdStrip() {
   if(!c) return;
   if(!identity) { c.innerHTML=''; return; }
   var init = identity.name.split(' ').map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
-  c.innerHTML = '<div class="id-strip"><div class="id-info"><div class="id-av">'+init+'</div><div><div style="font-weight:600;font-size:13px;">'+identity.name+'</div><div style="font-size:11px;color:var(--muted);">'+(identity.type==='coach'?'Coach — All Teams':identity.team+' Team Rollin')+'</div></div></div><button class="btn btn-g btn-sm" onclick="logout()">Sign Out</button></div>';
+  c.innerHTML = '<div class="id-strip"><div class="id-info"><div class="id-av">'+init+'</div><div><div style="font-weight:600;font-size:13px;">'+identity.name+'</div><div style="font-size:11px;color:var(--muted);">'+(identity.type==='coach'? ('Coach — '+(identity.role||'All Teams')) : (identity.team+' Team Rollin'))+'</div></div></div><button class="btn btn-g btn-sm" onclick="logout()">Sign Out</button></div>';
 }
 
 // ====== SLOTS ======
@@ -1790,11 +1817,14 @@ function schedView(view, el) {
 function renderCoachView() {
   var booked = allSlots.filter(function(s){ return s.booked_by; });
   var open = allSlots.filter(function(s){ return !s.booked_by; });
-  document.getElementById('c-stats').innerHTML = 
+  document.getElementById('c-stats').innerHTML =
     '<div class="cs"><div class="cs-n">'+booked.length+'</div><div class="cs-l">Booked</div></div>' +
     '<div class="cs"><div class="cs-n">'+open.length+'</div><div class="cs-l">Open</div></div>' +
     '<div class="cs"><div class="cs-n">'+booked.filter(function(s){return s.booked_team==='12U';}).length+'</div><div class="cs-l">12U</div></div>' +
     '<div class="cs"><div class="cs-n">'+booked.filter(function(s){return s.booked_team==='16U';}).length+'</div><div class="cs-l">16U</div></div>';
+  var canMg = canManage('hitting');
+  var mgrEl = document.getElementById('manage-hitting');
+  if(mgrEl) mgrEl.style.display = canMg ? '' : 'none';
   var rows = allSlots.slice();
   if(coachFilter==='12U') rows=rows.filter(function(s){return s.booked_team==='12U';});
   else if(coachFilter==='16U') rows=rows.filter(function(s){return s.booked_team==='16U';});
@@ -1806,18 +1836,25 @@ function renderCoachView() {
     var d = new Date(s.date+'T00:00:00');
     var dateStr = DAYS_S[d.getDay()]+' '+MONTHS[d.getMonth()]+' '+d.getDate();
     var player = s.booked_by ? '<strong>'+s.booked_by+'</strong>' : '<span style="color:var(--silver3)">&#8212;</span>';
-    var rmBtn = s.booked_by ? '<button class="btn btn-d btn-sm" data-crm="'+s.id+'">Remove</button>' : '<button class="btn btn-w btn-sm" data-cbook="'+s.id+'">Book Player</button>';
+    var actions = '';
+    if(canMg) {
+      var rmBtn = s.booked_by ? '<button class="btn btn-d btn-sm" data-crm="'+s.id+'">Remove</button>' : '<button class="btn btn-w btn-sm" data-cbook="'+s.id+'">Book Player</button>';
+      actions = rmBtn+'<button class="btn btn-g btn-sm" data-cdel="'+s.id+'">Del</button>';
+    } else {
+      actions = '<span style="font-size:10px;color:var(--silver3);">view only</span>';
+    }
     html += '<tr>';
     html += '<td style="font-size:11px;">'+dateStr+'</td>';
     html += '<td style="font-size:11px;">'+fmt(s.time)+'</td>';
     html += '<td style="font-size:12px;">'+player+'</td>';
     html += '<td style="font-size:11px;color:var(--silver2);">'+(s.booked_team||s.team)+'</td>';
-    html += '<td style="display:flex;gap:4px;flex-wrap:wrap;">'+rmBtn+'<button class="btn btn-g btn-sm" data-cdel="'+s.id+'">Del</button></td>';
+    html += '<td style="display:flex;gap:4px;flex-wrap:wrap;">'+actions+'</td>';
     html += '</tr>';
   });
   tbody.innerHTML = html;
 }
 function coachRm(id) {
+  if(!canManage('hitting')) { toast('Only Coach Jaz can manage hitting','err'); return; }
   var s = allSlots.find(function(x){ return x.id===id; });
   if(!s || !confirm('Remove booking for '+s.booked_by+'?')) return;
   var playerName = s.booked_by;
@@ -1850,12 +1887,14 @@ function coachRm(id) {
   }
 }
 function coachDel(id) {
+  if(!canManage('hitting')) { toast('Only Coach Jaz can manage hitting','err'); return; }
   if(!confirm('Delete slot?')) return;
   allSlots = allSlots.filter(function(x){ return x.id!==id; });
   save(SLOTS_KEY, allSlots); sbDeleteSlot(id); renderCoachView(); toast('Deleted','');
 }
 
 function openCoachBook(id) {
+  if(!canManage('hitting')) { toast('Only Coach Jaz can manage hitting','err'); return; }
   var s = allSlots.find(function(x){ return x.id===id; });
   if(!s) return;
   document.getElementById('cbook-slot-id').value = id;
@@ -1878,13 +1917,15 @@ function openCoachBook(id) {
 
 function confirmCoachBook() {
   var id = document.getElementById('cbook-slot-id').value;
+  var isPitch = id.startsWith('pitch_');
+  var isDef = id.startsWith('def_');
+  var area = isPitch ? 'pitching' : isDef ? 'defense' : 'hitting';
+  if(!canManage(area)) { toast('Not allowed to manage '+area,'err'); closeModal('modal-cbook'); return; }
   var val = document.getElementById('cbook-player').value;
   if(!val) { toast('Select a player','err'); return; }
   var parts = val.split('|');
   var playerName = parts[0];
   var playerTeam = parts[1];
-  var isPitch = id.startsWith('pitch_');
-  var isDef = id.startsWith('def_');
   var realId = isPitch ? id.replace('pitch_','') : isDef ? id.replace('def_','') : id;
   var pool = isPitch ? pitchSlots : isDef ? defSlots : allSlots;
   var s = pool.find(function(x){ return x.id===realId; });
@@ -1900,11 +1941,13 @@ function confirmCoachBook() {
   toast('✓ '+playerName+' booked!','ok');
 }
 function delAllOpen() {
+  if(!canManage('hitting')) { toast('Only Coach Jaz can manage hitting','err'); return; }
   if(!confirm('Delete all open slots?')) return;
   allSlots = allSlots.filter(function(s){ return s.booked_by; });
   save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView(); toast('Done','ok');
 }
 function delPast() {
+  if(!canManage('hitting')) { toast('Only Coach Jaz can manage hitting','err'); return; }
   if(!confirm('Clear past slots?')) return;
   var now = new Date().toISOString().slice(0,10);
   var past = allSlots.filter(function(s){ return s.date<now && s.booked_by; });
@@ -1917,6 +1960,7 @@ function delPast() {
 }
 
 function delByRange() {
+  if(!canManage('hitting')) { toast('Only Coach Jaz can manage hitting','err'); return; }
   var from = document.getElementById('del-start').value;
   var to = document.getElementById('del-end').value;
   var which = document.getElementById('del-which').value;
@@ -1946,6 +1990,7 @@ function addTab(tab, el) {
 document.querySelectorAll('#b-days .day-chip').forEach(function(c){ c.addEventListener('click', function(){ c.classList.toggle('on'); }); });
 
 function addSingle() {
+  if(!canManage('hitting')) { toast('Only Coach Jaz can manage hitting','err'); return; }
   var dateRaw = document.getElementById('s-date').value;
   function toISO3(d){ if(!d) return ''; if(d.includes('-')) return d; var p=d.split('/'); return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0'); }
   var date = toISO3(dateRaw);
@@ -1965,6 +2010,7 @@ function addSingle() {
 }
 
 function addBulk() {
+  if(!canManage('hitting')) { toast('Only Coach Jaz can manage hitting','err'); return; }
   var startRaw2 = document.getElementById('b-start').value;
   var endRaw2 = document.getElementById('b-end').value;
   function toISO4(d){ if(!d) return ''; if(d.includes('-')) return d; var p=d.split('/'); return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0'); }
@@ -2527,6 +2573,9 @@ function renderPitchCoachView() {
     '<div class="cs"><div class="cs-n">'+open.length+'</div><div class="cs-l">Open</div></div>'+
     '<div class="cs"><div class="cs-n">'+booked.filter(function(s){return s.booked_team==='12U';}).length+'</div><div class="cs-l">12U</div></div>'+
     '<div class="cs"><div class="cs-n">'+booked.filter(function(s){return s.booked_team==='16U';}).length+'</div><div class="cs-l">16U</div></div>';
+  var canMg = canManage('pitching');
+  var mgrEl = document.getElementById('manage-pitching');
+  if(mgrEl) mgrEl.style.display = canMg ? '' : 'none';
   var tbody = document.getElementById('pitch-tbody');
   if(!pitchSlots.length){tbody.innerHTML='<tr><td colspan="5" class="empty">No slots</td></tr>';return;}
   var html='';
@@ -2534,8 +2583,14 @@ function renderPitchCoachView() {
     var d=new Date(s.date+'T00:00:00');
     var dateStr=DAYS_S[d.getDay()]+' '+MONTHS[d.getMonth()]+' '+d.getDate();
     var player=s.booked_by?'<strong>'+s.booked_by+'</strong>':'<span style="color:var(--silver3)">&#8212;</span>';
-    var rmBtn=s.booked_by?'<button class="btn btn-d btn-sm" data-pcrm="'+s.id+'">Remove</button>':'<button class="btn btn-w btn-sm" data-pcbook="'+s.id+'">Book</button>';
-    html+='<tr><td style="font-size:11px;">'+dateStr+'</td><td style="font-size:11px;">'+fmt(s.time)+'</td><td style="font-size:12px;">'+player+'</td><td style="font-size:11px;color:var(--silver2);">'+(s.booked_team||s.team)+'</td><td style="display:flex;gap:4px;">'+rmBtn+'<button class="btn btn-g btn-sm" data-pcdel="'+s.id+'">Del</button></td></tr>';
+    var actions = '';
+    if(canMg) {
+      var rmBtn=s.booked_by?'<button class="btn btn-d btn-sm" data-pcrm="'+s.id+'">Remove</button>':'<button class="btn btn-w btn-sm" data-pcbook="'+s.id+'">Book</button>';
+      actions = rmBtn+'<button class="btn btn-g btn-sm" data-pcdel="'+s.id+'">Del</button>';
+    } else {
+      actions = '<span style="font-size:10px;color:var(--silver3);">view only</span>';
+    }
+    html+='<tr><td style="font-size:11px;">'+dateStr+'</td><td style="font-size:11px;">'+fmt(s.time)+'</td><td style="font-size:12px;">'+player+'</td><td style="font-size:11px;color:var(--silver2);">'+(s.booked_team||s.team)+'</td><td style="display:flex;gap:4px;">'+actions+'</td></tr>';
   });
   tbody.innerHTML=html;
 }
@@ -2549,6 +2604,7 @@ function pitchAddTab(tab, el) {
 document.querySelectorAll('#pb-days .day-chip').forEach(function(c){ c.addEventListener('click', function(){ c.classList.toggle('on'); }); });
 
 function addPitchSingle() {
+  if(!canManage('pitching')) { toast('Only Coach Laurie can manage pitching','err'); return; }
   var dateRaw=document.getElementById('ps-date').value;
   function toISO2(d){ if(!d) return ''; if(d.includes('-')) return d; var p=d.split('/'); return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0'); }
   var date=toISO2(dateRaw);
@@ -2571,6 +2627,7 @@ function addPitchSingle() {
 }
 
 function addPitchBulk() {
+  if(!canManage('pitching')) { toast('Only Coach Laurie can manage pitching','err'); return; }
   var startRaw=document.getElementById('pb-start').value;
   var endRaw=document.getElementById('pb-end').value;
   // Handle both YYYY-MM-DD and MM/DD/YYYY formats
@@ -2611,11 +2668,13 @@ function addPitchBulk() {
 }
 
 function delAllOpenPitch(){
+  if(!canManage('pitching')) { toast('Only Coach Laurie can manage pitching','err'); return; }
   if(!confirm('Delete all open pitching slots?'))return;
   pitchSlots=pitchSlots.filter(function(s){return s.booked_by;});
   save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView(); toast('Done','ok');
 }
 function delPastPitch(){
+  if(!canManage('pitching')) { toast('Only Coach Laurie can manage pitching','err'); return; }
   if(!confirm('Clear past pitching slots?'))return;
   var now=new Date().toISOString().slice(0,10);
   var pastP = pitchSlots.filter(function(s){ return s.date<now && s.booked_by; });
@@ -2627,6 +2686,7 @@ function delPastPitch(){
   save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView(); toast('Cleared','ok');
 }
 function pitchCoachRm(id){
+  if(!canManage('pitching')) { toast('Only Coach Laurie can manage pitching','err'); return; }
   var s=pitchSlots.find(function(x){return x.id===id;});
   if(!s||!confirm('Remove booking for '+s.booked_by+'?'))return;
   var playerName=s.booked_by,playerTeam=s.booked_team,slotDate=s.date,slotTime=fmt(s.time);
@@ -2638,11 +2698,13 @@ function pitchCoachRm(id){
   if(parentEmail){fetch('https://formspree.io/f/xpqorjjj',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({_replyto:parentEmail,subject:'Team Rollin TX: Pitching lesson cancelled for '+playerName,message:'Hi '+(member?member.parentName:playerName)+',\n\nYour pitching lesson has been cancelled by Coach Laurie.\n\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nVisit teamrollinsoftball.net to rebook.\n\n— Team Rollin TX'})}).catch(function(){});}
 }
 function pitchCoachDel(id){
+  if(!canManage('pitching')) { toast('Only Coach Laurie can manage pitching','err'); return; }
   if(!confirm('Delete pitching slot?'))return;
   pitchSlots=pitchSlots.filter(function(x){return x.id!==id;});
   save(PITCH_KEY,pitchSlots); sbDeletePitchSlot(id); renderPitchCoachView(); toast('Deleted','');
 }
 function openPitchCoachBook(id){
+  if(!canManage('pitching')) { toast('Only Coach Laurie can manage pitching','err'); return; }
   var s=pitchSlots.find(function(x){return x.id===id;});
   if(!s)return;
   document.getElementById('cbook-slot-id').value='pitch_'+id;
@@ -2783,6 +2845,9 @@ function renderDefCoachView() {
     '<div class="cs"><div class="cs-n">'+open.length+'</div><div class="cs-l">Open</div></div>'+
     '<div class="cs"><div class="cs-n">'+booked.filter(function(s){return s.booked_team==='12U';}).length+'</div><div class="cs-l">12U</div></div>'+
     '<div class="cs"><div class="cs-n">'+booked.filter(function(s){return s.booked_team==='16U';}).length+'</div><div class="cs-l">16U</div></div>';
+  var canMg = canManage('defense');
+  var mgrEl = document.getElementById('manage-defense');
+  if(mgrEl) mgrEl.style.display = canMg ? '' : 'none';
   var tbody = document.getElementById('def-tbody');
   if(!tbody) return;
   if(!defSlots.length){tbody.innerHTML='<tr><td colspan="5" class="empty">No slots</td></tr>';return;}
@@ -2791,8 +2856,14 @@ function renderDefCoachView() {
     var d=new Date(s.date+'T00:00:00');
     var dateStr=DAYS_S[d.getDay()]+' '+MONTHS[d.getMonth()]+' '+d.getDate();
     var player=s.booked_by?'<strong>'+s.booked_by+'</strong>':'<span style="color:var(--silver3)">&#8212;</span>';
-    var rmBtn=s.booked_by?'<button class="btn btn-d btn-sm" data-dcrm="'+s.id+'">Remove</button>':'<button class="btn btn-w btn-sm" data-dcbook="'+s.id+'">Book</button>';
-    html+='<tr><td style="font-size:11px;">'+dateStr+'</td><td style="font-size:11px;">'+fmt(s.time)+'</td><td style="font-size:12px;">'+player+'</td><td style="font-size:11px;color:var(--silver2);">'+(s.booked_team||s.team)+'</td><td style="display:flex;gap:4px;">'+rmBtn+'<button class="btn btn-g btn-sm" data-dcdel="'+s.id+'">Del</button></td></tr>';
+    var actions = '';
+    if(canMg) {
+      var rmBtn=s.booked_by?'<button class="btn btn-d btn-sm" data-dcrm="'+s.id+'">Remove</button>':'<button class="btn btn-w btn-sm" data-dcbook="'+s.id+'">Book</button>';
+      actions = rmBtn+'<button class="btn btn-g btn-sm" data-dcdel="'+s.id+'">Del</button>';
+    } else {
+      actions = '<span style="font-size:10px;color:var(--silver3);">view only</span>';
+    }
+    html+='<tr><td style="font-size:11px;">'+dateStr+'</td><td style="font-size:11px;">'+fmt(s.time)+'</td><td style="font-size:12px;">'+player+'</td><td style="font-size:11px;color:var(--silver2);">'+(s.booked_team||s.team)+'</td><td style="display:flex;gap:4px;">'+actions+'</td></tr>';
   });
   tbody.innerHTML=html;
 }
@@ -2806,6 +2877,7 @@ function defAddTab(tab, el) {
 document.querySelectorAll('#db-days .day-chip').forEach(function(c){ c.addEventListener('click', function(){ c.classList.toggle('on'); }); });
 
 function addDefSingle() {
+  if(!canManage('defense')) { toast('Only Coach Mo can manage defense','err'); return; }
   var dateRaw=document.getElementById('ds-date').value;
   function toISO2(d){ if(!d) return ''; if(d.includes('-')) return d; var p=d.split('/'); return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0'); }
   var date=toISO2(dateRaw);
@@ -2830,6 +2902,7 @@ function addDefSingle() {
 }
 
 function addDefBulk() {
+  if(!canManage('defense')) { toast('Only Coach Mo can manage defense','err'); return; }
   var startRaw=document.getElementById('db-start').value;
   var endRaw=document.getElementById('db-end').value;
   function toISO(d){ if(!d) return ''; if(d.includes('-')) return d; var p=d.split('/'); return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0'); }
@@ -2868,11 +2941,13 @@ function addDefBulk() {
 }
 
 function delAllOpenDef(){
+  if(!canManage('defense')) { toast('Only Coach Mo can manage defense','err'); return; }
   if(!confirm('Delete all open defense slots?'))return;
   defSlots=defSlots.filter(function(s){return s.booked_by;});
   save(DEF_KEY,defSlots); sbSaveDefSlots(); renderDefCoachView(); toast('Done','ok');
 }
 function delPastDef(){
+  if(!canManage('defense')) { toast('Only Coach Mo can manage defense','err'); return; }
   if(!confirm('Clear past defense slots?'))return;
   var now=new Date().toISOString().slice(0,10);
   var pastD = defSlots.filter(function(s){ return s.date<now && s.booked_by; });
@@ -2884,6 +2959,7 @@ function delPastDef(){
   save(DEF_KEY,defSlots); sbSaveDefSlots(); renderDefCoachView(); toast('Cleared','ok');
 }
 function defCoachRm(id){
+  if(!canManage('defense')) { toast('Only Coach Mo can manage defense','err'); return; }
   var s=defSlots.find(function(x){return x.id===id;});
   if(!s||!confirm('Remove booking for '+s.booked_by+'?'))return;
   var playerName=s.booked_by,playerTeam=s.booked_team,slotDate=s.date,slotTime=fmt(s.time);
@@ -2895,11 +2971,13 @@ function defCoachRm(id){
   if(parentEmail){fetch('https://formspree.io/f/xpqorjjj',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({_replyto:parentEmail,subject:'Team Rollin TX: Defense lesson cancelled for '+playerName,message:'Hi '+(member?member.parentName:playerName)+',\n\nYour defense lesson has been cancelled by Coach Mo.\n\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nVisit teamrollinsoftball.net to rebook.\n\n— Team Rollin TX'})}).catch(function(){});}
 }
 function defCoachDel(id){
+  if(!canManage('defense')) { toast('Only Coach Mo can manage defense','err'); return; }
   if(!confirm('Delete defense slot?'))return;
   defSlots=defSlots.filter(function(x){return x.id!==id;});
   save(DEF_KEY,defSlots); sbDeleteDefSlot(id); renderDefCoachView(); toast('Deleted','');
 }
 function openDefCoachBook(id){
+  if(!canManage('defense')) { toast('Only Coach Mo can manage defense','err'); return; }
   var s=defSlots.find(function(x){return x.id===id;});
   if(!s)return;
   document.getElementById('cbook-slot-id').value='def_'+id;
@@ -3253,6 +3331,13 @@ function closeMob(){
 
 load();
 identity = null; try { var d=localStorage.getItem(ID_KEY); if(d) identity=JSON.parse(d); } catch(e){}
+if(identity && identity.type==='coach' && !identity.specialty) {
+  var _m = null;
+  for(var _k in COACHES) { if(COACHES[_k].name===identity.name) { _m = COACHES[_k]; break; } }
+  identity.specialty = _m ? _m.specialty : 'hitting';
+  identity.role = _m ? _m.role : (identity.role || 'Hitting · Founder');
+  save(ID_KEY, identity);
+}
 updateAuthUI();
 renderTourneys();
 renderRoster('10U');
