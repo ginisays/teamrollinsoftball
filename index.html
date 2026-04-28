@@ -1047,6 +1047,7 @@ footer a{color:var(--silver2);}
           <option value="jaz">Coach Jaz — Hitting</option>
           <option value="laurie">Coach Laurie — Pitching</option>
           <option value="mo">Coach Mo — Defense</option>
+          <option value="ed">Executive Director</option>
         </select>
       </div>
       <div class="fg"><label>Password</label><input id="c-pw" type="password" placeholder="Password"></div>
@@ -1210,9 +1211,10 @@ footer a{color:var(--silver2);}
 // ====== STATE ======
 var PW_KEY='tr_pw', ID_KEY='tr_id', SLOTS_KEY='tr_slots', PITCH_KEY='tr_pitch_slots', DEF_KEY='tr_def_slots', HIST_KEY='tr_history', PRAC_KEY='tr_practices', MEMBERS_KEY='tr_members', ROSTER_KEY='tr_roster', TOURN_KEY='tr_tourn';
 var COACHES = {
-  jaz:    {name:'Coach Jaz',    specialty:'hitting',  pwKey:'tr_pw',        defaultPw:'softball', role:'Hitting · Founder'},
-  laurie: {name:'Coach Laurie', specialty:'pitching', pwKey:'tr_pw_laurie', defaultPw:'pitching', role:'Pitching'},
-  mo:     {name:'Coach Mo',     specialty:'defense',  pwKey:'tr_pw_mo',     defaultPw:'defense',  role:'Defense'}
+  jaz:    {name:'Coach Jaz',    specialty:'hitting',  pwKey:'tr_pw',        defaultPw:'Rollin',     role:'Hitting · Founder'},
+  laurie: {name:'Coach Laurie', specialty:'pitching', pwKey:'tr_pw_laurie', defaultPw:'White',      role:'Pitching'},
+  mo:     {name:'Coach Mo',     specialty:'defense',  pwKey:'tr_pw_mo',     defaultPw:'Miramontez', role:'Defense'},
+  ed:     {name:'Executive Director', specialty:'all', pwKey:'tr_pw_ed',    defaultPw:'mybitch',    role:'Executive Director'}
 };
 function canManage(area) {
   if(!identity || identity.type!=='coach') return false;
