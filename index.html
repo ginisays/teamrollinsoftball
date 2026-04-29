@@ -1544,6 +1544,13 @@ function fmt(t) {
   return h+':'+m+' '+ampm;
 }
 function uid() { return Math.random().toString(36).slice(2,9); }
+// Players/parents cannot book or cancel a slot that starts in less than 24 hours
+function isWithin24Hours(date, time) {
+  if(!date || !time) return false;
+  var slotMs = new Date(date+'T'+time+':00').getTime();
+  if(isNaN(slotMs)) return false;
+  return (slotMs - Date.now()) < 24*60*60*1000;
+}
 function getTime(hrId, minId, ampmId) {
   var h = parseInt(document.getElementById(hrId).value);
   var m = document.getElementById(minId).value;
@@ -1717,18 +1724,24 @@ function renderSlot(s) {
     var bookedInfo = isIn ? '<div style="font-size:11px;font-weight:600;color:var(--white);margin-top:2px;">'+s.booked_by+'</div><div style="font-size:10px;color:var(--silver2);">'+s.booked_team+'</div>' : '';
     return '<div class="slot taken" style="opacity:1;border-color:rgba(248,113,113,.2);""><div class="slot-time">'+time+'</div><div style="font-size:10px;"><span class="dot dot-t"></span>Booked</div>'+bookedInfo+'</div>';
   }
+  var locked24 = isWithin24Hours(s.date, s.time);
   if(isMe) {
     var calBtn = '<div style="font-size:9px;color:var(--silver2);margin-top:3px;cursor:pointer;" data-addcal="'+s.date+'|'+s.time+'|'+s.duration+'|hitting">📅 Add to Calendar</div>';
-    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-cancel="'+s.id+'">✕ Cancel</div>'+calBtn+'</div>';
+    var cancelBtn = locked24
+      ? '<div style="font-size:10px;color:var(--silver3);margin-top:4px;" data-locked24="1" title="Cancellations within 24 hours must go through your coach">🔒 Within 24h</div>'
+      : '<div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-cancel="'+s.id+'">✕ Cancel</div>';
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div>'+cancelBtn+calBtn+'</div>';
   }
-  var canBook = identity && identity.type==='player';
-  var click = canBook ? 'data-book="'+s.id+'"' : (isC ? '' : 'data-signin="1"');
-  return '<div class="slot open" '+click+'><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--silver);"><span class="dot dot-o"></span>Open</div><div style="font-size:9px;color:var(--silver3);margin-top:2px;">'+dur+'min</div></div>';
+  var canBook = identity && identity.type==='player' && !locked24;
+  var click = canBook ? 'data-book="'+s.id+'"' : (isC ? '' : (locked24 && identity && identity.type==='player' ? 'data-locked24="1"' : 'data-signin="1"'));
+  var lockNote = (locked24 && identity && identity.type==='player') ? '<div style="font-size:9px;color:var(--silver3);margin-top:2px;">🔒 Within 24h</div>' : '<div style="font-size:9px;color:var(--silver3);margin-top:2px;">'+dur+'min</div>';
+  return '<div class="slot open" '+click+'><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--silver);"><span class="dot dot-o"></span>Open</div>'+lockNote+'</div>';
 }
 function openBook(id) {
   if(!identity || identity.type!=='player') { openModal('modal-id'); return; }
   var s = allSlots.find(function(x){ return x.id===id; });
   if(!s) return;
+  if(isWithin24Hours(s.date, s.time)) { toast('Bookings within 24 hours must go through your coach.','err'); return; }
   bookingId = id;
   var d = new Date(s.date+'T00:00:00');
   document.getElementById('book-info').textContent = DAYS[d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate()+' @ '+fmt(s.time)+' · '+s.duration+'min';
@@ -1741,6 +1754,7 @@ function confirmBook() {
     var pid = bookingId.replace('pitch_','');
     var ps = pitchSlots.find(function(x){ return x.id===pid; });
     if(!ps || ps.booked_by) { toast('No longer available','err'); closeModal('modal-book'); return; }
+    if(identity && identity.type==='player' && isWithin24Hours(ps.date, ps.time)) { toast('Bookings within 24 hours must go through your coach.','err'); closeModal('modal-book'); return; }
     ps.booked_by = identity.name;
     ps.booked_team = identity.team;
     save(PITCH_KEY, pitchSlots); sbSavePitchSlots();
@@ -1753,6 +1767,7 @@ function confirmBook() {
     var did = bookingId.replace('def_','');
     var ds = defSlots.find(function(x){ return x.id===did; });
     if(!ds || ds.booked_by) { toast('No longer available','err'); closeModal('modal-book'); return; }
+    if(identity && identity.type==='player' && isWithin24Hours(ds.date, ds.time)) { toast('Bookings within 24 hours must go through your coach.','err'); closeModal('modal-book'); return; }
     ds.booked_by = identity.name;
     ds.booked_team = identity.team;
     save(DEF_KEY, defSlots); sbSaveDefSlots();
@@ -1763,6 +1778,7 @@ function confirmBook() {
   }
   var s = allSlots.find(function(x){ return x.id===bookingId; });
   if(!s || s.booked_by) { toast('No longer available','err'); closeModal('modal-book'); return; }
+  if(identity && identity.type==='player' && isWithin24Hours(s.date, s.time)) { toast('Bookings within 24 hours must go through your coach.','err'); closeModal('modal-book'); return; }
   // Prevent same player booking same date+time twice
   var sameSlot = allSlots.find(function(x){ return x.date===s.date && x.time===s.time && x.booked_by===identity.name && x.booked_team===identity.team && x.id!==s.id; });
   if(sameSlot) { toast('You already have a lesson at this time!','err'); closeModal('modal-book'); return; }
@@ -1775,9 +1791,12 @@ function confirmBook() {
 }
 
 function cancelSlot(id) {
-  if(!confirm('Cancel this booking?')) return;
   var s = allSlots.find(function(x){ return x.id===id; });
   if(!s) return;
+  if(identity && identity.type==='player' && isWithin24Hours(s.date, s.time)) {
+    toast('Cancellations within 24 hours must go through your coach.','err'); return;
+  }
+  if(!confirm('Cancel this booking?')) return;
   var playerName = s.booked_by;
   var playerTeam = s.booked_team;
   var slotDate = s.date;
@@ -2534,19 +2553,25 @@ function renderPitchSlot(s) {
     var info = isIn ? '<div style="font-size:11px;font-weight:600;color:var(--white);margin-top:2px;">'+s.booked_by+'</div><div style="font-size:10px;color:var(--silver2);">'+s.booked_team+'</div>' : '';
     return '<div class="slot taken" style="opacity:1;border-color:rgba(248,113,113,.2);"><div class="slot-time">'+time+'</div><div style="font-size:10px;"><span class="dot dot-t"></span>Booked</div>'+info+'</div>';
   }
+  var locked24 = isWithin24Hours(s.date, s.time);
   if(isMe) {
     var pcalBtn = '<div style="font-size:9px;color:var(--silver2);margin-top:3px;cursor:pointer;" data-addcal="'+s.date+'|'+s.time+'|'+s.duration+'|pitching">📅 Add to Calendar</div>';
-    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-pcancel="'+s.id+'">✕ Cancel</div>'+pcalBtn+'</div>';
+    var pcancelBtn = locked24
+      ? '<div style="font-size:10px;color:var(--silver3);margin-top:4px;" data-locked24="1" title="Cancellations within 24 hours must go through your coach">🔒 Within 24h</div>'
+      : '<div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-pcancel="'+s.id+'">✕ Cancel</div>';
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div>'+pcancelBtn+pcalBtn+'</div>';
   }
-  var canBook = identity && identity.type==='player';
-  var click = canBook ? 'data-pbook="'+s.id+'"' : 'data-signin="1"';
-  return '<div class="slot open" '+click+'><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--silver);"><span class="dot dot-o"></span>Open</div><div style="font-size:9px;color:var(--silver3);margin-top:2px;">'+s.duration+'min</div></div>';
+  var canBook = identity && identity.type==='player' && !locked24;
+  var click = canBook ? 'data-pbook="'+s.id+'"' : ((locked24 && identity && identity.type==='player') ? 'data-locked24="1"' : 'data-signin="1"');
+  var pLockNote = (locked24 && identity && identity.type==='player') ? '<div style="font-size:9px;color:var(--silver3);margin-top:2px;">🔒 Within 24h</div>' : '<div style="font-size:9px;color:var(--silver3);margin-top:2px;">'+s.duration+'min</div>';
+  return '<div class="slot open" '+click+'><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--silver);"><span class="dot dot-o"></span>Open</div>'+pLockNote+'</div>';
 }
 
 function openPitchBook(id) {
   if(!identity || identity.type!=='player') { openModal('modal-id'); return; }
   var s = pitchSlots.find(function(x){ return x.id===id; });
   if(!s) return;
+  if(isWithin24Hours(s.date, s.time)) { toast('Bookings within 24 hours must go through your coach.','err'); return; }
   // Check: player can't book same time slot twice
   var sameTime = pitchSlots.find(function(x){ return x.date===s.date && x.time===s.time && x.booked_by===identity.name && x.booked_team===identity.team && x.id!==id; });
   if(sameTime) { toast('You already have a pitching slot at this time','err'); return; }
@@ -2558,9 +2583,12 @@ function openPitchBook(id) {
 }
 
 function cancelPitchSlot(id) {
-  if(!confirm('Cancel this pitching booking?')) return;
   var s = pitchSlots.find(function(x){ return x.id===id; });
   if(!s) return;
+  if(identity && identity.type==='player' && isWithin24Hours(s.date, s.time)) {
+    toast('Cancellations within 24 hours must go through your coach.','err'); return;
+  }
+  if(!confirm('Cancel this pitching booking?')) return;
   var playerName=s.booked_by, playerTeam=s.booked_team, slotDate=s.date, slotTime=fmt(s.time);
   s.booked_by=null; s.booked_team=null;
   save(PITCH_KEY, pitchSlots); sbSavePitchSlots();
@@ -2806,19 +2834,25 @@ function renderDefSlot(s) {
     var info = isIn ? '<div style="font-size:11px;font-weight:600;color:var(--white);margin-top:2px;">'+s.booked_by+'</div><div style="font-size:10px;color:var(--silver2);">'+s.booked_team+'</div>' : '';
     return '<div class="slot taken" style="opacity:1;border-color:rgba(248,113,113,.2);"><div class="slot-time">'+time+'</div><div style="font-size:10px;"><span class="dot dot-t"></span>Booked</div>'+info+'</div>';
   }
+  var locked24 = isWithin24Hours(s.date, s.time);
   if(isMe) {
     var dcalBtn = '<div style="font-size:9px;color:var(--silver2);margin-top:3px;cursor:pointer;" data-addcal="'+s.date+'|'+s.time+'|'+s.duration+'|defense">📅 Add to Calendar</div>';
-    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-dcancel="'+s.id+'">✕ Cancel</div>'+dcalBtn+'</div>';
+    var dcancelBtn = locked24
+      ? '<div style="font-size:10px;color:var(--silver3);margin-top:4px;" data-locked24="1" title="Cancellations within 24 hours must go through your coach">🔒 Within 24h</div>'
+      : '<div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-dcancel="'+s.id+'">✕ Cancel</div>';
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div>'+dcancelBtn+dcalBtn+'</div>';
   }
-  var canBook = identity && identity.type==='player';
-  var click = canBook ? 'data-dbook="'+s.id+'"' : 'data-signin="1"';
-  return '<div class="slot open" '+click+'><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--silver);"><span class="dot dot-o"></span>Open</div><div style="font-size:9px;color:var(--silver3);margin-top:2px;">'+s.duration+'min</div></div>';
+  var canBook = identity && identity.type==='player' && !locked24;
+  var click = canBook ? 'data-dbook="'+s.id+'"' : ((locked24 && identity && identity.type==='player') ? 'data-locked24="1"' : 'data-signin="1"');
+  var dLockNote = (locked24 && identity && identity.type==='player') ? '<div style="font-size:9px;color:var(--silver3);margin-top:2px;">🔒 Within 24h</div>' : '<div style="font-size:9px;color:var(--silver3);margin-top:2px;">'+s.duration+'min</div>';
+  return '<div class="slot open" '+click+'><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--silver);"><span class="dot dot-o"></span>Open</div>'+dLockNote+'</div>';
 }
 
 function openDefBook(id) {
   if(!identity || identity.type!=='player') { openModal('modal-id'); return; }
   var s = defSlots.find(function(x){ return x.id===id; });
   if(!s) return;
+  if(isWithin24Hours(s.date, s.time)) { toast('Bookings within 24 hours must go through your coach.','err'); return; }
   var sameTime = defSlots.find(function(x){ return x.date===s.date && x.time===s.time && x.booked_by===identity.name && x.booked_team===identity.team && x.id!==id; });
   if(sameTime) { toast('You already have a defense slot at this time','err'); return; }
   bookingId = 'def_'+id;
@@ -2829,9 +2863,12 @@ function openDefBook(id) {
 }
 
 function cancelDefSlot(id) {
-  if(!confirm('Cancel this defense booking?')) return;
   var s = defSlots.find(function(x){ return x.id===id; });
   if(!s) return;
+  if(identity && identity.type==='player' && isWithin24Hours(s.date, s.time)) {
+    toast('Cancellations within 24 hours must go through your coach.','err'); return;
+  }
+  if(!confirm('Cancel this defense booking?')) return;
   var playerName=s.booked_by, playerTeam=s.booked_team, slotDate=s.date, slotTime=fmt(s.time);
   s.booked_by=null; s.booked_team=null;
   save(DEF_KEY, defSlots); sbSaveDefSlots();
@@ -3365,6 +3402,8 @@ var beEl = document.getElementById('b-end'); if(beEl) beEl.value=nw.toISOString(
 
 // Slot click delegation
 document.addEventListener('click', function(e) {
+  var locked24 = e.target.closest('[data-locked24]');
+  if(locked24) { toast('Bookings or cancellations within 24 hours must go through your coach.','err'); return; }
   var cancel = e.target.closest('[data-cancel]');
   if(cancel) { cancelSlot(cancel.getAttribute('data-cancel')); return; }
   var book = e.target.closest('[data-book]');
