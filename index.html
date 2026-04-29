@@ -1355,6 +1355,8 @@ async function syncFromSupabase() {
     renderTourneys(); renderRoster('10U'); renderRoster('12U'); renderRoster('14U'); renderRoster('16U');
     if(document.getElementById('page-lessons').classList.contains('active')) { renderSlots(); renderPitchSlots(); renderDefSlots(); }
     else { buildWeekTabs(allSlots, 'hitting-week-tabs', currentHitWeek, 'setHitWeek'); buildWeekTabs(pitchSlots, 'pitching-week-tabs', currentPitchWeek, 'setPitchWeek'); buildWeekTabs(defSlots, 'defense-week-tabs', currentDefWeek, 'setDefWeek'); }
+    if(isCoach) { renderCoachView(); renderPitchCoachView(); renderDefCoachView(); renderMembersPanel(); renderHistory(); }
+    if(typeof renderPractices === 'function') renderPractices();
     updatePendingBadge();
   } catch(e){ console.error('Supabase sync failed',e); }
 }
