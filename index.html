@@ -1719,10 +1719,9 @@ function renderSlot(s) {
   }
   if(isMe) {
     var calBtn = '<div style="font-size:9px;color:var(--silver2);margin-top:3px;cursor:pointer;" data-addcal="'+s.date+'|'+s.time+'|'+s.duration+'|hitting">📅 Add to Calendar</div>';
-    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-cancel="'+s.id+'">✕ Cancel</div>'+calBtn+'</div>';
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div>'+calBtn+'</div>';
   }
-  var canBook = identity && identity.type==='player';
-  var click = canBook ? 'data-book="'+s.id+'"' : (isC ? '' : 'data-signin="1"');
+  var click = isC ? '' : 'data-locked="1"';
   return '<div class="slot open" '+click+'><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--silver);"><span class="dot dot-o"></span>Open</div><div style="font-size:9px;color:var(--silver3);margin-top:2px;">'+dur+'min</div></div>';
 }
 function openBook(id) {
@@ -2536,10 +2535,10 @@ function renderPitchSlot(s) {
   }
   if(isMe) {
     var pcalBtn = '<div style="font-size:9px;color:var(--silver2);margin-top:3px;cursor:pointer;" data-addcal="'+s.date+'|'+s.time+'|'+s.duration+'|pitching">📅 Add to Calendar</div>';
-    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-pcancel="'+s.id+'">✕ Cancel</div>'+pcalBtn+'</div>';
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div>'+pcalBtn+'</div>';
   }
-  var canBook = identity && identity.type==='player';
-  var click = canBook ? 'data-pbook="'+s.id+'"' : 'data-signin="1"';
+  var isC = identity && identity.type==='coach';
+  var click = isC ? '' : 'data-locked="1"';
   return '<div class="slot open" '+click+'><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--silver);"><span class="dot dot-o"></span>Open</div><div style="font-size:9px;color:var(--silver3);margin-top:2px;">'+s.duration+'min</div></div>';
 }
 
@@ -2808,10 +2807,10 @@ function renderDefSlot(s) {
   }
   if(isMe) {
     var dcalBtn = '<div style="font-size:9px;color:var(--silver2);margin-top:3px;cursor:pointer;" data-addcal="'+s.date+'|'+s.time+'|'+s.duration+'|defense">📅 Add to Calendar</div>';
-    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-dcancel="'+s.id+'">✕ Cancel</div>'+dcalBtn+'</div>';
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div>'+dcalBtn+'</div>';
   }
-  var canBook = identity && identity.type==='player';
-  var click = canBook ? 'data-dbook="'+s.id+'"' : 'data-signin="1"';
+  var isC = identity && identity.type==='coach';
+  var click = isC ? '' : 'data-locked="1"';
   return '<div class="slot open" '+click+'><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--silver);"><span class="dot dot-o"></span>Open</div><div style="font-size:9px;color:var(--silver3);margin-top:2px;">'+s.duration+'min</div></div>';
 }
 
@@ -3365,10 +3364,8 @@ var beEl = document.getElementById('b-end'); if(beEl) beEl.value=nw.toISOString(
 
 // Slot click delegation
 document.addEventListener('click', function(e) {
-  var cancel = e.target.closest('[data-cancel]');
-  if(cancel) { cancelSlot(cancel.getAttribute('data-cancel')); return; }
-  var book = e.target.closest('[data-book]');
-  if(book) { openBook(book.getAttribute('data-book')); return; }
+  var locked = e.target.closest('[data-locked]');
+  if(locked) { toast('Contact your coach to add or change a lesson booking.','err'); return; }
   var signin = e.target.closest('[data-signin]');
   if(signin) { openModal('modal-id'); return; }
   var crm = e.target.closest('[data-crm]');
@@ -3415,9 +3412,9 @@ document.addEventListener('click', function(e) {
     return;
   }
   var pbook = e.target.closest('[data-pbook]');
-  if(pbook) { openPitchBook(pbook.getAttribute('data-pbook')); return; }
+  if(pbook) { toast('Contact your coach to add or change a lesson booking.','err'); return; }
   var pcancel = e.target.closest('[data-pcancel]');
-  if(pcancel) { cancelPitchSlot(pcancel.getAttribute('data-pcancel')); return; }
+  if(pcancel) { toast('Contact your coach to add or change a lesson booking.','err'); return; }
   var pcrm = e.target.closest('[data-pcrm]');
   if(pcrm) { pitchCoachRm(pcrm.getAttribute('data-pcrm')); return; }
   var pcdel = e.target.closest('[data-pcdel]');
@@ -3425,9 +3422,9 @@ document.addEventListener('click', function(e) {
   var pcbook = e.target.closest('[data-pcbook]');
   if(pcbook) { openPitchCoachBook(pcbook.getAttribute('data-pcbook')); return; }
   var dbook = e.target.closest('[data-dbook]');
-  if(dbook) { openDefBook(dbook.getAttribute('data-dbook')); return; }
+  if(dbook) { toast('Contact your coach to add or change a lesson booking.','err'); return; }
   var dcancel = e.target.closest('[data-dcancel]');
-  if(dcancel) { cancelDefSlot(dcancel.getAttribute('data-dcancel')); return; }
+  if(dcancel) { toast('Contact your coach to add or change a lesson booking.','err'); return; }
   var dcrm = e.target.closest('[data-dcrm]');
   if(dcrm) { defCoachRm(dcrm.getAttribute('data-dcrm')); return; }
   var dcdel = e.target.closest('[data-dcdel]');
