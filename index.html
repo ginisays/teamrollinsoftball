@@ -1173,6 +1173,7 @@ footer a{color:var(--silver2);}
     <div class="fg"><label>Team</label><select id="et-team"><option value="both">Both Teams</option><option value="12U">12U Only</option><option value="16U">16U Only</option></select></div>
     <div class="fg"><label>Notes</label><input id="et-notes" type="text"></div>
     <div class="fg"><label>Tournament Website Link</label><input id="et-link" type="url" placeholder="https://example.com (optional)"></div>
+    <div class="fg"><label>Travel / Lodging Details</label><textarea id="et-travel" rows="4" placeholder="Hotel, address, confirmation #, flight info, etc. (optional)" style="width:100%;resize:vertical;font-family:inherit;"></textarea></div>
     <div style="display:flex;gap:10px;">
       <button class="btn btn-w" style="flex:1;justify-content:center;" onclick="saveEditTourn()">Save</button>
       <button class="btn btn-g" style="flex:1;justify-content:center;" onclick="closeModal('modal-edit-tourn')">Cancel</button>
@@ -1207,6 +1208,7 @@ footer a{color:var(--silver2);}
     <div class="fg"><label>Team</label><select id="t-team"><option value="both">Both Teams</option><option value="12U">12U Only</option><option value="16U">16U Only</option></select></div>
     <div class="fg"><label>Notes</label><input id="t-notes" type="text" placeholder="Optional"></div>
     <div class="fg"><label>Tournament Website Link</label><input id="t-link" type="url" placeholder="https://example.com (optional)"></div>
+    <div class="fg"><label>Travel / Lodging Details</label><textarea id="t-travel" rows="4" placeholder="Hotel, address, confirmation #, flight info, etc. (optional)" style="width:100%;resize:vertical;font-family:inherit;"></textarea></div>
     <div style="display:flex;gap:10px;">
       <button class="btn btn-w" style="flex:1;justify-content:center;" onclick="addTournament()">Add</button>
       <button class="btn btn-g" style="flex:1;justify-content:center;" onclick="closeModal('modal-tourn')">Cancel</button>
@@ -1320,9 +1322,12 @@ async function syncFromSupabase() {
       tourneys = r3.data.map(function(t){
         var notes = t.notes || '';
         var link = t.link || '';
+        var travel = '';
         var m = notes.match(/\s*\[\[LINK:([^\]]+)\]\]\s*/);
         if(m) { if(!link) link = m[1]; notes = notes.replace(m[0],'').trim(); }
-        return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:notes,link:link};
+        var mt = notes.match(/\s*\[\[TRAVEL:([^\]]+)\]\]\s*/);
+        if(mt) { try { travel = decodeURIComponent(mt[1]); } catch(e) { travel = mt[1]; } notes = notes.replace(mt[0],'').trim(); }
+        return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:notes,link:link,travel:travel};
       });
       save(TOURN_KEY, tourneys);
     }
@@ -1484,6 +1489,7 @@ async function sbSaveTourneys() {
     var rows = tourneys.map(function(t){
       var notes = t.notes || '';
       if(t.link) notes = (notes ? notes + ' ' : '') + '[[LINK:'+t.link+']]';
+      if(t.travel) notes = (notes ? notes + ' ' : '') + '[[TRAVEL:'+encodeURIComponent(t.travel)+']]';
       return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:notes,link:t.link||''};
     });
     var res = await sb.from('tournaments').insert(rows);
@@ -1689,6 +1695,7 @@ function updateAuthUI() {
   if(e16) e16.style.display = isC ? '' : 'none';
   renderIdStrip();
   if(isC) updatePendingBadge();
+  renderTourneys();
 }
 
 function renderIdStrip() {
@@ -2109,13 +2116,15 @@ function addTournament() {
   var team = document.getElementById('t-team').value;
   var notes = document.getElementById('t-notes').value.trim();
   var link = document.getElementById('t-link').value.trim();
+  var travel = document.getElementById('t-travel').value.trim();
   if(!name||!date||!loc) { toast('Fill name, date, location','err'); return; }
   if(link && !/^https?:\/\//i.test(link)) link = 'https://' + link;
-  tourneys.push({id:uid(), name:name, date:date, location:loc, team:team, notes:notes, link:link});
+  tourneys.push({id:uid(), name:name, date:date, location:loc, team:team, notes:notes, link:link, travel:travel});
   tourneys.sort(function(a,b){ return a.date.localeCompare(b.date); });
   save(TOURN_KEY, tourneys); sbSaveTourneys();
   closeModal('modal-tourn');
   document.getElementById('t-link').value = '';
+  document.getElementById('t-travel').value = '';
   renderTourneys(); toast('Tournament added!','ok');
 }
 
@@ -2135,6 +2144,7 @@ function openEditTourn(id) {
   document.getElementById('et-team').value = t.team || 'both';
   document.getElementById('et-notes').value = t.notes || '';
   document.getElementById('et-link').value = t.link || '';
+  document.getElementById('et-travel').value = t.travel || '';
   openModal('modal-edit-tourn');
   // Init flatpickr on edit date field
   if(window.flatpickr) {
@@ -2158,6 +2168,7 @@ function saveEditTourn() {
   var link = document.getElementById('et-link').value.trim();
   if(link && !/^https?:\/\//i.test(link)) link = 'https://' + link;
   t.link = link;
+  t.travel = document.getElementById('et-travel').value.trim();
   tourneys.sort(function(a,b){ return a.date.localeCompare(b.date); });
   save(TOURN_KEY, tourneys); sbSaveTourneys();
   closeModal('modal-edit-tourn');
@@ -2195,7 +2206,12 @@ function renderTourneys() {
       html += '<button class="btn btn-g btn-sm" data-tedit="'+t.id+'">Edit</button>';
       html += '<button class="btn btn-d btn-sm" data-tdelete="'+t.id+'">Remove</button>';
     }
-    html += '</div></div></div>';
+    html += '</div>';
+    if(t.travel && identity) {
+      var safeTravel = String(t.travel).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+      html += '<div style="margin-top:10px;padding:10px 12px;border:1px solid var(--border2);border-radius:8px;background:rgba(255,255,255,0.03);font-size:12px;line-height:1.5;color:var(--silver2);"><div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--silver3);margin-bottom:4px;">Travel / Lodging</div>'+safeTravel+'</div>';
+    }
+    html += '</div></div>';
   });
   el.innerHTML = html;
 }
