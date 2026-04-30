@@ -1068,6 +1068,16 @@ footer a{color:var(--silver2);}
   </div>
 </div>
 
+<div class="overlay" id="modal-block24">
+  <div class="modal">
+    <div class="modal-title">🔒 Within 24 Hours</div>
+    <p style="font-size:15px;color:var(--white);margin-bottom:22px;line-height:1.5;">Changes can not be made 24 hours before a scheduled booking. Please contact Allison.</p>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-w" style="flex:1;justify-content:center;" onclick="closeModal('modal-block24')">OK</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="modal-edit-player">
   <div class="modal">
     <div class="modal-title">Edit Player</div>
@@ -1534,6 +1544,12 @@ function toast(msg, type) {
   setTimeout(function(){ t.className='toast'; }, 3000);
 }
 
+// 24-hour lock popup for players/parents
+function showBlock24() {
+  closeModal('modal-book');
+  openModal('modal-block24');
+}
+
 // ====== FORMAT TIME ======
 function fmt(t) {
   if(!t) return '';
@@ -1589,6 +1605,9 @@ function loginPlayer() {
   save(ID_KEY, identity);
   closeModal('modal-id');
   updateAuthUI();
+  if(typeof renderSlots==='function') renderSlots();
+  if(typeof renderPitchSlots==='function') renderPitchSlots();
+  if(typeof renderDefSlots==='function') renderDefSlots();
   toast('Welcome back, '+member.name+'!','ok');
   if(pendingPage) { go(pendingPage); pendingPage=null; }
 }
@@ -1741,7 +1760,7 @@ function openBook(id) {
   if(!identity || identity.type!=='player') { openModal('modal-id'); return; }
   var s = allSlots.find(function(x){ return x.id===id; });
   if(!s) return;
-  if(isWithin24Hours(s.date, s.time)) { toast('Bookings within 24 hours must go through your coach.','err'); return; }
+  if(isWithin24Hours(s.date, s.time)) { showBlock24(); return; }
   bookingId = id;
   var d = new Date(s.date+'T00:00:00');
   document.getElementById('book-info').textContent = DAYS[d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate()+' @ '+fmt(s.time)+' · '+s.duration+'min';
@@ -1754,7 +1773,7 @@ function confirmBook() {
     var pid = bookingId.replace('pitch_','');
     var ps = pitchSlots.find(function(x){ return x.id===pid; });
     if(!ps || ps.booked_by) { toast('No longer available','err'); closeModal('modal-book'); return; }
-    if(identity && identity.type==='player' && isWithin24Hours(ps.date, ps.time)) { toast('Bookings within 24 hours must go through your coach.','err'); closeModal('modal-book'); return; }
+    if(identity && identity.type==='player' && isWithin24Hours(ps.date, ps.time)) { showBlock24(); return; }
     ps.booked_by = identity.name;
     ps.booked_team = identity.team;
     save(PITCH_KEY, pitchSlots); sbSavePitchSlots();
@@ -1767,7 +1786,7 @@ function confirmBook() {
     var did = bookingId.replace('def_','');
     var ds = defSlots.find(function(x){ return x.id===did; });
     if(!ds || ds.booked_by) { toast('No longer available','err'); closeModal('modal-book'); return; }
-    if(identity && identity.type==='player' && isWithin24Hours(ds.date, ds.time)) { toast('Bookings within 24 hours must go through your coach.','err'); closeModal('modal-book'); return; }
+    if(identity && identity.type==='player' && isWithin24Hours(ds.date, ds.time)) { showBlock24(); return; }
     ds.booked_by = identity.name;
     ds.booked_team = identity.team;
     save(DEF_KEY, defSlots); sbSaveDefSlots();
@@ -1778,7 +1797,7 @@ function confirmBook() {
   }
   var s = allSlots.find(function(x){ return x.id===bookingId; });
   if(!s || s.booked_by) { toast('No longer available','err'); closeModal('modal-book'); return; }
-  if(identity && identity.type==='player' && isWithin24Hours(s.date, s.time)) { toast('Bookings within 24 hours must go through your coach.','err'); closeModal('modal-book'); return; }
+  if(identity && identity.type==='player' && isWithin24Hours(s.date, s.time)) { showBlock24(); return; }
   // Prevent same player booking same date+time twice
   var sameSlot = allSlots.find(function(x){ return x.date===s.date && x.time===s.time && x.booked_by===identity.name && x.booked_team===identity.team && x.id!==s.id; });
   if(sameSlot) { toast('You already have a lesson at this time!','err'); closeModal('modal-book'); return; }
@@ -1794,7 +1813,7 @@ function cancelSlot(id) {
   var s = allSlots.find(function(x){ return x.id===id; });
   if(!s) return;
   if(identity && identity.type==='player' && isWithin24Hours(s.date, s.time)) {
-    toast('Cancellations within 24 hours must go through your coach.','err'); return;
+    showBlock24(); return;
   }
   if(!confirm('Cancel this booking?')) return;
   var playerName = s.booked_by;
@@ -2571,7 +2590,7 @@ function openPitchBook(id) {
   if(!identity || identity.type!=='player') { openModal('modal-id'); return; }
   var s = pitchSlots.find(function(x){ return x.id===id; });
   if(!s) return;
-  if(isWithin24Hours(s.date, s.time)) { toast('Bookings within 24 hours must go through your coach.','err'); return; }
+  if(isWithin24Hours(s.date, s.time)) { showBlock24(); return; }
   // Check: player can't book same time slot twice
   var sameTime = pitchSlots.find(function(x){ return x.date===s.date && x.time===s.time && x.booked_by===identity.name && x.booked_team===identity.team && x.id!==id; });
   if(sameTime) { toast('You already have a pitching slot at this time','err'); return; }
@@ -2586,7 +2605,7 @@ function cancelPitchSlot(id) {
   var s = pitchSlots.find(function(x){ return x.id===id; });
   if(!s) return;
   if(identity && identity.type==='player' && isWithin24Hours(s.date, s.time)) {
-    toast('Cancellations within 24 hours must go through your coach.','err'); return;
+    showBlock24(); return;
   }
   if(!confirm('Cancel this pitching booking?')) return;
   var playerName=s.booked_by, playerTeam=s.booked_team, slotDate=s.date, slotTime=fmt(s.time);
@@ -2852,7 +2871,7 @@ function openDefBook(id) {
   if(!identity || identity.type!=='player') { openModal('modal-id'); return; }
   var s = defSlots.find(function(x){ return x.id===id; });
   if(!s) return;
-  if(isWithin24Hours(s.date, s.time)) { toast('Bookings within 24 hours must go through your coach.','err'); return; }
+  if(isWithin24Hours(s.date, s.time)) { showBlock24(); return; }
   var sameTime = defSlots.find(function(x){ return x.date===s.date && x.time===s.time && x.booked_by===identity.name && x.booked_team===identity.team && x.id!==id; });
   if(sameTime) { toast('You already have a defense slot at this time','err'); return; }
   bookingId = 'def_'+id;
@@ -2866,7 +2885,7 @@ function cancelDefSlot(id) {
   var s = defSlots.find(function(x){ return x.id===id; });
   if(!s) return;
   if(identity && identity.type==='player' && isWithin24Hours(s.date, s.time)) {
-    toast('Cancellations within 24 hours must go through your coach.','err'); return;
+    showBlock24(); return;
   }
   if(!confirm('Cancel this defense booking?')) return;
   var playerName=s.booked_by, playerTeam=s.booked_team, slotDate=s.date, slotTime=fmt(s.time);
@@ -3403,7 +3422,7 @@ var beEl = document.getElementById('b-end'); if(beEl) beEl.value=nw.toISOString(
 // Slot click delegation
 document.addEventListener('click', function(e) {
   var locked24 = e.target.closest('[data-locked24]');
-  if(locked24) { toast('Bookings or cancellations within 24 hours must go through your coach.','err'); return; }
+  if(locked24) { showBlock24(); return; }
   var cancel = e.target.closest('[data-cancel]');
   if(cancel) { cancelSlot(cancel.getAttribute('data-cancel')); return; }
   var book = e.target.closest('[data-book]');
