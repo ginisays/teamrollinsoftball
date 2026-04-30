@@ -1322,11 +1322,14 @@ async function syncFromSupabase() {
       tourneys = r3.data.map(function(t){
         var notes = t.notes || '';
         var link = t.link || '';
-        var travel = '';
+        var travel = t.travel || '';
         var m = notes.match(/\s*\[\[LINK:([^\]]+)\]\]\s*/);
         if(m) { if(!link) link = m[1]; notes = notes.replace(m[0],'').trim(); }
         var mt = notes.match(/\s*\[\[TRAVEL:([^\]]+)\]\]\s*/);
-        if(mt) { try { travel = decodeURIComponent(mt[1]); } catch(e) { travel = mt[1]; } notes = notes.replace(mt[0],'').trim(); }
+        if(mt) {
+          if(!travel) { try { travel = decodeURIComponent(mt[1]); } catch(e) { travel = mt[1]; } }
+          notes = notes.replace(mt[0],'').trim();
+        }
         return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:notes,link:link,travel:travel};
       });
       save(TOURN_KEY, tourneys);
@@ -1487,16 +1490,26 @@ async function sbSaveTourneys() {
     await sb.from('tournaments').delete().neq('id','__none__');
     if(!tourneys.length) return;
     var rows = tourneys.map(function(t){
-      var notes = t.notes || '';
-      if(t.link) notes = (notes ? notes + ' ' : '') + '[[LINK:'+t.link+']]';
-      if(t.travel) notes = (notes ? notes + ' ' : '') + '[[TRAVEL:'+encodeURIComponent(t.travel)+']]';
-      return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:notes,link:t.link||''};
+      return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:t.notes||'',link:t.link||'',travel:t.travel||''};
     });
     var res = await sb.from('tournaments').insert(rows);
     if(res && res.error) {
-      var fallback = rows.map(function(r){ return {id:r.id,name:r.name,date:r.date,location:r.location,team:r.team,notes:r.notes}; });
+      var fallback = tourneys.map(function(t){
+        var notes = t.notes || '';
+        if(t.travel) notes = (notes ? notes + ' ' : '') + '[[TRAVEL:'+encodeURIComponent(t.travel)+']]';
+        return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:notes,link:t.link||''};
+      });
       var res2 = await sb.from('tournaments').insert(fallback);
-      if(res2 && res2.error) console.error('sbSaveTourneys fallback error:', JSON.stringify(res2.error));
+      if(res2 && res2.error) {
+        var fallback2 = tourneys.map(function(t){
+          var notes = t.notes || '';
+          if(t.link) notes = (notes ? notes + ' ' : '') + '[[LINK:'+t.link+']]';
+          if(t.travel) notes = (notes ? notes + ' ' : '') + '[[TRAVEL:'+encodeURIComponent(t.travel)+']]';
+          return {id:t.id,name:t.name,date:t.date,location:t.location,team:t.team,notes:notes};
+        });
+        var res3 = await sb.from('tournaments').insert(fallback2);
+        if(res3 && res3.error) console.error('sbSaveTourneys fallback error:', JSON.stringify(res3.error));
+      }
     }
   } catch(e){ console.error('sbSaveTourneys',e); }
 }
