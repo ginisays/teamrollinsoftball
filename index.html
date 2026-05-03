@@ -212,6 +212,24 @@ footer a{color:var(--silver2);}
 @media(min-width:641px){
   .ham-btn{display:none;}
 }
+.editable-card .card-head{padding-right:14px;}
+.fam-edit-controls{display:flex;gap:6px;align-items:center;}
+.fam-edit-btn{padding:4px 12px;border-radius:14px;border:1px solid var(--border2);background:transparent;color:var(--silver);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.fam-edit-btn:hover{color:var(--white);border-color:var(--white);}
+.fam-edit-btn.primary{background:var(--scarlet);border-color:var(--scarlet);color:var(--white);}
+.fam-edit-btn.primary:hover{filter:brightness(1.15);}
+.fam-edit-status{font-size:11px;color:var(--muted);font-family:'Barlow',sans-serif;}
+body:not(.is-fam-coach) .fam-edit-controls{display:none;}
+.fam-edit-toolbar{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;border-bottom:1px solid var(--border);background:var(--black4);}
+.fam-edit-toolbar button{padding:4px 10px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--silver);font-family:'Barlow',sans-serif;font-weight:600;font-size:12px;cursor:pointer;}
+.fam-edit-toolbar button:hover{color:var(--white);border-color:var(--white);}
+.editable-card-body--editing{outline:1px dashed var(--scarlet);outline-offset:-2px;min-height:80px;}
+.editable-card-body--editing:focus{outline-color:var(--white);}
+.card-body[data-card-id] ul{list-style:disc;padding-left:22px;margin:2px 0;}
+.card-body[data-card-id] ol{list-style:decimal;padding-left:22px;margin:2px 0;}
+.card-body[data-card-id] li{padding:3px 0;font-size:13px;line-height:1.45;}
+.card-body[data-card-id] a{color:var(--silver);text-decoration:underline;}
+.card-body[data-card-id] li::marker{color:var(--scarlet);}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
@@ -413,15 +431,12 @@ footer a{color:var(--silver2);}
     </div>
   </div>
   <div id="fam-10U" style="display:none;">
-    <div class="sec"><div class="empty">10U content coming soon.</div></div>
-  </div>
-  <div id="fam-14U" style="display:none;">
   <div class="sec">
     <div class="grid2">
       <div>
-        <div class="card">
-          <div class="card-head"><div class="card-title">New Team Member Checklist</div></div>
-          <div class="card-body">
+        <div class="card editable-card" data-card-key="10u-todo">
+          <div class="card-head"><div class="card-title">To-Do List</div></div>
+          <div class="card-body" data-card-id="10u-todo">
             <div class="chk"><span class="chk-icon">□</span><span>Email birth certificate to <a href="mailto:teamrollinfastpitch@gmail.com" style="color:var(--silver);text-decoration:underline;">teamrollinfastpitch@gmail.com</a> (stored securely and removed from email)</span></div>
             <div class="chk"><span class="chk-icon">□</span><span>Sign up for <strong>Parent / Family Jobs</strong> (optional — please see your Team Mom)</span></div>
             <div class="chk"><span class="chk-icon">□</span><span>Sign and return contract page (comes in binder)</span></div>
@@ -432,9 +447,9 @@ footer a{color:var(--silver2);}
             <div class="chk"><span class="chk-icon">□</span><span>Join <strong>Softball Registrations for Tournaments</strong> (by invite)</span></div>
           </div>
         </div>
-        <div class="card">
+        <div class="card editable-card" data-card-key="10u-equipment">
           <div class="card-head"><div class="card-title">Team Equipment to Collect</div></div>
-          <div class="card-body">
+          <div class="card-body" data-card-id="10u-equipment">
             <div class="chk"><span class="chk-icon">□</span><span>Binder</span></div>
             <div class="chk"><span class="chk-icon">□</span><span>Helmet</span></div>
             <div class="chk"><span class="chk-icon">□</span><span>PVC Pipe</span></div>
@@ -447,9 +462,9 @@ footer a{color:var(--silver2);}
         </div>
       </div>
       <div>
-        <div class="card">
+        <div class="card editable-card" data-card-key="10u-purchase">
           <div class="card-head"><div class="card-title">Purchase on Your Own</div></div>
-          <div class="card-body">
+          <div class="card-body" data-card-id="10u-purchase">
             <div class="chk"><span class="chk-icon">•</span><span><a href="https://www.amazon.com/Easton-Backpack-Equipment-Fastpitch-Softball/dp/B0BFBQMBNL" target="_blank" style="color:var(--silver);text-decoration:underline;">Bat Bag</a> or <a href="https://a.co/d/8QkmIuB" target="_blank" style="color:var(--silver);text-decoration:underline;">Catcher Bag</a></span></div>
             <div class="chk"><span class="chk-icon">•</span><span><a href="https://www.newbalance.com/pd/fresh-foam-3000v7-rubber-molded/J3000V7-45219.html" target="_blank" style="color:var(--silver);text-decoration:underline;">Cleats (Youth sizes)</a></span></div>
             <div class="chk"><span class="chk-icon">•</span><span><a href="https://a.co/d/9FvRx7I" target="_blank" style="color:var(--silver);text-decoration:underline;">Turf Shoes (Adult sizes)</a></span></div>
@@ -461,24 +476,24 @@ footer a{color:var(--silver2);}
             <div class="chk"><span class="chk-icon">•</span><span>Black Batting Gloves (your choice of style)</span></div>
           </div>
         </div>
-        <div class="card">
+        <div class="card editable-card" data-card-key="10u-contacts">
           <div class="card-head"><div class="card-title">Important Contacts</div></div>
-          <div class="card-body">
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0;font-size:13px;"><span style="color:var(--muted)">Coach Mo</span><strong>(313) 942-5116</strong></div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0;font-size:13px;"><span style="color:var(--muted)">Allison</span><strong>(808) 753-3882</strong></div>
+          <div class="card-body" data-card-id="10u-contacts">
+            <div class="chk"><span class="chk-icon">•</span><span>Coach Mo — <strong>(313) 942-5116</strong></span></div>
+            <div class="chk"><span class="chk-icon">•</span><span>Allison — <strong>(808) 753-3882</strong></span></div>
           </div>
         </div>
       </div>
     </div>
   </div>
   </div>
-  <div id="fam-16U" style="display:none;">
+  <div id="fam-14U" style="display:none;">
   <div class="sec">
     <div class="grid2">
       <div>
-        <div class="card">
-          <div class="card-head"><div class="card-title">New Team Member Checklist</div></div>
-          <div class="card-body">
+        <div class="card editable-card" data-card-key="14u-checklist">
+          <div class="card-head"><div class="card-title">To-Do List</div></div>
+          <div class="card-body" data-card-id="14u-checklist">
             <div class="chk"><span class="chk-icon">□</span><span>Email birth certificate to <a href="mailto:teamrollinfastpitch@gmail.com" style="color:var(--silver);text-decoration:underline;">teamrollinfastpitch@gmail.com</a> (stored securely and removed from email)</span></div>
             <div class="chk"><span class="chk-icon">□</span><span>Sign up for <strong>Parent / Family Jobs</strong> (optional — please see your Team Mom)</span></div>
             <div class="chk"><span class="chk-icon">□</span><span>Sign and return contract page (comes in binder)</span></div>
@@ -489,9 +504,9 @@ footer a{color:var(--silver2);}
             <div class="chk"><span class="chk-icon">□</span><span>Join <strong>Softball Registrations for Tournaments</strong> (by invite)</span></div>
           </div>
         </div>
-        <div class="card">
+        <div class="card editable-card" data-card-key="14u-equipment">
           <div class="card-head"><div class="card-title">Team Equipment to Collect</div></div>
-          <div class="card-body">
+          <div class="card-body" data-card-id="14u-equipment">
             <div class="chk"><span class="chk-icon">□</span><span>Binder</span></div>
             <div class="chk"><span class="chk-icon">□</span><span>Helmet</span></div>
             <div class="chk"><span class="chk-icon">□</span><span>PVC Pipe</span></div>
@@ -504,9 +519,66 @@ footer a{color:var(--silver2);}
         </div>
       </div>
       <div>
-        <div class="card">
+        <div class="card editable-card" data-card-key="14u-purchase">
           <div class="card-head"><div class="card-title">Purchase on Your Own</div></div>
-          <div class="card-body">
+          <div class="card-body" data-card-id="14u-purchase">
+            <div class="chk"><span class="chk-icon">•</span><span><a href="https://www.amazon.com/Easton-Backpack-Equipment-Fastpitch-Softball/dp/B0BFBQMBNL" target="_blank" style="color:var(--silver);text-decoration:underline;">Bat Bag</a> or <a href="https://a.co/d/8QkmIuB" target="_blank" style="color:var(--silver);text-decoration:underline;">Catcher Bag</a></span></div>
+            <div class="chk"><span class="chk-icon">•</span><span><a href="https://www.newbalance.com/pd/fresh-foam-3000v7-rubber-molded/J3000V7-45219.html" target="_blank" style="color:var(--silver);text-decoration:underline;">Cleats (Youth sizes)</a></span></div>
+            <div class="chk"><span class="chk-icon">•</span><span><a href="https://a.co/d/9FvRx7I" target="_blank" style="color:var(--silver);text-decoration:underline;">Turf Shoes (Adult sizes)</a></span></div>
+            <div class="chk"><span class="chk-icon">•</span><span>Game Day <strong>Black pants</strong> (your choice of style / brand)</span></div>
+            <div class="chk"><span class="chk-icon">•</span><span>Practice <strong>Charcoal pants</strong> (your choice of style / brand)</span></div>
+            <div class="chk"><span class="chk-icon">•</span><span>White socks / belt for practice</span></div>
+            <div class="chk"><span class="chk-icon">•</span><span>Practice <strong>Black pants</strong> (if desired)</span></div>
+            <div class="chk"><span class="chk-icon">•</span><span>Black Face Mask</span></div>
+            <div class="chk"><span class="chk-icon">•</span><span>Black Batting Gloves (your choice of style)</span></div>
+          </div>
+        </div>
+        <div class="card editable-card" data-card-key="14u-contacts">
+          <div class="card-head"><div class="card-title">Important Contacts</div></div>
+          <div class="card-body" data-card-id="14u-contacts">
+            <div class="chk"><span class="chk-icon">•</span><span>Coach Mo — <strong>(313) 942-5116</strong></span></div>
+            <div class="chk"><span class="chk-icon">•</span><span>Allison — <strong>(808) 753-3882</strong></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <div id="fam-16U" style="display:none;">
+  <div class="sec">
+    <div class="grid2">
+      <div>
+        <div class="card editable-card" data-card-key="16u-checklist">
+          <div class="card-head"><div class="card-title">To-Do List</div></div>
+          <div class="card-body" data-card-id="16u-checklist">
+            <div class="chk"><span class="chk-icon">□</span><span>Email birth certificate to <a href="mailto:teamrollinfastpitch@gmail.com" style="color:var(--silver);text-decoration:underline;">teamrollinfastpitch@gmail.com</a> (stored securely and removed from email)</span></div>
+            <div class="chk"><span class="chk-icon">□</span><span>Sign up for <strong>Parent / Family Jobs</strong> (optional — please see your Team Mom)</span></div>
+            <div class="chk"><span class="chk-icon">□</span><span>Sign and return contract page (comes in binder)</span></div>
+            <div class="chk"><span class="chk-icon">□</span><span>Join <strong>GroupMe Official</strong> (by invite)</span></div>
+            <div class="chk"><span class="chk-icon">□</span><span>Join <strong>GroupMe Parents</strong> (by invite)</span></div>
+            <div class="chk"><span class="chk-icon">□</span><span>Join <strong>Game Changer</strong></span></div>
+            <div class="chk"><span class="chk-icon">□</span><span>Join <strong>Player GroupMe</strong> (by invite)</span></div>
+            <div class="chk"><span class="chk-icon">□</span><span>Join <strong>Softball Registrations for Tournaments</strong> (by invite)</span></div>
+          </div>
+        </div>
+        <div class="card editable-card" data-card-key="16u-equipment">
+          <div class="card-head"><div class="card-title">Team Equipment to Collect</div></div>
+          <div class="card-body" data-card-id="16u-equipment">
+            <div class="chk"><span class="chk-icon">□</span><span>Binder</span></div>
+            <div class="chk"><span class="chk-icon">□</span><span>Helmet</span></div>
+            <div class="chk"><span class="chk-icon">□</span><span>PVC Pipe</span></div>
+            <div class="chk"><span class="chk-icon">□</span><span>Practice Jerseys</span></div>
+            <div class="chk"><span class="chk-icon">□</span><span>Game Jerseys</span></div>
+            <div class="chk"><span class="chk-icon">□</span><span>Socks / Belts</span></div>
+            <div class="chk"><span class="chk-icon">□</span><span>BP Jacket</span></div>
+            <div class="chk"><span class="chk-icon">□</span><span>Rain Jacket</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card editable-card" data-card-key="16u-purchase">
+          <div class="card-head"><div class="card-title">Purchase on Your Own</div></div>
+          <div class="card-body" data-card-id="16u-purchase">
             <div class="chk"><span class="chk-icon">•</span><span><a href="https://www.amazon.com/Easton-Backpack-Equipment-Fastpitch-Softball/dp/B0BFBQMBNL" target="_blank" style="color:var(--silver);text-decoration:underline;">Bat Bag</a> or <a href="https://a.co/d/8QkmIuB" target="_blank" style="color:var(--silver);text-decoration:underline;">Catcher Bag</a></span></div>
             <div class="chk"><span class="chk-icon">•</span><span><a href="https://www.amazon.com/New-Balance-Womens-Fresh-Softball/dp/B0CLBBRB7T" target="_blank" style="color:var(--silver);text-decoration:underline;">Cleats</a></span></div>
             <div class="chk"><span class="chk-icon">•</span><span><a href="https://a.co/d/9FvRx7I" target="_blank" style="color:var(--silver);text-decoration:underline;">Turf Shoes (Adult sizes)</a></span></div>
@@ -518,11 +590,11 @@ footer a{color:var(--silver2);}
             <div class="chk"><span class="chk-icon">•</span><span>Black Batting Gloves (your choice of style)</span></div>
           </div>
         </div>
-        <div class="card">
+        <div class="card editable-card" data-card-key="16u-contacts">
           <div class="card-head"><div class="card-title">Important Contacts</div></div>
-          <div class="card-body">
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0;font-size:13px;"><span style="color:var(--muted)">Coach Mo</span><strong>(313) 942-5116</strong></div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0;font-size:13px;"><span style="color:var(--muted)">Xio</span><strong>(512) 496-0809</strong></div>
+          <div class="card-body" data-card-id="16u-contacts">
+            <div class="chk"><span class="chk-icon">•</span><span>Coach Mo — <strong>(313) 942-5116</strong></span></div>
+            <div class="chk"><span class="chk-icon">•</span><span>Xio — <strong>(512) 496-0809</strong></span></div>
           </div>
         </div>
       </div>
@@ -533,9 +605,9 @@ footer a{color:var(--silver2);}
   <div class="sec">
     <div class="grid2">
       <div>
-        <div class="card">
+        <div class="card editable-card" data-card-key="12u-todo">
           <div class="card-head"><div class="card-title">To-Do List</div></div>
-          <div class="card-body">
+          <div class="card-body" data-card-id="12u-todo">
             <div class="chk"><span class="chk-icon">□</span><span>Fill out <a href="https://docs.google.com/forms/d/e/1FAIpQLSeJbTHwdSxOMYduG_sI776F_M-nrcQ7brgbMGQCmsiDyzqiPg/viewform" target="_blank" style="color:var(--silver);text-decoration:underline;">Intake Form</a></span></div>
             <div class="chk"><span class="chk-icon">□</span><span>Email birth certificate to Allison (for 12U)</span></div>
             <div class="chk"><span class="chk-icon">□</span><span>Sign up for <a onclick="go('lessons')" style="color:var(--silver);text-decoration:underline;cursor:pointer;">Privates / Semi-Privates</a></span></div>
@@ -547,9 +619,9 @@ footer a{color:var(--silver2);}
             <div class="chk"><span class="chk-icon">□</span><span>Join <strong>NCS Softball Reg</strong> (email invite)</span></div>
           </div>
         </div>
-        <div class="card">
+        <div class="card editable-card" data-card-key="12u-equipment">
           <div class="card-head"><div class="card-title">Team Equipment to Collect</div></div>
-          <div class="card-body">
+          <div class="card-body" data-card-id="12u-equipment">
             <div class="chk"><span class="chk-icon">□</span><span>Binder</span></div>
             <div class="chk"><span class="chk-icon">□</span><span>Helmet (see Allison to get sized)</span></div>
             <div class="chk"><span class="chk-icon">□</span><span>PVC Pipe</span></div>
@@ -559,9 +631,9 @@ footer a{color:var(--silver2);}
         </div>
       </div>
       <div>
-        <div class="card">
+        <div class="card editable-card" data-card-key="12u-purchase">
           <div class="card-head"><div class="card-title">Purchase on Your Own</div></div>
-          <div class="card-body">
+          <div class="card-body" data-card-id="12u-purchase">
             <div class="chk"><span class="chk-icon">•</span><span><a href="https://www.amazon.com/Easton-Backpack-Equipment-Fastpitch-Softball/dp/B0BFBQMBNL" target="_blank" style="color:var(--silver);text-decoration:underline;">Bat Bag</a> or <a href="https://a.co/d/8QkmIuB" target="_blank" style="color:var(--silver);text-decoration:underline;">Catcher Bag</a></span></div>
             <div class="chk"><span class="chk-icon">•</span><span><a href="https://www.amazon.com/New-Balance-Womens-Molded-Softball/dp/B09K4TYBTQ" target="_blank" style="color:var(--silver);text-decoration:underline;">Cleats</a> · <a href="https://www.newbalance.com/pd/fresh-foam-3000v7-rubber-molded/J3000V7-45219.html" target="_blank" style="color:var(--silver);text-decoration:underline;">Youth sizes</a></span></div>
             <div class="chk"><span class="chk-icon">•</span><span><a href="https://www.amazon.com/New-Balance-Unisex-Child-FuelCell-Turf-Trainer/dp/B0BJ82GQY6" target="_blank" style="color:var(--silver);text-decoration:underline;">Turf Shoes (youth)</a> · <a href="https://a.co/d/9FvRx7I" target="_blank" style="color:var(--silver);text-decoration:underline;">Adult</a></span></div>
@@ -569,13 +641,12 @@ footer a{color:var(--silver2);}
             <div class="chk"><span class="chk-icon">•</span><span>Practice <strong>Charcoal pants</strong> · Black face mask · Black batting gloves</span></div>
           </div>
         </div>
-        <div class="card">
+        <div class="card editable-card" data-card-key="12u-contacts">
           <div class="card-head"><div class="card-title">Important Contacts</div></div>
-          <div class="card-body">
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0;font-size:13px;"><span style="color:var(--muted)">Coach Jaz</span><strong>(801) 719-4750</strong></div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0;font-size:13px;"><span style="color:var(--muted)">Allison (12s)</span><strong>(808) 753-3882</strong></div>
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0;font-size:13px;"><span style="color:var(--muted)">Xiomara (16s)</span><strong>(512) 496-0808</strong></div>
-
+          <div class="card-body" data-card-id="12u-contacts">
+            <div class="chk"><span class="chk-icon">•</span><span>Coach Jaz — <strong>(801) 719-4750</strong></span></div>
+            <div class="chk"><span class="chk-icon">•</span><span>Allison (12s) — <strong>(808) 753-3882</strong></span></div>
+            <div class="chk"><span class="chk-icon">•</span><span>Xiomara (16s) — <strong>(512) 496-0808</strong></span></div>
           </div>
         </div>
       </div>
@@ -3525,6 +3596,198 @@ document.addEventListener('click', function(e) {
   var dcbook = e.target.closest('[data-dcbook]');
   if(dcbook) { openDefCoachBook(dcbook.getAttribute('data-dcbook')); return; }
 });
+
+// ====== TR FAMILIES INLINE EDITOR ======
+(function(){
+  var FAM_API = '/api/families-content';
+  var savedCards = {};
+
+  function isFamCoach(){ return !!(identity && identity.type === 'coach'); }
+  function syncBodyClass(){ document.body.classList.toggle('is-fam-coach', isFamCoach()); }
+
+  function applySaved(){
+    Object.keys(savedCards).forEach(function(id){
+      var el = document.querySelector('[data-card-id="'+id+'"]');
+      if(el && !el._famEditing) el.innerHTML = savedCards[id];
+    });
+  }
+
+  function fetchSaved(){
+    fetch(FAM_API, { cache:'no-store' }).then(function(r){
+      if(!r.ok) return;
+      return r.json();
+    }).then(function(data){
+      if(data && data.cards){ savedCards = data.cards; applySaved(); }
+    }).catch(function(){});
+  }
+
+  function chkBodyToList(el){
+    if(el.querySelector(':scope > ul, :scope > ol')) return;
+    var chks = el.querySelectorAll(':scope > .chk');
+    if(!chks.length){
+      var inner = el.innerHTML.trim();
+      el.innerHTML = '<ul><li>'+(inner || '')+'</li></ul>';
+      return;
+    }
+    var lis = [];
+    chks.forEach(function(chk){
+      var spans = chk.querySelectorAll('span');
+      var content = spans.length >= 2 ? spans[spans.length-1].innerHTML : chk.innerHTML;
+      lis.push('<li>'+content+'</li>');
+    });
+    el.innerHTML = '<ul>'+lis.join('')+'</ul>';
+  }
+
+  function makeBtn(label, cls, onClick){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = label;
+    if(cls) b.className = cls;
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  function exec(cmd, val){ try { document.execCommand(cmd, false, val == null ? null : val); } catch(e){} }
+
+  function insertLink(body){
+    var sel = window.getSelection();
+    var hasSel = sel && sel.toString().length > 0;
+    var url = prompt('Enter URL (e.g. https://example.com). Leave blank to remove a link.');
+    if(url === null) return;
+    url = (url || '').trim();
+    if(!url){ exec('unlink'); body.focus(); return; }
+    if(!/^[a-z][a-z0-9+.\-]*:/i.test(url)) url = 'https://' + url;
+    if(!hasSel){
+      var safe = url.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      exec('insertHTML', '<a href="'+safe+'" target="_blank" rel="noopener">'+safe+'</a>');
+    } else {
+      exec('createLink', url);
+      try {
+        var node = sel.anchorNode;
+        var a = node && (node.nodeType===1 ? node : node.parentElement);
+        a = a && a.closest('a');
+        if(a){ a.target='_blank'; a.rel='noopener'; }
+      } catch(e){}
+    }
+    body.focus();
+  }
+
+  function startEdit(card){
+    if(!isFamCoach()) return;
+    var body = card.querySelector('[data-card-id]');
+    if(!body || body._famEditing) return;
+    body._famEditing = true;
+    body._famPrev = body.innerHTML;
+    chkBodyToList(body);
+    body.contentEditable = 'true';
+    body.classList.add('editable-card-body--editing');
+
+    var toolbar = document.createElement('div');
+    toolbar.className = 'fam-edit-toolbar';
+    toolbar.appendChild(makeBtn('• Bullet', '', function(){ exec('insertUnorderedList'); body.focus(); }));
+    toolbar.appendChild(makeBtn('1. Numbered', '', function(){ exec('insertOrderedList'); body.focus(); }));
+    toolbar.appendChild(makeBtn('Bold', '', function(){ exec('bold'); body.focus(); }));
+    toolbar.appendChild(makeBtn('Italic', '', function(){ exec('italic'); body.focus(); }));
+    toolbar.appendChild(makeBtn('Insert Link', '', function(){ insertLink(body); }));
+    toolbar.appendChild(makeBtn('Remove Link', '', function(){ exec('unlink'); body.focus(); }));
+    body.parentNode.insertBefore(toolbar, body);
+    body._famToolbar = toolbar;
+
+    body.focus();
+
+    var ctrls = card.querySelector('.fam-edit-controls');
+    if(ctrls){
+      ctrls.innerHTML = '';
+      ctrls.appendChild(makeBtn('Save', 'fam-edit-btn primary', function(){ saveEdit(card); }));
+      ctrls.appendChild(makeBtn('Cancel', 'fam-edit-btn', function(){ cancelEdit(card); }));
+      var status = document.createElement('span');
+      status.className = 'fam-edit-status';
+      ctrls.appendChild(status);
+      ctrls._status = status;
+    }
+  }
+
+  function exitEdit(card){
+    var body = card.querySelector('[data-card-id]');
+    if(!body) return;
+    body._famEditing = false;
+    body.contentEditable = 'false';
+    body.classList.remove('editable-card-body--editing');
+    if(body._famToolbar && body._famToolbar.parentNode){
+      body._famToolbar.parentNode.removeChild(body._famToolbar);
+    }
+    body._famToolbar = null;
+    delete body._famPrev;
+    var ctrls = card.querySelector('.fam-edit-controls');
+    if(ctrls){
+      ctrls.innerHTML = '';
+      ctrls.appendChild(makeBtn('Edit', 'fam-edit-btn', function(){ startEdit(card); }));
+    }
+  }
+
+  function cancelEdit(card){
+    var body = card.querySelector('[data-card-id]');
+    if(!body) return;
+    if(typeof body._famPrev === 'string') body.innerHTML = body._famPrev;
+    exitEdit(card);
+  }
+
+  function saveEdit(card){
+    var body = card.querySelector('[data-card-id]');
+    if(!body) return;
+    var id = body.getAttribute('data-card-id');
+    var html = body.innerHTML;
+    var ctrls = card.querySelector('.fam-edit-controls');
+    if(ctrls && ctrls._status) ctrls._status.textContent = 'Saving…';
+    fetch(FAM_API, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ id: id, html: html })
+    }).then(function(r){
+      if(!r.ok) throw new Error('save failed');
+      return r.json();
+    }).then(function(){
+      savedCards[id] = html;
+      if(ctrls && ctrls._status){ ctrls._status.textContent = 'Saved'; }
+      setTimeout(function(){ if(ctrls && ctrls._status) ctrls._status.textContent = ''; }, 1500);
+      exitEdit(card);
+    }).catch(function(){
+      if(ctrls && ctrls._status) ctrls._status.textContent = 'Error — try again';
+    });
+  }
+
+  function injectControls(){
+    document.querySelectorAll('.editable-card').forEach(function(card){
+      var head = card.querySelector(':scope > .card-head');
+      if(!head || head.querySelector(':scope > .fam-edit-controls')) return;
+      var ctrls = document.createElement('div');
+      ctrls.className = 'fam-edit-controls';
+      ctrls.appendChild(makeBtn('Edit', 'fam-edit-btn', function(){ startEdit(card); }));
+      head.appendChild(ctrls);
+    });
+  }
+
+  if(typeof updateAuthUI === 'function'){
+    var origAuth = updateAuthUI;
+    window.updateAuthUI = function(){
+      var r = origAuth.apply(this, arguments);
+      syncBodyClass();
+      return r;
+    };
+  }
+
+  function init(){
+    injectControls();
+    syncBodyClass();
+    fetchSaved();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
 <script>
