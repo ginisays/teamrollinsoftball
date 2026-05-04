@@ -1761,6 +1761,8 @@ function updateAuthUI() {
   if(mlBtn) mlBtn.style.display = (identity && identity.type==='player') ? '' : 'none';
   var mpBtn = document.getElementById('my-pitch-btn');
   if(mpBtn) mpBtn.style.display = (identity && identity.type==='player') ? '' : 'none';
+  var mdBtn = document.getElementById('my-def-btn');
+  if(mdBtn) mdBtn.style.display = (identity && identity.type==='player') ? '' : 'none';
   var isC = identity && identity.type==='coach';
   var isIn = !!identity;
   var navIds = ['nav-checklist','nav-lessons'];
@@ -1804,15 +1806,18 @@ function filterSlots(val, el) {
 function renderSlots() {
   var el = document.getElementById('player-slots');
   if(!el) return;
+  var isMine = showMyLessons && identity && identity.type==='player';
   buildWeekTabs(allSlots, 'hitting-week-tabs', currentHitWeek, 'setHitWeek');
+  var weekTabs = document.getElementById('hitting-week-tabs');
+  if(weekTabs) weekTabs.style.display = isMine ? 'none' : '';
   var data = allSlots.slice();
-  if(showMyLessons && identity && identity.type==='player') {
+  if(isMine) {
     data = data.filter(function(s){ return s.booked_by===identity.name && s.booked_team===identity.team; });
   } else {
     if(slotFilter==='12U') data = data.filter(function(s){ return s.team==='both'||s.team==='12U'; });
     if(slotFilter==='16U') data = data.filter(function(s){ return s.team==='both'||s.team==='16U'; });
+    data = filterSlotsByWeek(data, currentHitWeek);
   }
-  data = filterSlotsByWeek(data, currentHitWeek);
   if(!data.length) { el.innerHTML='<div class="empty">No slots available yet.</div>'; return; }
   var groups={};
   data.forEach(function(s){ if(!groups[s.date]) groups[s.date]=[]; groups[s.date].push(s); });
@@ -1843,7 +1848,7 @@ function renderSlot(s) {
     var cancelBtn = locked24
       ? '<div style="font-size:10px;color:var(--silver3);margin-top:4px;" data-locked24="1" title="Cancellations within 24 hours must go through your coach">🔒 Within 24h</div>'
       : '<div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-cancel="'+s.id+'">✕ Cancel</div>';
-    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div>'+cancelBtn+calBtn+'</div>';
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--silver2);margin-top:2px;">with Coach Jaz</div>'+cancelBtn+calBtn+'</div>';
   }
   var canBook = identity && identity.type==='player' && !locked24;
   var click = canBook ? 'data-book="'+s.id+'"' : (isC ? '' : (locked24 && identity && identity.type==='player' ? 'data-locked24="1"' : 'data-signin="1"'));
@@ -2644,15 +2649,18 @@ function filterPitch(val, el) {
 function renderPitchSlots() {
   var el = document.getElementById('pitch-slots');
   if(!el) return;
+  var isMine = showMyPitching && identity && identity.type==='player';
   buildWeekTabs(pitchSlots, 'pitching-week-tabs', currentPitchWeek, 'setPitchWeek');
+  var weekTabs = document.getElementById('pitching-week-tabs');
+  if(weekTabs) weekTabs.style.display = isMine ? 'none' : '';
   var data = pitchSlots.slice();
-  if(showMyPitching && identity && identity.type==='player') {
+  if(isMine) {
     data = data.filter(function(s){ return s.booked_by===identity.name && s.booked_team===identity.team; });
   } else {
     if(pitchFilter==='12U') data = data.filter(function(s){ return s.team==='both'||s.team==='12U'; });
     if(pitchFilter==='16U') data = data.filter(function(s){ return s.team==='both'||s.team==='16U'; });
+    data = filterSlotsByWeek(data, currentPitchWeek);
   }
-  data = filterSlotsByWeek(data, currentPitchWeek);
   if(!data.length) { el.innerHTML='<div class="empty">No pitching slots available yet.</div>'; return; }
   var groups={};
   data.forEach(function(s){ if(!groups[s.date]) groups[s.date]=[]; groups[s.date].push(s); });
@@ -2681,7 +2689,7 @@ function renderPitchSlot(s) {
     var pcancelBtn = locked24
       ? '<div style="font-size:10px;color:var(--silver3);margin-top:4px;" data-locked24="1" title="Cancellations within 24 hours must go through your coach">🔒 Within 24h</div>'
       : '<div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-pcancel="'+s.id+'">✕ Cancel</div>';
-    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div>'+pcancelBtn+pcalBtn+'</div>';
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--silver2);margin-top:2px;">with Coach Laurie</div>'+pcancelBtn+pcalBtn+'</div>';
   }
   var canBook = identity && identity.type==='player' && !locked24;
   var click = canBook ? 'data-pbook="'+s.id+'"' : ((locked24 && identity && identity.type==='player') ? 'data-locked24="1"' : 'data-signin="1"');
@@ -2925,15 +2933,18 @@ function toggleMyDefense() {
 function renderDefSlots() {
   var el = document.getElementById('def-slots');
   if(!el) return;
+  var isMine = showMyDefense && identity && identity.type==='player';
   buildWeekTabs(defSlots, 'defense-week-tabs', currentDefWeek, 'setDefWeek');
+  var weekTabs = document.getElementById('defense-week-tabs');
+  if(weekTabs) weekTabs.style.display = isMine ? 'none' : '';
   var data = defSlots.slice();
-  if(showMyDefense && identity && identity.type==='player') {
+  if(isMine) {
     data = data.filter(function(s){ return s.booked_by===identity.name && s.booked_team===identity.team; });
   } else {
     if(defFilter==='12U') data = data.filter(function(s){ return s.team==='both'||s.team==='12U'; });
     if(defFilter==='16U') data = data.filter(function(s){ return s.team==='both'||s.team==='16U'; });
+    data = filterSlotsByWeek(data, currentDefWeek);
   }
-  data = filterSlotsByWeek(data, currentDefWeek);
   if(!data.length) { el.innerHTML='<div class="empty">No defense slots available yet.</div>'; return; }
   var groups={};
   data.forEach(function(s){ if(!groups[s.date]) groups[s.date]=[]; groups[s.date].push(s); });
@@ -2962,7 +2973,7 @@ function renderDefSlot(s) {
     var dcancelBtn = locked24
       ? '<div style="font-size:10px;color:var(--silver3);margin-top:4px;" data-locked24="1" title="Cancellations within 24 hours must go through your coach">🔒 Within 24h</div>'
       : '<div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-dcancel="'+s.id+'">✕ Cancel</div>';
-    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div>'+dcancelBtn+dcalBtn+'</div>';
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--silver2);margin-top:2px;">with Coach Mo</div>'+dcancelBtn+dcalBtn+'</div>';
   }
   var canBook = identity && identity.type==='player' && !locked24;
   var click = canBook ? 'data-dbook="'+s.id+'"' : ((locked24 && identity && identity.type==='player') ? 'data-locked24="1"' : 'data-signin="1"');
