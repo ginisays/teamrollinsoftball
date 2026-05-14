@@ -1445,7 +1445,7 @@ async function syncFromSupabase() {
   try {
     // Slots
     var r1 = await sb.from('slots').select('*');
-    if(r1.data && r1.data.length) {
+    if(r1.data) {
       allSlots = r1.data.map(function(s){ return {id:s.id,date:s.date,time:s.time,team:s.team,duration:s.duration,booked_by:s.booked_by||null,booked_team:s.booked_team||null}; });
       var now = new Date(); now.setHours(0,0,0,0);
       allSlots = allSlots.filter(function(s){ return new Date(s.date+'T00:00:00')>=now; });
@@ -1558,9 +1558,6 @@ async function sbSavePractices() {
 async function sbSavePitchSlots() {
   if(!sb) return;
   try {
-    // Delete all existing pitch slots first
-    await sb.from('pitch_slots').delete().gte('date', '2000-01-01');
-    // Insert current slots
     if(pitchSlots.length) {
       var rows = pitchSlots.map(function(s){ return {
         id: s.id,
@@ -1571,9 +1568,7 @@ async function sbSavePitchSlots() {
         booked_by: s.booked_by || null,
         booked_team: s.booked_team || null
       }; });
-      var resp = await sb.from('pitch_slots').insert(rows);
-      if(resp.error) console.error('pitch insert error:', JSON.stringify(resp.error));
-      else console.log('Pitch slots saved:', rows.length);
+      await sb.from('pitch_slots').upsert(rows, {onConflict:'id'});
     }
   } catch(e){ console.error('sbSavePitchSlots exception:',e); }
 }
@@ -1585,7 +1580,6 @@ async function sbDeletePitchSlot(id) {
 async function sbSaveDefSlots() {
   if(!sb) return;
   try {
-    await sb.from('def_slots').delete().gte('date', '2000-01-01');
     if(defSlots.length) {
       var rows = defSlots.map(function(s){ return {
         id: s.id,
@@ -1596,9 +1590,7 @@ async function sbSaveDefSlots() {
         booked_by: s.booked_by || null,
         booked_team: s.booked_team || null
       }; });
-      var resp = await sb.from('def_slots').insert(rows);
-      if(resp.error) console.error('def insert error:', JSON.stringify(resp.error));
-      else console.log('Def slots saved:', rows.length);
+      await sb.from('def_slots').upsert(rows, {onConflict:'id'});
     }
   } catch(e){ console.error('sbSaveDefSlots exception:',e); }
 }
@@ -1618,6 +1610,26 @@ async function sbSaveSlots() {
 async function sbDeleteSlot(id) {
   if(!sb) return;
   try { await sb.from('slots').delete().eq('id', id); } catch(e){ console.error('sbDeleteSlot',e); }
+}
+async function sbUpsertSlot(s) {
+  if(!sb) return;
+  try { await sb.from('slots').upsert({id:s.id,date:s.date,time:s.time,team:s.team,duration:s.duration,booked_by:s.booked_by||null,booked_team:s.booked_team||null},{onConflict:'id'}); } catch(e){ console.error('sbUpsertSlot',e); }
+}
+async function sbUpsertPitchSlot(s) {
+  if(!sb) return;
+  try { await sb.from('pitch_slots').upsert({id:s.id,date:s.date,time:s.time,team:s.team,duration:parseInt(s.duration)||30,booked_by:s.booked_by||null,booked_team:s.booked_team||null},{onConflict:'id'}); } catch(e){ console.error('sbUpsertPitchSlot',e); }
+}
+async function sbUpsertDefSlot(s) {
+  if(!sb) return;
+  try { await sb.from('def_slots').upsert({id:s.id,date:s.date,time:s.time,team:s.team,duration:parseInt(s.duration)||30,booked_by:s.booked_by||null,booked_team:s.booked_team||null},{onConflict:'id'}); } catch(e){ console.error('sbUpsertDefSlot',e); }
+}
+async function sbDeleteSlotsByIds(table, ids) {
+  if(!sb || !ids.length) return;
+  try { await sb.from(table).delete().in('id', ids); } catch(e){ console.error('sbDeleteSlotsByIds',e); }
+}
+async function sbInsertSlots(table, rows) {
+  if(!sb || !rows.length) return;
+  try { await sb.from(table).insert(rows); } catch(e){ console.error('sbInsertSlots',e); }
 }
 async function sbSaveMembers() {
   if(!sb) return;
@@ -1943,7 +1955,7 @@ function confirmBook() {
     if(identity && identity.type==='player' && isWithin24Hours(ps.date, ps.time)) { showBlock24(); return; }
     ps.booked_by = identity.name;
     ps.booked_team = identity.team;
-    save(PITCH_KEY, pitchSlots); sbSavePitchSlots();
+    save(PITCH_KEY, pitchSlots); sbUpsertPitchSlot(ps);
     closeModal('modal-book');
     renderPitchSlots();
     toast('Pitching lesson booked!','ok');
@@ -1956,7 +1968,7 @@ function confirmBook() {
     if(identity && identity.type==='player' && isWithin24Hours(ds.date, ds.time)) { showBlock24(); return; }
     ds.booked_by = identity.name;
     ds.booked_team = identity.team;
-    save(DEF_KEY, defSlots); sbSaveDefSlots();
+    save(DEF_KEY, defSlots); sbUpsertDefSlot(ds);
     closeModal('modal-book');
     renderDefSlots();
     toast('Defense lesson booked!','ok');
@@ -1970,7 +1982,7 @@ function confirmBook() {
   if(sameSlot) { toast('You already have a lesson at this time!','err'); closeModal('modal-book'); return; }
   s.booked_by = identity.name;
   s.booked_team = identity.team;
-  save(SLOTS_KEY, allSlots); sbSaveSlots();
+  save(SLOTS_KEY, allSlots); sbUpsertSlot(s);
   closeModal('modal-book');
   renderSlots();
   toast('Lesson booked!','ok');
@@ -1988,7 +2000,7 @@ function cancelSlot(id) {
   var slotDate = s.date;
   var slotTime = fmt(s.time);
   s.booked_by = null; s.booked_team = null;
-  save(SLOTS_KEY, allSlots); sbSaveSlots();
+  save(SLOTS_KEY, allSlots); sbUpsertSlot(s);
   renderSlots();
   toast('Booking cancelled','');
   // Auto-email coaches
@@ -2074,7 +2086,7 @@ function coachRm(id) {
   var member = members.find(function(m){ return m.name.toLowerCase()===playerName.toLowerCase() && m.team===playerTeam; });
   var parentEmail = member ? member.parentEmail : null;
   s.booked_by=null; s.booked_team=null;
-  save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView(); toast('Removed','');
+  save(SLOTS_KEY, allSlots); sbUpsertSlot(s); renderCoachView(); toast('Removed','');
   // Always notify coaches first
   sendNotification(
     'Team Rollin: Coach removed booking — '+playerName,
@@ -2142,9 +2154,9 @@ function confirmCoachBook() {
   if(s.booked_by) { toast('Slot already booked','err'); closeModal('modal-cbook'); return; }
   s.booked_by = playerName;
   s.booked_team = playerTeam;
-  if(isPitch){ save(PITCH_KEY, pitchSlots); sbSavePitchSlots(); }
-  else if(isDef){ save(DEF_KEY, defSlots); sbSaveDefSlots(); }
-  else { save(SLOTS_KEY, allSlots); sbSaveSlots(); }
+  if(isPitch){ save(PITCH_KEY, pitchSlots); sbUpsertPitchSlot(s); }
+  else if(isDef){ save(DEF_KEY, defSlots); sbUpsertDefSlot(s); }
+  else { save(SLOTS_KEY, allSlots); sbUpsertSlot(s); }
   closeModal('modal-cbook');
   renderCoachView(); renderSlots(); renderPitchSlots(); renderPitchCoachView(); renderDefSlots(); renderDefCoachView();
   toast('✓ '+playerName+' booked!','ok');
@@ -2152,8 +2164,9 @@ function confirmCoachBook() {
 function delAllOpen() {
   if(!canManage('hitting')) { toast('Only Coach Jaz can manage hitting','err'); return; }
   if(!confirm('Delete all open slots?')) return;
+  var idsToRemove = allSlots.filter(function(s){ return !s.booked_by; }).map(function(s){ return s.id; });
   allSlots = allSlots.filter(function(s){ return s.booked_by; });
-  save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView(); toast('Done','ok');
+  save(SLOTS_KEY, allSlots); sbDeleteSlotsByIds('slots', idsToRemove); renderCoachView(); toast('Done','ok');
 }
 function delPast() {
   if(!canManage('hitting')) { toast('Only Coach Jaz can manage hitting','err'); return; }
@@ -2164,8 +2177,9 @@ function delPast() {
     bookingHistory.push({id:s.id, date:s.date, time:s.time, team:s.team, duration:s.duration, player:s.booked_by, playerTeam:s.booked_team, type:'hitting', showed:false, paid:false, archivedAt:now});
   });
   localStorage.setItem(HIST_KEY, JSON.stringify(bookingHistory));
+  var idsToRemove = allSlots.filter(function(s){ return s.date<now; }).map(function(s){ return s.id; });
   allSlots = allSlots.filter(function(s){ return s.date>=now; });
-  save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView(); toast('Cleared','ok');
+  save(SLOTS_KEY, allSlots); sbDeleteSlotsByIds('slots', idsToRemove); renderCoachView(); toast('Cleared','ok');
 }
 
 function delByRange() {
@@ -2186,7 +2200,7 @@ function delByRange() {
   if(!confirm('Delete '+toDelete.length+' '+label+' slots from '+from+' to '+to+'?')) return;
   var ids = toDelete.map(function(s){ return s.id; });
   allSlots = allSlots.filter(function(s){ return ids.indexOf(s.id)<0; });
-  save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView(); toast('Deleted '+toDelete.length+' slots','ok');
+  save(SLOTS_KEY, allSlots); sbDeleteSlotsByIds('slots', ids); renderCoachView(); toast('Deleted '+toDelete.length+' slots','ok');
 }
 
 // ====== ADD SLOTS ======
@@ -2207,9 +2221,10 @@ function addSingle() {
   var team = document.getElementById('s-team').value;
   var dur = parseInt(document.getElementById('s-dur').value);
   if(!date) { toast('Pick a date','err'); return; }
-  allSlots.push({id:uid(), date:date, time:time, team:team, duration:dur, booked_by:null, booked_team:null});
+  var newSlot = {id:uid(), date:date, time:time, team:team, duration:dur, booked_by:null, booked_team:null};
+  allSlots.push(newSlot);
   allSlots.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
-  save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView();
+  save(SLOTS_KEY, allSlots); sbUpsertSlot(newSlot); renderCoachView();
   document.getElementById('s-date').value = '';
   var banner4 = document.createElement('div');
   banner4.textContent = '✓ Hitting slot added!';
@@ -2242,20 +2257,22 @@ function addBulk() {
     times.push((h<10?'0':'')+h+':'+(m<10?'0':'')+m);
   }
   var s = new Date(start+'T00:00:00'), e = new Date(end+'T00:00:00');
-  var batch=[], added=0;
+  var newSlots=[], added=0;
   for(var d=new Date(s); d<=e; d.setDate(d.getDate()+1)){
     if(days.indexOf(d.getDay())>=0){
       var ds = d.toISOString().slice(0,10);
       times.forEach(function(time){
         for(var c=0; c<copies; c++){
-          allSlots.push({id:uid(), date:ds, time:time, team:team, duration:dur, booked_by:null, booked_team:null});
+          var ns = {id:uid(), date:ds, time:time, team:team, duration:dur, booked_by:null, booked_team:null};
+          allSlots.push(ns);
+          newSlots.push(ns);
           added++;
         }
       });
     }
   }
   allSlots.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
-  save(SLOTS_KEY, allSlots); sbSaveSlots(); renderCoachView();
+  save(SLOTS_KEY, allSlots); sbInsertSlots('slots', newSlots.map(function(sl){ return {id:sl.id,date:sl.date,time:sl.time,team:sl.team,duration:sl.duration,booked_by:null,booked_team:null}; })); renderCoachView();
   if(added > 0) {
     var banner2 = document.createElement('div');
     banner2.textContent = '✓ ' + added + ' hitting slots created!';
@@ -2789,7 +2806,7 @@ function cancelPitchSlot(id) {
   if(!confirm('Cancel this pitching booking?')) return;
   var playerName=s.booked_by, playerTeam=s.booked_team, slotDate=s.date, slotTime=fmt(s.time);
   s.booked_by=null; s.booked_team=null;
-  save(PITCH_KEY, pitchSlots); sbSavePitchSlots();
+  save(PITCH_KEY, pitchSlots); sbUpsertPitchSlot(s);
   renderPitchSlots();
   toast('Pitching booking cancelled','');
   sendNotification('Team Rollin: Pitching Cancellation — '+playerName, 'Player: '+playerName+'\nTeam: '+playerTeam+'\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nSlot is now open.');
@@ -2842,9 +2859,10 @@ function addPitchSingle() {
   var team=document.getElementById('ps-team').value;
   var dur=parseInt(document.getElementById('ps-dur').value);
   if(!date){toast('Pick a date','err');return;}
-  pitchSlots.push({id:'p'+uid(),date:date,time:time,team:team,duration:dur,booked_by:null,booked_team:null});
+  var newSlot = {id:'p'+uid(),date:date,time:time,team:team,duration:dur,booked_by:null,booked_team:null};
+  pitchSlots.push(newSlot);
   pitchSlots.sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
-  save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView();
+  save(PITCH_KEY,pitchSlots); sbUpsertPitchSlot(newSlot); renderPitchCoachView();
   document.getElementById('ps-date').value = '';
   // Show banner and scroll to table
   var banner3 = document.createElement('div');
@@ -2875,15 +2893,15 @@ function addPitchBulk() {
   var parts=st.split(':'), sh=parseInt(parts[0]), sm=parseInt(parts[1]);
   var times=[];
   for(var i=0;i<count;i++){var tot=sh*60+sm+(i*dur);var h=Math.floor(tot/60)%24,m=tot%60;times.push((h<10?'0':'')+h+':'+(m<10?'0':'')+m);}
-  var s=new Date(start+'T00:00:00'),e=new Date(end+'T00:00:00'),added=0;
+  var s=new Date(start+'T00:00:00'),e=new Date(end+'T00:00:00'),added=0,newSlots=[];
   for(var d=new Date(s);d<=e;d.setDate(d.getDate()+1)){
     if(days.indexOf(d.getDay())>=0){
       var ds=d.toISOString().slice(0,10);
-      times.forEach(function(time){for(var c=0;c<copies;c++){pitchSlots.push({id:'p'+uid(),date:ds,time:time,team:team,duration:dur,booked_by:null,booked_team:null});added++;}});
+      times.forEach(function(time){for(var c=0;c<copies;c++){var ns={id:'p'+uid(),date:ds,time:time,team:team,duration:dur,booked_by:null,booked_team:null};pitchSlots.push(ns);newSlots.push(ns);added++;}});
     }
   }
   pitchSlots.sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
-  save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView();
+  save(PITCH_KEY,pitchSlots); sbInsertSlots('pitch_slots', newSlots.map(function(sl){ return {id:sl.id,date:sl.date,time:sl.time,team:sl.team,duration:parseInt(sl.duration)||30,booked_by:null,booked_team:null}; })); renderPitchCoachView();
   if(added > 0) {
     // Flash a big success banner
     var banner = document.createElement('div');
@@ -2900,8 +2918,9 @@ function addPitchBulk() {
 function delAllOpenPitch(){
   if(!canManage('pitching')) { toast('Only Coach Laurie can manage pitching','err'); return; }
   if(!confirm('Delete all open pitching slots?'))return;
+  var idsToRemove = pitchSlots.filter(function(s){ return !s.booked_by; }).map(function(s){ return s.id; });
   pitchSlots=pitchSlots.filter(function(s){return s.booked_by;});
-  save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView(); toast('Done','ok');
+  save(PITCH_KEY,pitchSlots); sbDeleteSlotsByIds('pitch_slots', idsToRemove); renderPitchCoachView(); toast('Done','ok');
 }
 function delPastPitch(){
   if(!canManage('pitching')) { toast('Only Coach Laurie can manage pitching','err'); return; }
@@ -2912,8 +2931,9 @@ function delPastPitch(){
     bookingHistory.push({id:s.id, date:s.date, time:s.time, team:s.team, duration:s.duration, player:s.booked_by, playerTeam:s.booked_team, type:'pitching', showed:false, paid:false, archivedAt:now});
   });
   localStorage.setItem(HIST_KEY, JSON.stringify(bookingHistory));
+  var idsToRemove = pitchSlots.filter(function(s){ return s.date<now; }).map(function(s){ return s.id; });
   pitchSlots=pitchSlots.filter(function(s){return s.date>=now;});
-  save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView(); toast('Cleared','ok');
+  save(PITCH_KEY,pitchSlots); sbDeleteSlotsByIds('pitch_slots', idsToRemove); renderPitchCoachView(); toast('Cleared','ok');
 }
 function pitchCoachRm(id){
   if(!canManage('pitching')) { toast('Only Coach Laurie can manage pitching','err'); return; }
@@ -2923,7 +2943,7 @@ function pitchCoachRm(id){
   var member=members.find(function(m){return m.name.toLowerCase()===playerName.toLowerCase()&&m.team===playerTeam;});
   var parentEmail=member?member.parentEmail:null;
   s.booked_by=null;s.booked_team=null;
-  save(PITCH_KEY,pitchSlots); sbSavePitchSlots(); renderPitchCoachView(); toast('Removed','');
+  save(PITCH_KEY,pitchSlots); sbUpsertPitchSlot(s); renderPitchCoachView(); toast('Removed','');
   sendNotification('Team Rollin: Pitching Cancellation — '+playerName,'Coach removed pitching booking.\nPlayer: '+playerName+'\nTeam: '+playerTeam+'\nDate: '+slotDate+'\nTime: '+slotTime);
   if(parentEmail){fetch('https://formspree.io/f/xpqorjjj',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({_replyto:parentEmail,subject:'Team Rollin TX: Pitching lesson cancelled for '+playerName,message:'Hi '+(member?member.parentName:playerName)+',\n\nYour pitching lesson has been cancelled by Coach Laurie.\n\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nVisit teamrollinsoftball.net to rebook.\n\n— Team Rollin TX'})}).catch(function(){});}
 }
@@ -3072,7 +3092,7 @@ function cancelDefSlot(id) {
   if(!confirm('Cancel this defense booking?')) return;
   var playerName=s.booked_by, playerTeam=s.booked_team, slotDate=s.date, slotTime=fmt(s.time);
   s.booked_by=null; s.booked_team=null;
-  save(DEF_KEY, defSlots); sbSaveDefSlots();
+  save(DEF_KEY, defSlots); sbUpsertDefSlot(s);
   renderDefSlots();
   toast('Defense booking cancelled','');
   sendNotification('Team Rollin: Defense Cancellation — '+playerName, 'Player: '+playerName+'\nTeam: '+playerTeam+'\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nSlot is now open.');
@@ -3128,11 +3148,14 @@ function addDefSingle() {
   var dur=parseInt(document.getElementById('ds-dur').value);
   var copies=parseInt(document.getElementById('ds-copies').value)||1;
   if(!date){toast('Pick a date','err');return;}
+  var newSlots=[];
   for(var c=0;c<copies;c++){
-    defSlots.push({id:'d'+uid(),date:date,time:time,team:team,duration:dur,booked_by:null,booked_team:null});
+    var ns={id:'d'+uid(),date:date,time:time,team:team,duration:dur,booked_by:null,booked_team:null};
+    defSlots.push(ns);
+    newSlots.push(ns);
   }
   defSlots.sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
-  save(DEF_KEY,defSlots); sbSaveDefSlots(); renderDefCoachView();
+  save(DEF_KEY,defSlots); sbInsertSlots('def_slots', newSlots.map(function(sl){ return {id:sl.id,date:sl.date,time:sl.time,team:sl.team,duration:parseInt(sl.duration)||30,booked_by:null,booked_team:null}; })); renderDefCoachView();
   document.getElementById('ds-date').value = '';
   var banner = document.createElement('div');
   banner.textContent = '✓ Defense slot'+(copies>1?'s ('+copies+')':'')+' added: ' + date + ' @ ' + time;
@@ -3161,15 +3184,15 @@ function addDefBulk() {
   var parts=st.split(':'), sh=parseInt(parts[0]), sm=parseInt(parts[1]);
   var times=[];
   for(var i=0;i<count;i++){var tot=sh*60+sm+(i*dur);var h=Math.floor(tot/60)%24,m=tot%60;times.push((h<10?'0':'')+h+':'+(m<10?'0':'')+m);}
-  var s=new Date(start+'T00:00:00'),e=new Date(end+'T00:00:00'),added=0;
+  var s=new Date(start+'T00:00:00'),e=new Date(end+'T00:00:00'),added=0,newSlots=[];
   for(var d=new Date(s);d<=e;d.setDate(d.getDate()+1)){
     if(days.indexOf(d.getDay())>=0){
       var ds=d.toISOString().slice(0,10);
-      times.forEach(function(time){for(var c=0;c<copies;c++){defSlots.push({id:'d'+uid(),date:ds,time:time,team:team,duration:dur,booked_by:null,booked_team:null});added++;}});
+      times.forEach(function(time){for(var c=0;c<copies;c++){var ns={id:'d'+uid(),date:ds,time:time,team:team,duration:dur,booked_by:null,booked_team:null};defSlots.push(ns);newSlots.push(ns);added++;}});
     }
   }
   defSlots.sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
-  save(DEF_KEY,defSlots); sbSaveDefSlots(); renderDefCoachView();
+  save(DEF_KEY,defSlots); sbInsertSlots('def_slots', newSlots.map(function(sl){ return {id:sl.id,date:sl.date,time:sl.time,team:sl.team,duration:parseInt(sl.duration)||30,booked_by:null,booked_team:null}; })); renderDefCoachView();
   if(added > 0) {
     var banner = document.createElement('div');
     banner.textContent = '✓ ' + added + ' defense slots created!';
@@ -3185,8 +3208,9 @@ function addDefBulk() {
 function delAllOpenDef(){
   if(!canManage('defense')) { toast('Only Coach Mo can manage defense','err'); return; }
   if(!confirm('Delete all open defense slots?'))return;
+  var idsToRemove = defSlots.filter(function(s){ return !s.booked_by; }).map(function(s){ return s.id; });
   defSlots=defSlots.filter(function(s){return s.booked_by;});
-  save(DEF_KEY,defSlots); sbSaveDefSlots(); renderDefCoachView(); toast('Done','ok');
+  save(DEF_KEY,defSlots); sbDeleteSlotsByIds('def_slots', idsToRemove); renderDefCoachView(); toast('Done','ok');
 }
 function delPastDef(){
   if(!canManage('defense')) { toast('Only Coach Mo can manage defense','err'); return; }
@@ -3197,8 +3221,9 @@ function delPastDef(){
     bookingHistory.push({id:s.id, date:s.date, time:s.time, team:s.team, duration:s.duration, player:s.booked_by, playerTeam:s.booked_team, type:'defense', showed:false, paid:false, archivedAt:now});
   });
   localStorage.setItem(HIST_KEY, JSON.stringify(bookingHistory));
+  var idsToRemove = defSlots.filter(function(s){ return s.date<now; }).map(function(s){ return s.id; });
   defSlots=defSlots.filter(function(s){return s.date>=now;});
-  save(DEF_KEY,defSlots); sbSaveDefSlots(); renderDefCoachView(); toast('Cleared','ok');
+  save(DEF_KEY,defSlots); sbDeleteSlotsByIds('def_slots', idsToRemove); renderDefCoachView(); toast('Cleared','ok');
 }
 function defCoachRm(id){
   if(!canManage('defense')) { toast('Only Coach Mo can manage defense','err'); return; }
@@ -3208,7 +3233,7 @@ function defCoachRm(id){
   var member=members.find(function(m){return m.name.toLowerCase()===playerName.toLowerCase()&&m.team===playerTeam;});
   var parentEmail=member?member.parentEmail:null;
   s.booked_by=null;s.booked_team=null;
-  save(DEF_KEY,defSlots); sbSaveDefSlots(); renderDefCoachView(); toast('Removed','');
+  save(DEF_KEY,defSlots); sbUpsertDefSlot(s); renderDefCoachView(); toast('Removed','');
   sendNotification('Team Rollin: Defense Cancellation — '+playerName,'Coach removed defense booking.\nPlayer: '+playerName+'\nTeam: '+playerTeam+'\nDate: '+slotDate+'\nTime: '+slotTime);
   if(parentEmail){fetch('https://formspree.io/f/xpqorjjj',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({_replyto:parentEmail,subject:'Team Rollin TX: Defense lesson cancelled for '+playerName,message:'Hi '+(member?member.parentName:playerName)+',\n\nYour defense lesson has been cancelled by Coach Mo.\n\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nVisit teamrollinsoftball.net to rebook.\n\n— Team Rollin TX'})}).catch(function(){});}
 }
