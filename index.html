@@ -230,6 +230,20 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
 .card-body[data-card-id] li{padding:3px 0;font-size:13px;line-height:1.45;}
 .card-body[data-card-id] a{color:var(--silver);text-decoration:underline;}
 .card-body[data-card-id] li::marker{color:var(--scarlet);}
+
+/* CREED */
+.creed-wrap{max-width:720px;margin:0 auto;}
+.creed-img{display:block;width:100%;border-radius:12px;border:1px solid var(--border2);box-shadow:0 8px 40px rgba(0,0,0,.5);}
+.creed-text{display:none;}
+.creed-intro{font-size:17px;color:var(--muted);line-height:1.8;text-align:center;margin-bottom:32px;font-style:italic;}
+.creed-item{margin-bottom:22px;}
+.creed-item-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:1px;color:var(--white);margin-bottom:4px;}
+.creed-item p{font-size:15px;color:var(--muted);line-height:1.75;}
+.creed-divider{width:60px;height:2px;background:var(--scarlet);margin:28px auto;border-radius:2px;}
+@media(max-width:640px){
+  .creed-img{display:none;}
+  .creed-text{display:block;}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
@@ -257,6 +271,7 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
     <a onclick="go('teams');closeMob()">Teams</a>
     <a onclick="go('schedule');closeMob()">Schedule</a>
     <a onclick="go('coach');closeMob()">About Us</a>
+    <a onclick="go('creed');closeMob()">Our Creed</a>
     <a onclick="go('checklist');closeMob()" id="nav-checklist" style="display:none">TR Families</a>
     <a onclick="go('lessons');closeMob()" id="nav-lessons" style="display:none">Lessons</a>
     <a onclick="go('contact');closeMob()">Contact</a>
@@ -1047,6 +1062,48 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
         </div>
       </div>
     </div>
+
+<!-- CREED -->
+<div class="page" id="page-creed">
+  <div class="sec-head"><span class="eyebrow">Who We Are</span><h2 class="sec-title">Team Rollin Creed</h2></div>
+  <div class="sec">
+    <div class="creed-wrap">
+      <img class="creed-img" src="assets/team-rollin-creed.png" alt="Team Rollin Creed — I am a member of Team Rollin, and I live by these truths: Commitment to Excellence, Committed to the Collective, Grit and Grace, Solution-Oriented, Integrity, and Communication.">
+      <div class="creed-text">
+        <p class="creed-intro">I am a member of Team Rollin, and I live by these truths:</p>
+        <div class="creed-item">
+          <div class="creed-item-title">Commitment to Excellence</div>
+          <p>I do not settle for "good enough." I train with focus, I play with heart, and I strive to be the best version of myself in every moment.</p>
+        </div>
+        <div class="creed-divider"></div>
+        <div class="creed-item">
+          <div class="creed-item-title">Committed to the Collective</div>
+          <p>I am part of something bigger than myself. I lift my teammates up, I play my role with pride, and I know that we only move forward when we roll together.</p>
+        </div>
+        <div class="creed-divider"></div>
+        <div class="creed-item">
+          <div class="creed-item-title">Grit and Grace</div>
+          <p>I have the Grit to outwork the competition and the Grace to handle both victory and defeat with a steady hand and a humble spirit.</p>
+        </div>
+        <div class="creed-divider"></div>
+        <div class="creed-item">
+          <div class="creed-item-title">Solution-Oriented</div>
+          <p>I don't complain about the obstacles; I find a way over, under, or through them. When a challenge arises, I look for the answer.</p>
+        </div>
+        <div class="creed-divider"></div>
+        <div class="creed-item">
+          <div class="creed-item-title">Integrity</div>
+          <p>I do what is right, even when no one is watching. My word is my bond, and my actions reflect the honor of this jersey.</p>
+        </div>
+        <div class="creed-divider"></div>
+        <div class="creed-item">
+          <div class="creed-item-title">Communication</div>
+          <p>I speak with respect, I listen with intent, and I keep my teammates informed. On and off the field, my voice is used to build, not to break.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- CONTACT -->
 <div class="page" id="page-contact">
