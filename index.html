@@ -190,6 +190,23 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .roster-player{background:var(--black);border:1px solid var(--border);border-radius:var(--r);padding:10px;text-align:center;overflow:hidden;}
 .roster-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;color:var(--silver3);line-height:1;}
 
+/* STORE */
+.store-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:960px;margin:0 auto;}
+.store-card{background:var(--black3);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s,transform .2s;position:relative;}
+.store-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+.store-card-accent{height:3px;background:linear-gradient(90deg,var(--scarlet),transparent);}
+.store-card-body{padding:28px 24px;}
+.store-card-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--silver3);letter-spacing:2px;margin-bottom:14px;}
+.store-card-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;text-transform:uppercase;line-height:1.1;margin-bottom:10px;letter-spacing:1px;}
+.store-card-desc{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:24px;}
+.store-card-link{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:var(--r);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;background:transparent;color:var(--white);border:1px solid var(--border2);transition:all .2s;text-decoration:none;}
+.store-card-link:hover{background:var(--white);color:var(--black);border-color:var(--white);}
+.store-card-link svg{width:14px;height:14px;fill:currentColor;transition:transform .2s;}
+.store-card-link:hover svg{transform:translateX(3px);}
+.store-empty{text-align:center;padding:48px 24px;color:var(--silver3);}
+.store-empty-icon{font-size:48px;margin-bottom:12px;opacity:.5;}
+.store-empty-text{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:2px;}
+
 /* FOOTER */
 footer{text-align:center;padding:24px 5%;border-top:1px solid var(--border);border-bottom:3px solid var(--scarlet);font-size:12px;color:var(--silver3);}
 footer a{color:var(--silver2);}
@@ -198,7 +215,7 @@ footer a{color:var(--silver2);}
 .empty{text-align:center;padding:28px;color:var(--muted);font-size:13px;}
 
 @media(max-width:780px){
-  .grid2,.coach-grid,.contact-grid,.about-grid,.staff-grid{grid-template-columns:1fr;}
+  .grid2,.coach-grid,.contact-grid,.about-grid,.staff-grid,.store-grid{grid-template-columns:1fr;}
   .c-stats{grid-template-columns:1fr 1fr;}
   .form-row{grid-template-columns:1fr;}
 }
@@ -272,6 +289,7 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
     <a onclick="go('schedule');closeMob()">Schedule</a>
     <a onclick="go('coach');closeMob()">About Us</a>
     <a onclick="go('creed');closeMob()">Our Creed</a>
+    <a onclick="go('store');closeMob()">Store</a>
     <a onclick="go('checklist');closeMob()" id="nav-checklist" style="display:none">TR Families</a>
     <a onclick="go('lessons');closeMob()" id="nav-lessons" style="display:none">Lessons</a>
     <a onclick="go('contact');closeMob()">Contact</a>
@@ -1150,6 +1168,56 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- STORE -->
+<div class="page" id="page-store">
+  <div class="sec-head"><span class="eyebrow">Gear Up</span><h2 class="sec-title">Store</h2></div>
+  <div class="sec">
+    <div class="store-grid">
+
+      <div class="store-card">
+        <div class="store-card-accent"></div>
+        <div class="store-card-body">
+          <div class="store-card-num">01</div>
+          <div class="store-card-name">Store Name</div>
+          <p class="store-card-desc">Add a description of what's available in this store.</p>
+          <a href="#" target="_blank" rel="noopener" class="store-card-link">Visit Store <svg viewBox="0 0 16 16"><path d="M6.5 3.5L11 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+
+      <div class="store-card">
+        <div class="store-card-accent"></div>
+        <div class="store-card-body">
+          <div class="store-card-num">02</div>
+          <div class="store-card-name">Store Name</div>
+          <p class="store-card-desc">Add a description of what's available in this store.</p>
+          <a href="#" target="_blank" rel="noopener" class="store-card-link">Visit Store <svg viewBox="0 0 16 16"><path d="M6.5 3.5L11 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+
+      <div class="store-card">
+        <div class="store-card-accent"></div>
+        <div class="store-card-body">
+          <div class="store-card-num">03</div>
+          <div class="store-card-name">Store Name</div>
+          <p class="store-card-desc">Add a description of what's available in this store.</p>
+          <a href="#" target="_blank" rel="noopener" class="store-card-link">Visit Store <svg viewBox="0 0 16 16"><path d="M6.5 3.5L11 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+
+      <div class="store-card">
+        <div class="store-card-accent"></div>
+        <div class="store-card-body">
+          <div class="store-card-num">04</div>
+          <div class="store-card-name">Store Name</div>
+          <p class="store-card-desc">Add a description of what's available in this store.</p>
+          <a href="#" target="_blank" rel="noopener" class="store-card-link">Visit Store <svg viewBox="0 0 16 16"><path d="M6.5 3.5L11 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
