@@ -709,6 +709,7 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
       <button onclick="lessonTab('hitting',this)" id="ltab-hitting" style="padding:14px 24px;border:none;border-bottom:3px solid var(--scarlet);background:transparent;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Jaz — Hitting</button>
       <button onclick="lessonTab('pitching',this)" id="ltab-pitching" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Laurie — Pitching</button>
       <button onclick="lessonTab('defense',this)" id="ltab-defense" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Mo — Defense</button>
+      <button onclick="lessonTab('requests',this)" id="ltab-requests" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:none;">Booking Requests <span id="req-badge" style="background:var(--scarlet);color:var(--white);border-radius:50%;padding:2px 7px;font-size:11px;margin-left:4px;display:none;">0</span></button>
       <button onclick="lessonTab('members',this)" id="ltab-members" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:none;">Members</button>
       <button onclick="lessonTab('practices',this)" id="ltab-practices" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:none;">Team Practices</button>
     </div>
@@ -1015,6 +1016,31 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
     </div>
     </div><!-- end lsec-defense -->
 
+    <!-- BOOKING REQUESTS SECTION (Executive Director only) -->
+    <div id="lsec-requests" style="display:none;">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Booking Requests</div></div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;">Review and approve or deny lesson booking requests from players. Approved bookings will be confirmed and a notification sent via email.</p>
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+            <button class="tab active" onclick="filterReqs('pending',this)">Pending</button>
+            <button class="tab" onclick="filterReqs('approved',this)">Approved</button>
+            <button class="tab" onclick="filterReqs('denied',this)">Denied</button>
+            <button class="tab" onclick="filterReqs('all',this)">All</button>
+          </div>
+          <div id="booking-reqs-list" style="overflow-x:auto;"></div>
+        </div>
+      </div>
+      <!-- Approval Log -->
+      <div class="card" style="margin-top:16px;">
+        <div class="card-head"><div class="card-title">Approval Log</div></div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;">History of all approved and denied booking requests, sorted by most recent first.</p>
+          <div id="approval-log" style="overflow-x:auto;"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- MEMBERS SECTION -->
     <div id="lsec-members" style="display:none;">
     <div class="card" id="members-card">
@@ -1268,11 +1294,11 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
 
 <div class="overlay" id="modal-book">
   <div class="modal">
-    <div class="modal-title">Confirm Booking</div>
+    <div class="modal-title">Request Booking</div>
     <div id="book-info" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--silver);margin-bottom:8px;"></div>
-    <p style="font-size:14px;color:var(--muted);margin-bottom:22px;">Booking for <strong id="book-for" style="color:var(--white)"></strong></p>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:22px;">Requesting lesson for <strong id="book-for" style="color:var(--white)"></strong><br><span style="font-size:12px;color:var(--silver3);">The Executive Director will review your request and confirm the booking.</span></p>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-w" style="flex:1;justify-content:center;" onclick="confirmBook()">Confirm</button>
+      <button class="btn btn-w" style="flex:1;justify-content:center;" onclick="confirmBook()">Submit Request</button>
       <button class="btn btn-g" style="flex:1;justify-content:center;" onclick="closeModal('modal-book')">Cancel</button>
     </div>
   </div>
@@ -1579,13 +1605,16 @@ async function syncFromSupabase() {
       localStorage.setItem(PRAC_KEY, JSON.stringify(practices));
     }
     console.log('Synced from Supabase');
+    await fetchBookingRequests();
     // Re-render everything
     renderTourneys(); renderRoster('10U'); renderRoster('12U'); renderRoster('14U'); renderRoster('16U');
     if(document.getElementById('page-lessons').classList.contains('active')) { renderSlots(); renderPitchSlots(); renderDefSlots(); }
     else { buildWeekTabs(allSlots, 'hitting-week-tabs', currentHitWeek, 'setHitWeek'); buildWeekTabs(pitchSlots, 'pitching-week-tabs', currentPitchWeek, 'setPitchWeek'); buildWeekTabs(defSlots, 'defense-week-tabs', currentDefWeek, 'setDefWeek'); }
     if(isCoach) { renderCoachView(); renderPitchCoachView(); renderDefCoachView(); renderMembersPanel(); renderHistory(); }
     if(typeof renderPractices === 'function') renderPractices();
+    renderApprovalLog();
     updatePendingBadge();
+    updateReqBadge();
   } catch(e){ console.error('Supabase sync failed',e); }
 }
 
@@ -1602,6 +1631,236 @@ async function sendNotification(subject, message) {
       body: JSON.stringify({subject: subject, message: message, _replyto: 'noreply@teamrollintx.com'})
     });
   } catch(e){ console.error('Notification failed',e); }
+}
+
+// ====== BOOKING REQUESTS (Netlify Database) ======
+var bookingReqs = [];
+var reqFilterStatus = 'pending';
+
+async function fetchBookingRequests() {
+  try {
+    var r = await fetch('/api/booking-requests');
+    if(r.ok) {
+      bookingReqs = await r.json();
+      updateReqBadge();
+    }
+  } catch(e){ console.error('Failed to fetch booking requests',e); }
+}
+
+async function submitBookingRequest(slotId, slotType, slotDate, slotTime, slotDuration, slotTeam, playerName, playerTeam) {
+  try {
+    var r = await fetch('/api/booking-requests?action=submit', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({slotId:slotId,slotType:slotType,slotDate:slotDate,slotTime:slotTime,slotDuration:slotDuration,slotTeam:slotTeam,playerName:playerName,playerTeam:playerTeam})
+    });
+    var data = await r.json();
+    if(!r.ok) { toast(data.error || 'Request failed','err'); return false; }
+    bookingReqs.push(data);
+    updateReqBadge();
+    return true;
+  } catch(e){ console.error('submitBookingRequest failed',e); toast('Request failed','err'); return false; }
+}
+
+async function approveBookingRequest(reqId, reviewedBy) {
+  try {
+    var r = await fetch('/api/booking-requests?action=approve', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({id:reqId,reviewedBy:reviewedBy})
+    });
+    var data = await r.json();
+    if(!r.ok) { toast(data.error || 'Approve failed','err'); return null; }
+    var idx = bookingReqs.findIndex(function(x){ return x.id===reqId; });
+    if(idx>=0) bookingReqs[idx] = data;
+    updateReqBadge();
+    return data;
+  } catch(e){ console.error('approveBookingRequest failed',e); toast('Approve failed','err'); return null; }
+}
+
+async function denyBookingRequest(reqId, reviewedBy) {
+  try {
+    var r = await fetch('/api/booking-requests?action=deny', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({id:reqId,reviewedBy:reviewedBy})
+    });
+    var data = await r.json();
+    if(!r.ok) { toast(data.error || 'Deny failed','err'); return null; }
+    var idx = bookingReqs.findIndex(function(x){ return x.id===reqId; });
+    if(idx>=0) bookingReqs[idx] = data;
+    updateReqBadge();
+    return data;
+  } catch(e){ console.error('denyBookingRequest failed',e); toast('Deny failed','err'); return null; }
+}
+
+function updateReqBadge() {
+  var pending = bookingReqs.filter(function(r){ return r.status==='pending'; });
+  var badge = document.getElementById('req-badge');
+  if(badge) {
+    badge.textContent = pending.length;
+    badge.style.display = pending.length > 0 ? 'inline' : 'none';
+  }
+}
+
+function getSlotPendingReq(slotId, playerName, playerTeam) {
+  return bookingReqs.find(function(r){ return r.slotId===slotId && r.playerName===playerName && r.playerTeam===playerTeam && r.status==='pending'; });
+}
+
+function getSlotApprovedReq(slotId) {
+  return bookingReqs.find(function(r){ return r.slotId===slotId && r.status==='approved'; });
+}
+
+function filterReqs(status, el) {
+  if(el) {
+    var parent = el.parentElement;
+    if(parent) parent.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+    el.classList.add('active');
+  }
+  reqFilterStatus = status;
+  renderBookingRequests();
+}
+
+function renderBookingRequests() {
+  var el = document.getElementById('booking-reqs-list');
+  if(!el) return;
+  var filtered = reqFilterStatus === 'all' ? bookingReqs : bookingReqs.filter(function(r){ return r.status===reqFilterStatus; });
+  filtered.sort(function(a,b){ return new Date(b.createdAt) - new Date(a.createdAt); });
+  if(!filtered.length) {
+    el.innerHTML = '<div class="empty">No '+reqFilterStatus+' requests.</div>';
+    return;
+  }
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="text-align:left;border-bottom:1px solid var(--border2);"><th style="padding:8px 6px;">Player</th><th style="padding:8px 6px;">Team</th><th style="padding:8px 6px;">Lesson</th><th style="padding:8px 6px;">Date</th><th style="padding:8px 6px;">Time</th><th style="padding:8px 6px;">Status</th><th style="padding:8px 6px;">Actions</th></tr></thead><tbody>';
+  filtered.forEach(function(r) {
+    var d = new Date(r.slotDate+'T00:00:00');
+    var dateStr = DAYS_S[d.getDay()]+' '+MONTHS[d.getMonth()]+' '+d.getDate();
+    var typeLabel = r.slotType==='hitting' ? 'Hitting' : r.slotType==='pitching' ? 'Pitching' : 'Defense';
+    var statusColor = r.status==='pending' ? 'var(--muted)' : r.status==='approved' ? 'var(--green)' : 'var(--red)';
+    var actions = '';
+    if(r.status==='pending') {
+      actions = '<button class="btn btn-w btn-sm" data-reqapprove="'+r.id+'">Approve</button> <button class="btn btn-d btn-sm" data-reqdeny="'+r.id+'">Deny</button>';
+    } else {
+      actions = '<span style="font-size:10px;color:var(--silver3);">'+(r.reviewedBy||'—')+'</span>';
+    }
+    html += '<tr style="border-bottom:1px solid var(--border2);">';
+    html += '<td style="padding:8px 6px;font-weight:600;">'+r.playerName+'</td>';
+    html += '<td style="padding:8px 6px;">'+r.playerTeam+'</td>';
+    html += '<td style="padding:8px 6px;">'+typeLabel+'</td>';
+    html += '<td style="padding:8px 6px;">'+dateStr+'</td>';
+    html += '<td style="padding:8px 6px;">'+fmt(r.slotTime)+'</td>';
+    html += '<td style="padding:8px 6px;color:'+statusColor+';font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:1px;">'+r.status+'</td>';
+    html += '<td style="padding:8px 6px;display:flex;gap:4px;">'+actions+'</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+function renderApprovalLog() {
+  var el = document.getElementById('approval-log');
+  if(!el) return;
+  var reviewed = bookingReqs.filter(function(r){ return r.status==='approved' || r.status==='denied'; });
+  if(!reviewed.length) {
+    el.innerHTML = '<div class="empty">No approvals or denials yet.</div>';
+    return;
+  }
+  reviewed.sort(function(a,b) {
+    var da = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+    var db = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+    return db - da;
+  });
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="text-align:left;border-bottom:1px solid var(--border2);"><th style="padding:8px 6px;">Date/Time</th><th style="padding:8px 6px;">Action</th><th style="padding:8px 6px;">Player</th><th style="padding:8px 6px;">Team</th><th style="padding:8px 6px;">Lesson</th><th style="padding:8px 6px;">Slot Date</th><th style="padding:8px 6px;">Time</th><th style="padding:8px 6px;">Reviewed By</th></tr></thead><tbody>';
+  reviewed.forEach(function(r) {
+    var ts = r.updatedAt ? new Date(r.updatedAt) : null;
+    var tsStr = ts ? (ts.getMonth()+1)+'/'+ts.getDate()+'/'+ts.getFullYear()+' '+ts.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}) : '—';
+    var d = new Date(r.slotDate+'T00:00:00');
+    var dateStr = DAYS_S[d.getDay()]+' '+MONTHS[d.getMonth()]+' '+d.getDate();
+    var typeLabel = r.slotType==='hitting' ? 'Hitting' : r.slotType==='pitching' ? 'Pitching' : 'Defense';
+    var actionColor = r.status==='approved' ? 'var(--green)' : 'var(--red)';
+    var actionLabel = r.status==='approved' ? 'APPROVED' : 'DENIED';
+    html += '<tr style="border-bottom:1px solid var(--border2);">';
+    html += '<td style="padding:8px 6px;white-space:nowrap;">'+tsStr+'</td>';
+    html += '<td style="padding:8px 6px;color:'+actionColor+';font-weight:700;font-size:10px;letter-spacing:1px;">'+actionLabel+'</td>';
+    html += '<td style="padding:8px 6px;font-weight:600;">'+r.playerName+'</td>';
+    html += '<td style="padding:8px 6px;">'+r.playerTeam+'</td>';
+    html += '<td style="padding:8px 6px;">'+typeLabel+'</td>';
+    html += '<td style="padding:8px 6px;">'+dateStr+'</td>';
+    html += '<td style="padding:8px 6px;">'+fmt(r.slotTime)+'</td>';
+    html += '<td style="padding:8px 6px;">'+(r.reviewedBy||'—')+'</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+async function handleApproveReq(reqId) {
+  var req = bookingReqs.find(function(r){ return r.id===parseInt(reqId); });
+  if(!req) { toast('Request not found','err'); return; }
+  if(!confirm('Approve booking for '+req.playerName+' on '+req.slotDate+' at '+fmt(req.slotTime)+'?')) return;
+  var reviewerName = identity ? identity.name : 'Executive Director';
+  var result = await approveBookingRequest(parseInt(reqId), reviewerName);
+  if(!result) return;
+  var pool, saveKey, upsertFn;
+  if(req.slotType==='hitting') { pool = allSlots; saveKey = SLOTS_KEY; upsertFn = sbUpsertSlot; }
+  else if(req.slotType==='pitching') { pool = pitchSlots; saveKey = PITCH_KEY; upsertFn = sbUpsertPitchSlot; }
+  else { pool = defSlots; saveKey = DEF_KEY; upsertFn = sbUpsertDefSlot; }
+  var slot = pool.find(function(s){ return s.id===req.slotId; });
+  if(slot) {
+    slot.booked_by = req.playerName;
+    slot.booked_team = req.playerTeam;
+    save(saveKey, pool);
+    upsertFn(slot);
+  }
+  var coachName = req.slotType==='hitting' ? 'Coach Jaz' : req.slotType==='pitching' ? 'Coach Laurie' : 'Coach Mo';
+  sendNotification(
+    'Team Rollin: Lesson Booking Approved — ' + req.playerName,
+    'A lesson booking has been approved by ' + reviewerName + '.\n\nPlayer: ' + req.playerName + '\nTeam: ' + req.playerTeam + '\nLesson: ' + req.slotType + ' with ' + coachName + '\nDate: ' + req.slotDate + '\nTime: ' + fmt(req.slotTime) + '\n\nThe slot is now confirmed at teamrollinsoftball.net.\n\n— Team Rollin TX'
+  );
+  var member = members.find(function(m){ return m.name.toLowerCase()===req.playerName.toLowerCase() && m.team===req.playerTeam; });
+  if(member && member.parentEmail) {
+    fetch('https://formspree.io/f/xpqorjjj', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({
+        _replyto: member.parentEmail,
+        _to: member.parentEmail,
+        subject: 'Team Rollin TX: Lesson Booking Confirmed for ' + req.playerName,
+        message: 'Hi ' + (member.parentName||req.playerName) + ',\n\nYour lesson booking request has been approved!\n\nPlayer: ' + req.playerName + '\nTeam: ' + req.playerTeam + '\nLesson: ' + req.slotType + ' with ' + coachName + '\nDate: ' + req.slotDate + '\nTime: ' + fmt(req.slotTime) + '\n\nVisit teamrollinsoftball.net to view your bookings.\n\n— Team Rollin TX'
+      })
+    }).catch(function(e){ console.error('Parent approval email failed',e); });
+  }
+  toast('Booking approved for '+req.playerName+'!','ok');
+  renderBookingRequests();
+  renderApprovalLog();
+  renderSlots(); renderPitchSlots(); renderDefSlots();
+  if(isCoach) { renderCoachView(); renderPitchCoachView(); renderDefCoachView(); }
+}
+
+async function handleDenyReq(reqId) {
+  var req = bookingReqs.find(function(r){ return r.id===parseInt(reqId); });
+  if(!req) { toast('Request not found','err'); return; }
+  if(!confirm('Deny booking request from '+req.playerName+'?')) return;
+  var reviewerName = identity ? identity.name : 'Executive Director';
+  var result = await denyBookingRequest(parseInt(reqId), reviewerName);
+  if(!result) return;
+  var member = members.find(function(m){ return m.name.toLowerCase()===req.playerName.toLowerCase() && m.team===req.playerTeam; });
+  if(member && member.parentEmail) {
+    var coachName = req.slotType==='hitting' ? 'Coach Jaz' : req.slotType==='pitching' ? 'Coach Laurie' : 'Coach Mo';
+    fetch('https://formspree.io/f/xpqorjjj', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({
+        _replyto: member.parentEmail,
+        _to: member.parentEmail,
+        subject: 'Team Rollin TX: Lesson Request Update for ' + req.playerName,
+        message: 'Hi ' + (member.parentName||req.playerName) + ',\n\nYour lesson booking request was not approved at this time.\n\nPlayer: ' + req.playerName + '\nTeam: ' + req.playerTeam + '\nLesson: ' + req.slotType + ' with ' + coachName + '\nDate: ' + req.slotDate + '\nTime: ' + fmt(req.slotTime) + '\n\nPlease visit teamrollinsoftball.net to request a different time or contact the team for more information.\n\n— Team Rollin TX'
+      })
+    }).catch(function(e){ console.error('Parent denial email failed',e); });
+  }
+  toast('Request denied','');
+  renderBookingRequests();
+  renderApprovalLog();
+  renderSlots(); renderPitchSlots(); renderDefSlots();
 }
 
 // Supabase sync helpers
@@ -1903,6 +2162,8 @@ function updateAuthUI() {
   if(sob) sob.style.display = identity ? '' : 'none';
   var ltabM = document.getElementById('ltab-members');
   if(ltabM) ltabM.style.display = (identity && identity.type==='coach') ? '' : 'none';
+  var ltabR = document.getElementById('ltab-requests');
+  if(ltabR) ltabR.style.display = (identity && identity.type==='coach' && identity.specialty==='all') ? '' : 'none';
   var ltabP = document.getElementById('ltab-practices');
   if(ltabP) ltabP.style.display = identity ? '' : 'none';
   var mlBtn = document.getElementById('my-lessons-btn');
@@ -1986,18 +2247,20 @@ function renderSlot(s) {
   var dur = s.duration;
   var isC = identity && identity.type==='coach';
   var isIn = !!identity;
+  var myPendingReq = (identity && identity.type==='player') ? getSlotPendingReq(s.id, identity.name, identity.team) : null;
   if(taken) {
     var bookedInfo = isIn ? '<div style="font-size:11px;font-weight:600;color:var(--white);margin-top:2px;">'+s.booked_by+'</div><div style="font-size:10px;color:var(--silver2);">'+s.booked_team+'</div>' : '';
     return '<div class="slot taken" style="opacity:1;border-color:rgba(248,113,113,.2);""><div class="slot-time">'+time+'</div><div style="font-size:10px;"><span class="dot dot-t"></span>Booked</div>'+bookedInfo+'</div>';
   }
-  var locked24 = isWithin24Hours(s.date, s.time);
   if(isMe) {
     var calBtn = '<div style="font-size:9px;color:var(--silver2);margin-top:3px;cursor:pointer;" data-addcal="'+s.date+'|'+s.time+'|'+s.duration+'|hitting">📅 Add to Calendar</div>';
-    var cancelBtn = locked24
-      ? '<div style="font-size:10px;color:var(--silver3);margin-top:4px;" data-locked24="1" title="Cancellations within 24 hours must go through your coach">🔒 Within 24h</div>'
-      : '<div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-cancel="'+s.id+'">✕ Cancel</div>';
-    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--silver2);margin-top:2px;">with Coach Jaz</div>'+cancelBtn+calBtn+'</div>';
+    var contactNote = '<div style="font-size:10px;color:var(--silver3);margin-top:4px;">Contact ED to cancel</div>';
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--silver2);margin-top:2px;">with Coach Jaz</div>'+contactNote+calBtn+'</div>';
   }
+  if(myPendingReq) {
+    return '<div class="slot" style="border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.05);"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:rgb(251,191,36);"><span class="dot" style="background:rgb(251,191,36);"></span>Requested</div><div style="font-size:9px;color:var(--silver3);margin-top:2px;">Awaiting approval</div></div>';
+  }
+  var locked24 = isWithin24Hours(s.date, s.time);
   var canBook = identity && identity.type==='player' && !locked24;
   var click = canBook ? 'data-book="'+s.id+'"' : (isC ? '' : (locked24 && identity && identity.type==='player' ? 'data-locked24="1"' : 'data-signin="1"'));
   var lockNote = (locked24 && identity && identity.type==='player') ? '<div style="font-size:9px;color:var(--silver3);margin-top:2px;">🔒 Within 24h</div>' : '<div style="font-size:9px;color:var(--silver3);margin-top:2px;">'+dur+'min</div>';
@@ -2015,18 +2278,15 @@ function openBook(id) {
   openModal('modal-book');
 }
 
-function confirmBook() {
+async function confirmBook() {
   if(bookingId && bookingId.startsWith('pitch_')) {
     var pid = bookingId.replace('pitch_','');
     var ps = pitchSlots.find(function(x){ return x.id===pid; });
     if(!ps || ps.booked_by) { toast('No longer available','err'); closeModal('modal-book'); return; }
     if(identity && identity.type==='player' && isWithin24Hours(ps.date, ps.time)) { showBlock24(); return; }
-    ps.booked_by = identity.name;
-    ps.booked_team = identity.team;
-    save(PITCH_KEY, pitchSlots); sbUpsertPitchSlot(ps);
+    var ok = await submitBookingRequest(ps.id, 'pitching', ps.date, ps.time, ps.duration, ps.team, identity.name, identity.team);
     closeModal('modal-book');
-    renderPitchSlots();
-    toast('Pitching lesson booked!','ok');
+    if(ok) { toast('Pitching lesson request submitted! Awaiting approval.','ok'); renderPitchSlots(); }
     return;
   }
   if(bookingId && bookingId.startsWith('def_')) {
@@ -2034,33 +2294,25 @@ function confirmBook() {
     var ds = defSlots.find(function(x){ return x.id===did; });
     if(!ds || ds.booked_by) { toast('No longer available','err'); closeModal('modal-book'); return; }
     if(identity && identity.type==='player' && isWithin24Hours(ds.date, ds.time)) { showBlock24(); return; }
-    ds.booked_by = identity.name;
-    ds.booked_team = identity.team;
-    save(DEF_KEY, defSlots); sbUpsertDefSlot(ds);
+    var ok2 = await submitBookingRequest(ds.id, 'defense', ds.date, ds.time, ds.duration, ds.team, identity.name, identity.team);
     closeModal('modal-book');
-    renderDefSlots();
-    toast('Defense lesson booked!','ok');
+    if(ok2) { toast('Defense lesson request submitted! Awaiting approval.','ok'); renderDefSlots(); }
     return;
   }
   var s = allSlots.find(function(x){ return x.id===bookingId; });
   if(!s || s.booked_by) { toast('No longer available','err'); closeModal('modal-book'); return; }
   if(identity && identity.type==='player' && isWithin24Hours(s.date, s.time)) { showBlock24(); return; }
-  // Prevent same player booking same date+time twice
-  var sameSlot = allSlots.find(function(x){ return x.date===s.date && x.time===s.time && x.booked_by===identity.name && x.booked_team===identity.team && x.id!==s.id; });
-  if(sameSlot) { toast('You already have a lesson at this time!','err'); closeModal('modal-book'); return; }
-  s.booked_by = identity.name;
-  s.booked_team = identity.team;
-  save(SLOTS_KEY, allSlots); sbUpsertSlot(s);
+  var ok3 = await submitBookingRequest(s.id, 'hitting', s.date, s.time, s.duration, s.team, identity.name, identity.team);
   closeModal('modal-book');
-  renderSlots();
-  toast('Lesson booked!','ok');
+  if(ok3) { toast('Lesson request submitted! Awaiting approval.','ok'); renderSlots(); }
 }
 
 function cancelSlot(id) {
   var s = allSlots.find(function(x){ return x.id===id; });
   if(!s) return;
-  if(identity && identity.type==='player' && isWithin24Hours(s.date, s.time)) {
-    showBlock24(); return;
+  if(identity && identity.type==='player') {
+    toast('Please contact the Executive Director to cancel a booking.','err');
+    return;
   }
   if(!confirm('Cancel this booking?')) return;
   var playerName = s.booked_by;
@@ -2071,7 +2323,6 @@ function cancelSlot(id) {
   save(SLOTS_KEY, allSlots); sbUpsertSlot(s);
   renderSlots();
   toast('Booking cancelled','');
-  // Auto-email coaches
   sendNotification(
     'Team Rollin: Lesson Cancellation — '+playerName,
     'A lesson slot has been cancelled.\n\nPlayer: '+playerName+'\nTeam: '+playerTeam+'\nDate: '+slotDate+'\nTime: '+slotTime+'\n\nThis slot is now open for rebooking at teamrollinsoftball.net.\n\n— Team Rollin TX Site'
@@ -2831,21 +3082,24 @@ function renderPitchSlot(s) {
   var isMe = identity && identity.type==='player' && s.booked_by===identity.name && s.booked_team===identity.team;
   var taken = !!s.booked_by && !isMe;
   var isIn = !!identity;
+  var isC = identity && identity.type==='coach';
   var time = fmt(s.time);
+  var myPendingReq = (identity && identity.type==='player') ? getSlotPendingReq(s.id, identity.name, identity.team) : null;
   if(taken) {
     var info = isIn ? '<div style="font-size:11px;font-weight:600;color:var(--white);margin-top:2px;">'+s.booked_by+'</div><div style="font-size:10px;color:var(--silver2);">'+s.booked_team+'</div>' : '';
     return '<div class="slot taken" style="opacity:1;border-color:rgba(248,113,113,.2);"><div class="slot-time">'+time+'</div><div style="font-size:10px;"><span class="dot dot-t"></span>Booked</div>'+info+'</div>';
   }
-  var locked24 = isWithin24Hours(s.date, s.time);
   if(isMe) {
     var pcalBtn = '<div style="font-size:9px;color:var(--silver2);margin-top:3px;cursor:pointer;" data-addcal="'+s.date+'|'+s.time+'|'+s.duration+'|pitching">📅 Add to Calendar</div>';
-    var pcancelBtn = locked24
-      ? '<div style="font-size:10px;color:var(--silver3);margin-top:4px;" data-locked24="1" title="Cancellations within 24 hours must go through your coach">🔒 Within 24h</div>'
-      : '<div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-pcancel="'+s.id+'">✕ Cancel</div>';
-    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--silver2);margin-top:2px;">with Coach Laurie</div>'+pcancelBtn+pcalBtn+'</div>';
+    var pcontactNote = '<div style="font-size:10px;color:var(--silver3);margin-top:4px;">Contact ED to cancel</div>';
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--silver2);margin-top:2px;">with Coach Laurie</div>'+pcontactNote+pcalBtn+'</div>';
   }
+  if(myPendingReq) {
+    return '<div class="slot" style="border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.05);"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:rgb(251,191,36);"><span class="dot" style="background:rgb(251,191,36);"></span>Requested</div><div style="font-size:9px;color:var(--silver3);margin-top:2px;">Awaiting approval</div></div>';
+  }
+  var locked24 = isWithin24Hours(s.date, s.time);
   var canBook = identity && identity.type==='player' && !locked24;
-  var click = canBook ? 'data-pbook="'+s.id+'"' : ((locked24 && identity && identity.type==='player') ? 'data-locked24="1"' : 'data-signin="1"');
+  var click = canBook ? 'data-pbook="'+s.id+'"' : (isC ? '' : ((locked24 && identity && identity.type==='player') ? 'data-locked24="1"' : 'data-signin="1"'));
   var pLockNote = (locked24 && identity && identity.type==='player') ? '<div style="font-size:9px;color:var(--silver3);margin-top:2px;">🔒 Within 24h</div>' : '<div style="font-size:9px;color:var(--silver3);margin-top:2px;">'+s.duration+'min</div>';
   return '<div class="slot open" '+click+'><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--silver);"><span class="dot dot-o"></span>Open</div>'+pLockNote+'</div>';
 }
@@ -2868,8 +3122,9 @@ function openPitchBook(id) {
 function cancelPitchSlot(id) {
   var s = pitchSlots.find(function(x){ return x.id===id; });
   if(!s) return;
-  if(identity && identity.type==='player' && isWithin24Hours(s.date, s.time)) {
-    showBlock24(); return;
+  if(identity && identity.type==='player') {
+    toast('Please contact the Executive Director to cancel a booking.','err');
+    return;
   }
   if(!confirm('Cancel this pitching booking?')) return;
   var playerName=s.booked_by, playerTeam=s.booked_team, slotDate=s.date, slotTime=fmt(s.time);
@@ -3118,21 +3373,24 @@ function renderDefSlot(s) {
   var isMe = identity && identity.type==='player' && s.booked_by===identity.name && s.booked_team===identity.team;
   var taken = !!s.booked_by && !isMe;
   var isIn = !!identity;
+  var isC = identity && identity.type==='coach';
   var time = fmt(s.time);
+  var myPendingReq = (identity && identity.type==='player') ? getSlotPendingReq(s.id, identity.name, identity.team) : null;
   if(taken) {
     var info = isIn ? '<div style="font-size:11px;font-weight:600;color:var(--white);margin-top:2px;">'+s.booked_by+'</div><div style="font-size:10px;color:var(--silver2);">'+s.booked_team+'</div>' : '';
     return '<div class="slot taken" style="opacity:1;border-color:rgba(248,113,113,.2);"><div class="slot-time">'+time+'</div><div style="font-size:10px;"><span class="dot dot-t"></span>Booked</div>'+info+'</div>';
   }
-  var locked24 = isWithin24Hours(s.date, s.time);
   if(isMe) {
     var dcalBtn = '<div style="font-size:9px;color:var(--silver2);margin-top:3px;cursor:pointer;" data-addcal="'+s.date+'|'+s.time+'|'+s.duration+'|defense">📅 Add to Calendar</div>';
-    var dcancelBtn = locked24
-      ? '<div style="font-size:10px;color:var(--silver3);margin-top:4px;" data-locked24="1" title="Cancellations within 24 hours must go through your coach">🔒 Within 24h</div>'
-      : '<div style="font-size:10px;color:var(--red);margin-top:4px;cursor:pointer;" data-dcancel="'+s.id+'">✕ Cancel</div>';
-    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--silver2);margin-top:2px;">with Coach Mo</div>'+dcancelBtn+dcalBtn+'</div>';
+    var dcontactNote = '<div style="font-size:10px;color:var(--silver3);margin-top:4px;">Contact ED to cancel</div>';
+    return '<div class="slot mine"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--green);"><span class="dot dot-m"></span>Your Slot</div><div style="font-size:10px;color:var(--silver2);margin-top:2px;">with Coach Mo</div>'+dcontactNote+dcalBtn+'</div>';
   }
+  if(myPendingReq) {
+    return '<div class="slot" style="border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.05);"><div class="slot-time">'+time+'</div><div style="font-size:10px;color:rgb(251,191,36);"><span class="dot" style="background:rgb(251,191,36);"></span>Requested</div><div style="font-size:9px;color:var(--silver3);margin-top:2px;">Awaiting approval</div></div>';
+  }
+  var locked24 = isWithin24Hours(s.date, s.time);
   var canBook = identity && identity.type==='player' && !locked24;
-  var click = canBook ? 'data-dbook="'+s.id+'"' : ((locked24 && identity && identity.type==='player') ? 'data-locked24="1"' : 'data-signin="1"');
+  var click = canBook ? 'data-dbook="'+s.id+'"' : (isC ? '' : ((locked24 && identity && identity.type==='player') ? 'data-locked24="1"' : 'data-signin="1"'));
   var dLockNote = (locked24 && identity && identity.type==='player') ? '<div style="font-size:9px;color:var(--silver3);margin-top:2px;">🔒 Within 24h</div>' : '<div style="font-size:9px;color:var(--silver3);margin-top:2px;">'+s.duration+'min</div>';
   return '<div class="slot open" '+click+'><div class="slot-time">'+time+'</div><div style="font-size:10px;color:var(--silver);"><span class="dot dot-o"></span>Open</div>'+dLockNote+'</div>';
 }
@@ -3154,8 +3412,9 @@ function openDefBook(id) {
 function cancelDefSlot(id) {
   var s = defSlots.find(function(x){ return x.id===id; });
   if(!s) return;
-  if(identity && identity.type==='player' && isWithin24Hours(s.date, s.time)) {
-    showBlock24(); return;
+  if(identity && identity.type==='player') {
+    toast('Please contact the Executive Director to cancel a booking.','err');
+    return;
   }
   if(!confirm('Cancel this defense booking?')) return;
   var playerName=s.booked_by, playerTeam=s.booked_team, slotDate=s.date, slotTime=fmt(s.time);
@@ -3327,22 +3586,20 @@ function openDefCoachBook(id){
 }
 
 function lessonTab(tab, el) {
-  // Hide all sections
-  ['hitting','pitching','defense','members','practices'].forEach(function(t) {
+  ['hitting','pitching','defense','requests','members','practices'].forEach(function(t) {
     var sec = document.getElementById('lsec-'+t);
     if(sec) sec.style.display = 'none';
     var btn = document.getElementById('ltab-'+t);
     if(btn) { btn.style.borderBottomColor='transparent'; btn.style.color='var(--muted)'; }
   });
-  // Show selected
   var sec = document.getElementById('lsec-'+tab);
   if(sec) sec.style.display = 'block';
   var btn = document.getElementById('ltab-'+tab);
   if(btn) { btn.style.borderBottomColor='var(--scarlet)'; btn.style.color='var(--white)'; }
-  // Render content
   if(tab==='hitting') { renderSlots(); if(identity&&identity.type==='coach') renderCoachView(); }
   if(tab==='pitching') { renderPitchSlots(); if(identity&&identity.type==='coach') renderPitchCoachView(); }
   if(tab==='defense') { renderDefSlots(); if(identity&&identity.type==='coach') renderDefCoachView(); }
+  if(tab==='requests') { renderBookingRequests(); renderApprovalLog(); }
   if(tab==='members') { renderMembersPanel(); }
   if(tab==='practices') { renderPractices(); }
 }
@@ -3681,6 +3938,10 @@ renderRoster('14U');
 renderRoster('16U');
 // Sync latest data from Supabase in background
 syncFromSupabase();
+// Fetch booking requests from Netlify Database
+fetchBookingRequests();
+// Periodic refresh every 30 seconds so all users see consistent data
+setInterval(function(){ syncFromSupabase(); }, 30000);
 
 // Set images
 var lionImg = document.getElementById('lion-img');
@@ -3767,6 +4028,10 @@ document.addEventListener('click', function(e) {
   if(dcdel) { defCoachDel(dcdel.getAttribute('data-dcdel')); return; }
   var dcbook = e.target.closest('[data-dcbook]');
   if(dcbook) { openDefCoachBook(dcbook.getAttribute('data-dcbook')); return; }
+  var reqApprove = e.target.closest('[data-reqapprove]');
+  if(reqApprove) { handleApproveReq(reqApprove.getAttribute('data-reqapprove')); return; }
+  var reqDeny = e.target.closest('[data-reqdeny]');
+  if(reqDeny) { handleDenyReq(reqDeny.getAttribute('data-reqdeny')); return; }
 });
 
 // ====== TR FAMILIES INLINE EDITOR ======
