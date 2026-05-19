@@ -54,6 +54,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* SECTION */
 .sec{padding:60px 5%;}
 .sec-head{padding:40px 5% 28px;border-bottom:1px solid var(--border);}
+#page-store .sec-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;}
+#page-store .sec-head .eyebrow,#page-store .sec-head .sec-title{width:100%;}
 .eyebrow{display:block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--silver2);margin-bottom:10px;padding-left:14px;position:relative;}.eyebrow::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:6px;height:6px;background:var(--scarlet);border-radius:50%;}
 .sec-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(36px,6vw,64px);text-transform:uppercase;line-height:.95;}
 
@@ -206,6 +208,30 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .store-empty{text-align:center;padding:48px 24px;color:var(--silver3);}
 .store-empty-icon{font-size:48px;margin-bottom:12px;opacity:.5;}
 .store-empty-text{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:2px;}
+.store-admin-controls{display:none;margin-left:auto;}
+body.is-store-admin .store-admin-controls{display:flex;gap:8px;align-items:center;}
+.store-add-btn{padding:6px 16px;border-radius:14px;border:1px solid var(--scarlet);background:transparent;color:var(--scarlet);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.store-add-btn:hover{background:var(--scarlet);color:var(--white);}
+.store-card-actions{display:none;gap:6px;margin-top:16px;}
+body.is-store-admin .store-card-actions{display:flex;}
+.store-action-btn{padding:4px 12px;border-radius:14px;border:1px solid var(--border2);background:transparent;color:var(--silver);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .15s;}
+.store-action-btn:hover{color:var(--white);border-color:var(--white);}
+.store-action-btn.danger{border-color:var(--scarlet);color:var(--scarlet);}
+.store-action-btn.danger:hover{background:var(--scarlet);color:var(--white);}
+.store-edit-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
+.store-edit-modal{background:var(--black3);border:1px solid var(--border);border-radius:12px;padding:32px 28px;width:100%;max-width:480px;}
+.store-edit-modal h3{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;color:var(--white);}
+.store-edit-field{margin-bottom:16px;}
+.store-edit-field label{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--silver3);margin-bottom:6px;}
+.store-edit-field input,.store-edit-field textarea{width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--black);color:var(--white);font-family:'Barlow',sans-serif;font-size:14px;box-sizing:border-box;}
+.store-edit-field input:focus,.store-edit-field textarea:focus{outline:none;border-color:var(--scarlet);}
+.store-edit-field textarea{resize:vertical;min-height:80px;}
+.store-edit-btns{display:flex;gap:8px;margin-top:20px;}
+.store-edit-btns button{flex:1;padding:10px 16px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--silver);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .15s;}
+.store-edit-btns button:hover{color:var(--white);border-color:var(--white);}
+.store-edit-btns .store-save-btn{background:var(--scarlet);border-color:var(--scarlet);color:var(--white);}
+.store-edit-btns .store-save-btn:hover{filter:brightness(1.15);}
+.store-edit-status{text-align:center;margin-top:10px;font-size:12px;color:var(--muted);font-family:'Barlow',sans-serif;min-height:18px;}
 
 /* FOOTER */
 footer{text-align:center;padding:24px 5%;border-top:1px solid var(--border);border-bottom:3px solid var(--scarlet);font-size:12px;color:var(--silver3);}
@@ -1200,50 +1226,12 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
 
 <!-- STORE -->
 <div class="page" id="page-store">
-  <div class="sec-head"><span class="eyebrow">Gear Up</span><h2 class="sec-title">Store</h2></div>
+  <div class="sec-head"><span class="eyebrow">Gear Up</span><h2 class="sec-title">Store</h2><div class="store-admin-controls"><button type="button" class="store-add-btn" id="store-add-btn">+ Add Store</button></div></div>
   <div class="sec">
-    <div class="store-grid">
-
-      <div class="store-card">
-        <div class="store-card-accent"></div>
-        <div class="store-card-body">
-          <div class="store-card-num">01</div>
-          <div class="store-card-name">Store Name</div>
-          <p class="store-card-desc">Add a description of what's available in this store.</p>
-          <a href="#" target="_blank" rel="noopener" class="store-card-link">Visit Store <svg viewBox="0 0 16 16"><path d="M6.5 3.5L11 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        </div>
-      </div>
-
-      <div class="store-card">
-        <div class="store-card-accent"></div>
-        <div class="store-card-body">
-          <div class="store-card-num">02</div>
-          <div class="store-card-name">Store Name</div>
-          <p class="store-card-desc">Add a description of what's available in this store.</p>
-          <a href="#" target="_blank" rel="noopener" class="store-card-link">Visit Store <svg viewBox="0 0 16 16"><path d="M6.5 3.5L11 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        </div>
-      </div>
-
-      <div class="store-card">
-        <div class="store-card-accent"></div>
-        <div class="store-card-body">
-          <div class="store-card-num">03</div>
-          <div class="store-card-name">Store Name</div>
-          <p class="store-card-desc">Add a description of what's available in this store.</p>
-          <a href="#" target="_blank" rel="noopener" class="store-card-link">Visit Store <svg viewBox="0 0 16 16"><path d="M6.5 3.5L11 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        </div>
-      </div>
-
-      <div class="store-card">
-        <div class="store-card-accent"></div>
-        <div class="store-card-body">
-          <div class="store-card-num">04</div>
-          <div class="store-card-name">Store Name</div>
-          <p class="store-card-desc">Add a description of what's available in this store.</p>
-          <a href="#" target="_blank" rel="noopener" class="store-card-link">Visit Store <svg viewBox="0 0 16 16"><path d="M6.5 3.5L11 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        </div>
-      </div>
-
+    <div class="store-grid" id="store-grid"></div>
+    <div class="store-empty" id="store-empty" style="display:none;">
+      <div class="store-empty-icon">🛒</div>
+      <div class="store-empty-text">No stores yet</div>
     </div>
   </div>
 </div>
@@ -4033,6 +4021,208 @@ document.addEventListener('click', function(e) {
   var reqDeny = e.target.closest('[data-reqdeny]');
   if(reqDeny) { handleDenyReq(reqDeny.getAttribute('data-reqdeny')); return; }
 });
+
+// ====== TR STORE PAGE EDITOR ======
+(function(){
+  var STORE_API = '/api/store-content';
+  var storeCards = [];
+  var editOverlay = null;
+
+  function isExecDirector(){
+    return !!(identity && identity.type === 'coach' && identity.specialty === 'all');
+  }
+
+  function syncStoreAdminClass(){
+    document.body.classList.toggle('is-store-admin', isExecDirector());
+  }
+
+  function pad(n){ return n < 10 ? '0' + n : '' + n; }
+
+  function arrowSvg(){
+    return '<svg viewBox="0 0 16 16"><path d="M6.5 3.5L11 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
+
+  function renderCards(){
+    var grid = document.getElementById('store-grid');
+    var empty = document.getElementById('store-empty');
+    if(!grid) return;
+    grid.innerHTML = '';
+    if(!storeCards.length){
+      empty.style.display = '';
+      return;
+    }
+    empty.style.display = 'none';
+    storeCards.forEach(function(card, i){
+      var div = document.createElement('div');
+      div.className = 'store-card';
+      var linkHtml = '';
+      if(card.link){
+        linkHtml = '<a href="'+escHtml(card.link)+'" target="_blank" rel="noopener" class="store-card-link">Visit Store '+arrowSvg()+'</a>';
+      }
+      div.innerHTML =
+        '<div class="store-card-accent"></div>' +
+        '<div class="store-card-body">' +
+          '<div class="store-card-num">' + pad(i+1) + '</div>' +
+          '<div class="store-card-name">' + escHtml(card.name || 'Untitled') + '</div>' +
+          '<p class="store-card-desc">' + escHtml(card.description || '') + '</p>' +
+          linkHtml +
+          '<div class="store-card-actions">' +
+            '<button type="button" class="store-action-btn" data-store-edit="'+i+'">Edit</button>' +
+            '<button type="button" class="store-action-btn danger" data-store-delete="'+i+'">Remove</button>' +
+          '</div>' +
+        '</div>';
+      grid.appendChild(div);
+    });
+  }
+
+  function escHtml(s){
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function fetchCards(){
+    fetch(STORE_API, { cache:'no-store' }).then(function(r){
+      if(!r.ok) return;
+      return r.json();
+    }).then(function(data){
+      if(data && Array.isArray(data.cards)){
+        storeCards = data.cards;
+        renderCards();
+      }
+    }).catch(function(){});
+  }
+
+  function saveCards(cb){
+    fetch(STORE_API, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ cards: storeCards })
+    }).then(function(r){
+      if(!r.ok) throw new Error('save failed');
+      return r.json();
+    }).then(function(data){
+      if(data.cards) storeCards = data.cards;
+      renderCards();
+      if(cb) cb(null);
+    }).catch(function(e){
+      if(cb) cb(e);
+    });
+  }
+
+  function openEditModal(idx){
+    var isNew = idx === -1;
+    var card = isNew ? { name:'', description:'', link:'' } : storeCards[idx];
+
+    if(editOverlay) editOverlay.remove();
+    editOverlay = document.createElement('div');
+    editOverlay.className = 'store-edit-overlay';
+    editOverlay.innerHTML =
+      '<div class="store-edit-modal">' +
+        '<h3>' + (isNew ? 'Add Store' : 'Edit Store') + '</h3>' +
+        '<div class="store-edit-field"><label>Store Name</label><input type="text" id="se-name" maxlength="100" placeholder="e.g. Team Apparel"></div>' +
+        '<div class="store-edit-field"><label>Description</label><textarea id="se-desc" maxlength="500" placeholder="Describe what\'s available"></textarea></div>' +
+        '<div class="store-edit-field"><label>Store Link (URL)</label><input type="url" id="se-link" maxlength="2000" placeholder="https://..."></div>' +
+        '<div class="store-edit-btns">' +
+          '<button type="button" id="se-cancel">Cancel</button>' +
+          '<button type="button" id="se-save" class="store-save-btn">Save</button>' +
+        '</div>' +
+        '<div class="store-edit-status" id="se-status"></div>' +
+      '</div>';
+    document.body.appendChild(editOverlay);
+
+    var nameInput = document.getElementById('se-name');
+    var descInput = document.getElementById('se-desc');
+    var linkInput = document.getElementById('se-link');
+    var statusEl = document.getElementById('se-status');
+
+    nameInput.value = card.name || '';
+    descInput.value = card.description || '';
+    linkInput.value = card.link || '';
+
+    document.getElementById('se-cancel').addEventListener('click', function(){
+      editOverlay.remove();
+      editOverlay = null;
+    });
+
+    editOverlay.addEventListener('click', function(e){
+      if(e.target === editOverlay){ editOverlay.remove(); editOverlay = null; }
+    });
+
+    document.getElementById('se-save').addEventListener('click', function(){
+      var name = nameInput.value.trim();
+      if(!name){ statusEl.textContent = 'Name is required'; return; }
+      var updated = { name: name, description: descInput.value.trim(), link: linkInput.value.trim() };
+      if(isNew){
+        storeCards.push(updated);
+      } else {
+        storeCards[idx] = updated;
+      }
+      statusEl.textContent = 'Saving…';
+      saveCards(function(err){
+        if(err){
+          statusEl.textContent = 'Error — try again';
+          return;
+        }
+        editOverlay.remove();
+        editOverlay = null;
+      });
+    });
+
+    nameInput.focus();
+  }
+
+  function handleDelete(idx){
+    var card = storeCards[idx];
+    if(!card) return;
+    if(!confirm('Remove "' + card.name + '" from the store page?')) return;
+    storeCards.splice(idx, 1);
+    saveCards(function(err){
+      if(err) alert('Failed to save. Please try again.');
+    });
+  }
+
+  document.addEventListener('click', function(e){
+    var editBtn = e.target.closest('[data-store-edit]');
+    if(editBtn && isExecDirector()){
+      openEditModal(parseInt(editBtn.getAttribute('data-store-edit'), 10));
+      return;
+    }
+    var delBtn = e.target.closest('[data-store-delete]');
+    if(delBtn && isExecDirector()){
+      handleDelete(parseInt(delBtn.getAttribute('data-store-delete'), 10));
+      return;
+    }
+  });
+
+  var addBtn = document.getElementById('store-add-btn');
+  if(addBtn){
+    addBtn.addEventListener('click', function(){
+      if(!isExecDirector()) return;
+      openEditModal(-1);
+    });
+  }
+
+  if(typeof updateAuthUI === 'function'){
+    var origAuthStore = updateAuthUI;
+    window.updateAuthUI = function(){
+      var r = origAuthStore.apply(this, arguments);
+      syncStoreAdminClass();
+      return r;
+    };
+  }
+
+  function initStore(){
+    syncStoreAdminClass();
+    fetchCards();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initStore);
+  } else {
+    initStore();
+  }
+})();
 
 // ====== TR FAMILIES INLINE EDITOR ======
 (function(){
