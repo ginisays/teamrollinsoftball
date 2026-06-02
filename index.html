@@ -333,7 +333,7 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
     <div class="hero-title" style="position:relative;display:inline-block;">Rollin<span style="position:absolute;bottom:-8px;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--scarlet),transparent);border-radius:2px;"></span></div>
     <div class="hero-sub" style="color:#4a7fff;">10U-16U · Texas Fastpitch</div>
     <div class="hero-btns">
-      <button class="btn btn-w" onclick="go('lessons')">Book a Lesson →</button>
+      <button class="btn btn-w" onclick="openModal('modal-id')">Team Sign In →</button>
       <button class="btn btn-g" onclick="go('schedule')">Tournament Schedule</button>
       <a href="https://instagram.com/teamrollintx" target="_blank" class="btn btn-g">📸 @teamrollintx</a>
     </div>
@@ -727,342 +727,40 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
 
 <!-- LESSONS (requires login) -->
 <div class="page" id="page-lessons">
-  <div class="sec-head"><span class="eyebrow">Private Lessons</span><h2 class="sec-title">Book Your Session</h2></div>
+  <div class="sec-head"><span class="eyebrow">Team Portal</span><h2 class="sec-title">Lessons</h2></div>
 
   <!-- Main Lesson Tabs -->
   <div style="padding:0 5%;margin-bottom:0;border-bottom:1px solid var(--border);">
     <div style="display:flex;gap:0;">
-      <button onclick="lessonTab('hitting',this)" id="ltab-hitting" style="padding:14px 24px;border:none;border-bottom:3px solid var(--scarlet);background:transparent;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Jaz — Hitting</button>
-      <button onclick="lessonTab('pitching',this)" id="ltab-pitching" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Laurie — Pitching</button>
-      <button onclick="lessonTab('defense',this)" id="ltab-defense" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Coach Mo — Defense</button>
-      <button onclick="lessonTab('requests',this)" id="ltab-requests" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:none;">Booking Requests <span id="req-badge" style="background:var(--scarlet);color:var(--white);border-radius:50%;padding:2px 7px;font-size:11px;margin-left:4px;display:none;">0</span></button>
+      <button onclick="lessonTab('lessons-sched',this)" id="ltab-lessons-sched" style="padding:14px 24px;border:none;border-bottom:3px solid var(--scarlet);background:transparent;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Lessons Schedule</button>
+      <button onclick="lessonTab('org-sched',this)" id="ltab-org-sched" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Organization Schedule</button>
       <button onclick="lessonTab('members',this)" id="ltab-members" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:none;">Members</button>
-      <button onclick="lessonTab('practices',this)" id="ltab-practices" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:none;">Team Practices</button>
     </div>
   </div>
 
   <div class="sec">
-    <!-- HITTING SECTION -->
-    <div id="lsec-hitting">
-    <div class="grid2">
+    <!-- LESSONS SCHEDULE SECTION -->
+    <div id="lsec-lessons-sched">
       <div class="card">
-        <div class="card-head">
-          <div class="card-title">Lesson Scheduler</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <div class="tabs">
-              <button class="tab active" onclick="schedView('player',this)">Player</button>
-              <button class="tab" onclick="schedView('coach',this)">Admin</button>
-            </div>
-          </div>
-        </div>
-        <div class="card-body" id="view-player">
-          <div id="id-strip-el"></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;"><div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="tab active" onclick="filterSlots('all',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">All</button><button class="tab" onclick="filterSlots('12U',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">12U</button><button class="tab" onclick="filterSlots('16U',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">16U</button></div><button id="my-lessons-btn" onclick="toggleMyLessons()" style="display:none;padding:4px 14px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">My Lessons</button></div>
-          <div id="hitting-week-tabs" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;flex-wrap:nowrap;"></div>
-            <div id="player-slots"><div class="empty">No slots available yet.</div></div>
-        </div>
-        <div class="card-body" id="view-coach" style="display:none">
-          <div class="c-stats" id="c-stats"></div>
-          <div style="overflow-x:auto;">
-            <table class="t"><thead><tr><th>Date</th><th>Time</th><th>Player</th><th>Team</th><th></th></tr></thead><tbody id="coach-tbody"></tbody></table>
-          </div>
-          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);" id="manage-hitting">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Add Slots</div>
-            <div class="add-tabs">
-              <button class="add-tab active" onclick="addTab('single',this)">Single</button>
-              <button class="add-tab" onclick="addTab('bulk',this)">Bulk Week</button>
-            </div>
-            <div id="panel-single">
-              <div class="fg"><label>Date</label><input type="date" id="s-date"></div>
-              <div class="fg"><label>Time</label>
-                <div class="time-pick">
-                  <select id="s-hr"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option><option>11</option><option>12</option></select>
-                  <select id="s-min"><option value="00">00</option><option value="30">30</option></select>
-                  <select id="s-ampm"><option>AM</option><option selected>PM</option></select>
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="fg"><label>Team</label><select id="s-team"><option value="both">Both</option><option value="12U">12U</option><option value="16U">16U</option></select></div>
-                <div class="fg"><label>Duration</label><select id="s-dur"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>60 min</option><option value="90">90 min</option></select></div>
-              </div>
-              <button class="btn btn-w btn-full" onclick="addSingle()">Add Slot</button>
-            </div>
-            <div id="panel-bulk" style="display:none">
-              <div class="form-row">
-                <div class="fg"><label>Start</label><input type="date" id="b-start"></div>
-                <div class="fg"><label>End</label><input type="date" id="b-end"></div>
-              </div>
-              <div class="fg"><label>Days</label>
-                <div class="days-grid" id="b-days">
-                  <button class="day-chip" data-d="0">Su</button><button class="day-chip" data-d="1">Mo</button><button class="day-chip" data-d="2">Tu</button><button class="day-chip" data-d="3">We</button><button class="day-chip" data-d="4">Th</button><button class="day-chip" data-d="5">Fr</button><button class="day-chip" data-d="6">Sa</button>
-                </div>
-              </div>
-              <div class="fg"><label>Start Time</label>
-                <div class="time-pick">
-                  <select id="b-hr"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option><option>11</option><option>12</option></select>
-                  <select id="b-min"><option value="00">00</option><option value="30">30</option></select>
-                  <select id="b-ampm2"><option>AM</option><option selected>PM</option></select>
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="fg"><label>Slots/Day</label><select id="b-count"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="8">8</option><option value="10">10</option><option value="12" selected>12</option><option value="15">15</option><option value="20">20</option></select></div>
-                <div class="fg"><label>Duration</label><select id="b-dur"><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">60 min</option><option value="90">90 min</option></select></div>
-              </div>
-              <div class="form-row">
-                <div class="fg"><label>Team</label><select id="b-team"><option value="both">Both</option><option value="12U">12U</option><option value="16U">16U</option></select></div>
-                <div class="fg"><label>Copies per Slot</label><select id="b-copies"><option value="1">1 (private)</option><option value="2">2 (semi-private)</option><option value="3">3</option></select></div>
-              </div>
-              <button class="btn btn-w btn-full" onclick="addBulk()">Generate Slots</button>
-            </div>
-            <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn btn-d btn-sm" onclick="delAllOpen()">Delete All Open</button>
-              <button class="btn btn-d btn-sm" onclick="delPast()">Clear Past</button>
-            </div>
-            <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
-              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Delete by Date Range</div>
-              <div class="form-row" style="margin-bottom:8px;">
-                <div class="fg" style="margin:0"><label>From</label><input type="date" id="del-start"></div>
-                <div class="fg" style="margin:0"><label>To</label><input type="date" id="del-end"></div>
-              </div>
-              <div class="fg" style="margin-bottom:8px;"><label>Which slots</label>
-                <select id="del-which">
-                  <option value="all">All slots</option>
-                  <option value="open">Open only</option>
-                  <option value="booked">Booked only</option>
-                </select>
-              </div>
-              <button class="btn btn-d btn-full" onclick="delByRange()">Delete Slots in Range</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MEMBERS PANEL (coach only) -->
-    </div>
-
-    </div><!-- end lsec-hitting -->
-
-    <!-- PITCHING SECTION -->
-    <div id="lsec-pitching" style="display:none;">
-    <div style="margin-top:0;">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Pitching Lessons</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Coach Laurie · Book your weekly slot</div>
-      <div class="grid2">
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title">Pitching Scheduler</div>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <div class="tabs">
-                <button class="tab active" onclick="pitchView('player',this)">Player</button>
-                <button class="tab" onclick="pitchView('coach',this)">Coach</button>
-              </div>
-            </div>
-          </div>
-          <div class="card-body" id="pitch-view-player">
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
-              <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                <button class="tab active" onclick="filterPitch('all',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">All</button>
-                <button class="tab" onclick="filterPitch('12U',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">12U</button>
-                <button class="tab" onclick="filterPitch('16U',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">16U</button>
-              </div>
-              <button id="my-pitch-btn" onclick="toggleMyPitching()" style="display:none;padding:4px 14px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">My Lessons</button>
-            </div>
-            <div id="pitching-week-tabs" style="display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;"></div>
-            <div id="pitching-week-tabs" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;flex-wrap:nowrap;"></div>
-            <div id="pitch-slots"><div class="empty">No pitching slots available yet.</div></div>
-          </div>
-          <div class="card-body" id="pitch-view-coach" style="display:none">
-            <div class="c-stats" id="pitch-stats"></div>
-            <div style="overflow-x:auto;">
-              <table class="t"><thead><tr><th>Date</th><th>Time</th><th>Player</th><th>Team</th><th></th></tr></thead><tbody id="pitch-tbody"></tbody></table>
-            </div>
-            <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);" id="manage-pitching">
-              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Add Pitching Slots</div>
-              <div class="add-tabs">
-                <button class="add-tab active" onclick="pitchAddTab('single',this)">Single</button>
-                <button class="add-tab" onclick="pitchAddTab('bulk',this)">Bulk Week</button>
-              </div>
-              <div id="pitch-panel-single">
-                <div class="fg"><label>Date</label><input type="date" id="ps-date"></div>
-                <div class="fg"><label>Time</label>
-                  <div class="time-pick">
-                    <select id="ps-hr"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option><option>11</option><option>12</option></select>
-                    <select id="ps-min"><option value="00">00</option><option value="30">30</option></select>
-                    <select id="ps-ampm"><option>AM</option><option selected>PM</option></select>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="fg"><label>Team</label><select id="ps-team"><option value="both">Both</option><option value="12U">12U</option><option value="16U">16U</option></select></div>
-                  <div class="fg"><label>Duration</label><select id="ps-dur"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>60 min</option></select></div>
-                </div>
-                <button class="btn btn-w btn-full" onclick="addPitchSingle()">Add Slot</button>
-              </div>
-              <div id="pitch-panel-bulk" style="display:none">
-                <div class="form-row">
-                  <div class="fg"><label>Start</label><input type="date" id="pb-start"></div>
-                  <div class="fg"><label>End</label><input type="date" id="pb-end"></div>
-                </div>
-                <div class="fg"><label>Days</label>
-                  <div class="days-grid" id="pb-days">
-                    <button class="day-chip" data-d="0">Su</button><button class="day-chip" data-d="1">Mo</button><button class="day-chip" data-d="2">Tu</button><button class="day-chip" data-d="3">We</button><button class="day-chip" data-d="4">Th</button><button class="day-chip" data-d="5">Fr</button><button class="day-chip" data-d="6">Sa</button>
-                  </div>
-                </div>
-                <div class="fg"><label>Start Time</label>
-                  <div class="time-pick">
-                    <select id="pb-hr"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option><option>11</option><option>12</option></select>
-                    <select id="pb-min"><option value="00">00</option><option value="30">30</option></select>
-                    <select id="pb-ampm2"><option>AM</option><option selected>PM</option></select>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="fg"><label>Slots/Day</label><select id="pb-count"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="8">8</option><option value="10">10</option><option value="12">12</option><option value="15">15</option></select></div>
-                  <div class="fg"><label>Duration</label><select id="pb-dur"><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></div>
-                </div>
-                <div class="form-row">
-                  <div class="fg"><label>Team</label><select id="pb-team"><option value="both">Both</option><option value="12U">12U</option><option value="16U">16U</option></select></div>
-                  <div class="fg"><label>Copies per Slot</label><select id="pb-copies"><option value="1">1</option><option value="2">2</option></select></div>
-                </div>
-                <button class="btn btn-w btn-full" onclick="addPitchBulk()">Generate Slots</button>
-              </div>
-              <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-                <button class="btn btn-d btn-sm" onclick="delAllOpenPitch()">Delete All Open</button>
-                <button class="btn btn-d btn-sm" onclick="delPastPitch()">Clear Past</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card" id="pitch-members-card" style="display:none">
-          <div class="card-head"><div class="card-title">Book a Pitching Slot</div></div>
-          <div class="card-body">
-            <p style="font-size:13px;color:var(--muted);line-height:1.6;">Admin can manually book a player into a pitching slot from the Coach view table.</p>
+        <div class="card-head"><div class="card-title">Lessons Schedule</div></div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;">Live view of the lessons schedule. This updates automatically as the schedule changes.</p>
+          <div style="position:relative;width:100%;overflow:hidden;border:1px solid var(--border2);border-radius:8px;">
+            <iframe src="https://docs.google.com/spreadsheets/d/1AbaYsCG8UNTW3w8jcO1QythCMduD7Z1CJP1SJJNG1CE/preview" style="width:100%;height:70vh;min-height:520px;border:0;display:block;" loading="lazy" title="Lessons Schedule"></iframe>
           </div>
         </div>
       </div>
     </div>
 
-    </div><!-- end pitching inner -->
-    </div><!-- end lsec-pitching -->
-
-    <!-- DEFENSE SECTION -->
-    <div id="lsec-defense" style="display:none;">
-    <div style="margin-top:0;">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Defense Lessons</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Coach Mo · Book your weekly slot</div>
-      <div class="grid2">
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title">Defense Scheduler</div>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <div class="tabs">
-                <button class="tab active" onclick="defView('player',this)">Player</button>
-                <button class="tab" onclick="defView('coach',this)">Coach</button>
-              </div>
-            </div>
-          </div>
-          <div class="card-body" id="def-view-player">
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
-              <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                <button class="tab active" onclick="filterDef('all',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">All</button>
-                <button class="tab" onclick="filterDef('12U',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">12U</button>
-                <button class="tab" onclick="filterDef('16U',this)" style="border:1px solid var(--border2);padding:4px 12px;border-radius:20px;">16U</button>
-              </div>
-              <button id="my-def-btn" onclick="toggleMyDefense()" style="display:none;padding:4px 14px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">My Lessons</button>
-            </div>
-            <div id="defense-week-tabs" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;flex-wrap:nowrap;"></div>
-            <div id="def-slots"><div class="empty">No defense slots available yet.</div></div>
-          </div>
-          <div class="card-body" id="def-view-coach" style="display:none">
-            <div class="c-stats" id="def-stats"></div>
-            <div style="overflow-x:auto;">
-              <table class="t"><thead><tr><th>Date</th><th>Time</th><th>Player</th><th>Team</th><th></th></tr></thead><tbody id="def-tbody"></tbody></table>
-            </div>
-            <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);" id="manage-defense">
-              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Add Defense Slots</div>
-              <div class="add-tabs">
-                <button class="add-tab active" onclick="defAddTab('single',this)">Single</button>
-                <button class="add-tab" onclick="defAddTab('bulk',this)">Bulk Week</button>
-              </div>
-              <div id="def-panel-single">
-                <div class="fg"><label>Date</label><input type="date" id="ds-date"></div>
-                <div class="fg"><label>Time</label>
-                  <div class="time-pick">
-                    <select id="ds-hr"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option><option>11</option><option>12</option></select>
-                    <select id="ds-min"><option value="00">00</option><option value="30">30</option></select>
-                    <select id="ds-ampm"><option>AM</option><option selected>PM</option></select>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="fg"><label>Team</label><select id="ds-team"><option value="both">Both</option><option value="12U">12U</option><option value="16U">16U</option></select></div>
-                  <div class="fg"><label>Duration</label><select id="ds-dur"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>60 min</option></select></div>
-                </div>
-                <div class="fg"><label>Openings (players per time slot)</label><select id="ds-copies"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option></select></div>
-                <button class="btn btn-w btn-full" onclick="addDefSingle()">Add Slot</button>
-              </div>
-              <div id="def-panel-bulk" style="display:none">
-                <div class="form-row">
-                  <div class="fg"><label>Start</label><input type="date" id="db-start"></div>
-                  <div class="fg"><label>End</label><input type="date" id="db-end"></div>
-                </div>
-                <div class="fg"><label>Days</label>
-                  <div class="days-grid" id="db-days">
-                    <button class="day-chip" data-d="0">Su</button><button class="day-chip" data-d="1">Mo</button><button class="day-chip" data-d="2">Tu</button><button class="day-chip" data-d="3">We</button><button class="day-chip" data-d="4">Th</button><button class="day-chip" data-d="5">Fr</button><button class="day-chip" data-d="6">Sa</button>
-                  </div>
-                </div>
-                <div class="fg"><label>Start Time</label>
-                  <div class="time-pick">
-                    <select id="db-hr"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option><option>11</option><option>12</option></select>
-                    <select id="db-min"><option value="00">00</option><option value="30">30</option></select>
-                    <select id="db-ampm2"><option>AM</option><option selected>PM</option></select>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="fg"><label>Slots/Day</label><select id="db-count"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="8">8</option><option value="10">10</option><option value="12">12</option><option value="15">15</option></select></div>
-                  <div class="fg"><label>Duration</label><select id="db-dur"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>60 min</option></select></div>
-                </div>
-                <div class="form-row">
-                  <div class="fg"><label>Team</label><select id="db-team"><option value="both">Both</option><option value="12U">12U</option><option value="16U">16U</option></select></div>
-                  <div class="fg"><label>Copies per Slot</label><select id="db-copies"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
-                </div>
-                <button class="btn btn-w btn-full" onclick="addDefBulk()">Generate Slots</button>
-              </div>
-              <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-                <button class="btn btn-d btn-sm" onclick="delAllOpenDef()">Delete All Open</button>
-                <button class="btn btn-d btn-sm" onclick="delPastDef()">Clear Past</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card" id="def-members-card" style="display:none">
-          <div class="card-head"><div class="card-title">Book a Defense Slot</div></div>
-          <div class="card-body">
-            <p style="font-size:13px;color:var(--muted);line-height:1.6;">Admin can manually book a player into a defense slot from the Coach view table.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    </div><!-- end lsec-defense -->
-
-    <!-- BOOKING REQUESTS SECTION (Executive Director only) -->
-    <div id="lsec-requests" style="display:none;">
+    <!-- ORGANIZATION SCHEDULE SECTION -->
+    <div id="lsec-org-sched" style="display:none;">
       <div class="card">
-        <div class="card-head"><div class="card-title">Booking Requests</div></div>
+        <div class="card-head"><div class="card-title">Organization Schedule</div></div>
         <div class="card-body">
-          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;">Review and approve or deny lesson booking requests from players. Approved bookings will be confirmed and a notification sent via email.</p>
-          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
-            <button class="tab active" onclick="filterReqs('pending',this)">Pending</button>
-            <button class="tab" onclick="filterReqs('approved',this)">Approved</button>
-            <button class="tab" onclick="filterReqs('denied',this)">Denied</button>
-            <button class="tab" onclick="filterReqs('all',this)">All</button>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;">Live view of the full organization schedule. This updates automatically as the schedule changes.</p>
+          <div style="position:relative;width:100%;overflow:hidden;border:1px solid var(--border2);border-radius:8px;">
+            <iframe src="https://docs.google.com/spreadsheets/d/1L_r9EqUYY_5Hs_mi9bB0eE0Hwo4rqo7L/preview?gid=935964933#gid=935964933" style="width:100%;height:70vh;min-height:520px;border:0;display:block;" loading="lazy" title="Organization Schedule"></iframe>
           </div>
-          <div id="booking-reqs-list" style="overflow-x:auto;"></div>
-        </div>
-      </div>
-      <!-- Approval Log -->
-      <div class="card" style="margin-top:16px;">
-        <div class="card-head"><div class="card-title">Approval Log</div></div>
-        <div class="card-body">
-          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;">History of all approved and denied booking requests, sorted by most recent first.</p>
-          <div id="approval-log" style="overflow-x:auto;"></div>
         </div>
       </div>
     </div>
@@ -1087,51 +785,7 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
       </div>
     </div>
   </div>
-
-    <!-- PRACTICES SECTION -->
-    <div id="lsec-practices" style="display:none;">
-      <div class="grid2">
-        <div class="card">
-          <div class="card-head"><div class="card-title">Team Practices</div></div>
-          <div class="card-body">
-            <div id="practices-list"><div class="empty">No practices scheduled yet.</div></div>
-          </div>
-        </div>
-        <div class="card" id="practice-admin-card" style="display:none;">
-          <div class="card-head"><div class="card-title">Add Practice</div></div>
-          <div class="card-body">
-            <div class="fg"><label>Title</label><input id="prac-title" type="text" placeholder="e.g. 12U Practice"></div>
-            <div class="fg"><label>Date</label><input id="prac-date" type="text" placeholder="Select date"></div>
-            <div class="fg"><label>Time</label>
-              <div class="time-pick">
-                <select id="prac-hr"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option><option>11</option><option>12</option></select>
-                <select id="prac-min"><option value="00">00</option><option value="30">30</option></select>
-                <select id="prac-ampm"><option>AM</option><option selected>PM</option></select>
-              </div>
-            </div>
-            <div class="fg"><label>Duration</label>
-              <select id="prac-dur">
-                <option value="60">1 hour</option>
-                <option value="90">1.5 hours</option>
-                <option value="120" selected>2 hours</option>
-                <option value="150">2.5 hours</option>
-                <option value="180">3 hours</option>
-              </select>
-            </div>
-            <div class="fg"><label>Location</label><input id="prac-loc" type="text" placeholder="e.g. Cedar Park Fields"></div>
-            <div class="fg"><label>Team</label>
-              <select id="prac-team">
-                <option value="both">Both Teams</option>
-                <option value="12U">12U Only</option>
-                <option value="16U">16U Only</option>
-              </select>
-            </div>
-            <div class="fg"><label>Notes (optional)</label><input id="prac-notes" type="text" placeholder="Bring helmets, etc."></div>
-            <button class="btn btn-w btn-full" onclick="addPractice()">Add Practice</button>
-          </div>
-        </div>
-      </div>
-    </div>
+</div>
 
 <!-- CREED -->
 <div class="page" id="page-creed">
@@ -1252,7 +906,7 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
       <div id="player-signin">
         <div class="fg"><label>Name</label><input id="p-name" type="text" placeholder="Sarah Johnson"></div>
         <div class="fg"><label>Team</label><select id="p-team"><option value="10U">10U Team Rollin</option><option value="12U">12U Team Rollin</option><option value="14U">14U Team Rollin</option><option value="16U">16U Team Rollin</option></select></div>
-        <div class="fg"><label>PIN</label><input id="p-pin" type="text" inputmode="numeric" maxlength="6" placeholder="PIN from Coach Jaz"></div>
+        <div class="fg"><label>PIN</label><input id="p-pin" type="text" inputmode="numeric" maxlength="6" placeholder="PIN"></div>
         <button class="btn btn-w btn-full" onclick="loginPlayer()">Sign In</button>
         <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;">No account? Click <strong>Request Access</strong> above.</p>
       </div>
@@ -1596,13 +1250,8 @@ async function syncFromSupabase() {
     await fetchBookingRequests();
     // Re-render everything
     renderTourneys(); renderRoster('10U'); renderRoster('12U'); renderRoster('14U'); renderRoster('16U');
-    if(document.getElementById('page-lessons').classList.contains('active')) { renderSlots(); renderPitchSlots(); renderDefSlots(); }
-    else { buildWeekTabs(allSlots, 'hitting-week-tabs', currentHitWeek, 'setHitWeek'); buildWeekTabs(pitchSlots, 'pitching-week-tabs', currentPitchWeek, 'setPitchWeek'); buildWeekTabs(defSlots, 'defense-week-tabs', currentDefWeek, 'setDefWeek'); }
-    if(isCoach) { renderCoachView(); renderPitchCoachView(); renderDefCoachView(); renderMembersPanel(); renderHistory(); }
-    if(typeof renderPractices === 'function') renderPractices();
-    renderApprovalLog();
+    if(isCoach) { renderMembersPanel(); renderHistory(); }
     updatePendingBadge();
-    updateReqBadge();
   } catch(e){ console.error('Supabase sync failed',e); }
 }
 
@@ -2007,7 +1656,7 @@ function go(page) {
   var el = document.getElementById('page-'+page);
   if (el) el.classList.add('active');
   window.scrollTo(0,0);
-  if (page === 'lessons') { renderSlots(); renderPitchSlots(); renderDefSlots(); if(isCoach){ renderCoachView(); renderPitchCoachView(); renderDefCoachView(); } renderMembersPanel(); updateAuthUI(); lessonTab('hitting', document.getElementById('ltab-hitting')); }
+  if (page === 'lessons') { renderMembersPanel(); updateAuthUI(); lessonTab('lessons-sched', document.getElementById('ltab-lessons-sched')); }
   if (page === 'schedule') renderTourneys();
   if (page === 'teams') { renderRoster('10U'); renderRoster('12U'); renderRoster('14U'); renderRoster('16U'); }
 }
@@ -2151,10 +1800,6 @@ function updateAuthUI() {
   if(sob) sob.style.display = identity ? '' : 'none';
   var ltabM = document.getElementById('ltab-members');
   if(ltabM) ltabM.style.display = (identity && identity.type==='coach') ? '' : 'none';
-  var ltabR = document.getElementById('ltab-requests');
-  if(ltabR) ltabR.style.display = (identity && identity.type==='coach' && identity.specialty==='all') ? '' : 'none';
-  var ltabP = document.getElementById('ltab-practices');
-  if(ltabP) ltabP.style.display = identity ? '' : 'none';
   var mlBtn = document.getElementById('my-lessons-btn');
   if(mlBtn) mlBtn.style.display = (identity && identity.type==='player') ? '' : 'none';
   var mpBtn = document.getElementById('my-pitch-btn');
@@ -2346,6 +1991,7 @@ function schedView(view, el) {
 }
 
 function renderCoachView() {
+  if(!document.getElementById('c-stats')) return;
   var booked = allSlots.filter(function(s){ return s.booked_by; });
   var open = allSlots.filter(function(s){ return !s.booked_by; });
   document.getElementById('c-stats').innerHTML =
@@ -3144,6 +2790,7 @@ function cancelPitchSlot(id) {
 }
 
 function renderPitchCoachView() {
+  if(!document.getElementById('pitch-stats')) return;
   var booked = pitchSlots.filter(function(s){ return s.booked_by; });
   var open = pitchSlots.filter(function(s){ return !s.booked_by; });
   document.getElementById('pitch-stats').innerHTML =
@@ -3443,6 +3090,7 @@ function cancelDefSlot(id) {
 }
 
 function renderDefCoachView() {
+  if(!document.getElementById('def-stats')) return;
   var booked = defSlots.filter(function(s){ return s.booked_by; });
   var open = defSlots.filter(function(s){ return !s.booked_by; });
   var statsEl = document.getElementById('def-stats');
@@ -3615,7 +3263,7 @@ function openDefCoachBook(id){
 }
 
 function lessonTab(tab, el) {
-  ['hitting','pitching','defense','requests','members','practices'].forEach(function(t) {
+  ['lessons-sched','org-sched','members'].forEach(function(t) {
     var sec = document.getElementById('lsec-'+t);
     if(sec) sec.style.display = 'none';
     var btn = document.getElementById('ltab-'+t);
@@ -3625,12 +3273,7 @@ function lessonTab(tab, el) {
   if(sec) sec.style.display = 'block';
   var btn = document.getElementById('ltab-'+tab);
   if(btn) { btn.style.borderBottomColor='var(--scarlet)'; btn.style.color='var(--white)'; }
-  if(tab==='hitting') { renderSlots(); if(identity&&identity.type==='coach') renderCoachView(); }
-  if(tab==='pitching') { renderPitchSlots(); if(identity&&identity.type==='coach') renderPitchCoachView(); }
-  if(tab==='defense') { renderDefSlots(); if(identity&&identity.type==='coach') renderDefCoachView(); }
-  if(tab==='requests') { renderBookingRequests(); renderApprovalLog(); }
   if(tab==='members') { renderMembersPanel(); }
-  if(tab==='practices') { renderPractices(); }
 }
 
 // ====== WEEK TABS ======
