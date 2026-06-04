@@ -15,3 +15,27 @@ export const bookingRequests = pgTable("booking_requests", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+// A reusable "forever" SMS QR code. The printed QR encodes a fixed URL
+// (/q/<slug>); the phone number and message live here so they can be changed
+// any time without reprinting the code.
+export const smsQrCodes = pgTable("sms_qr_codes", {
+  id: serial().primaryKey(),
+  slug: text().notNull().unique(),
+  label: text().notNull().default(""),
+  phone: text().notNull().default(""),
+  message: text().notNull().default(""),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// One row per scan of an SMS QR code.
+export const smsQrScans = pgTable("sms_qr_scans", {
+  id: serial().primaryKey(),
+  slug: text().notNull(),
+  userAgent: text("user_agent"),
+  referer: text(),
+  country: text(),
+  city: text(),
+  scannedAt: timestamp("scanned_at").defaultNow(),
+});

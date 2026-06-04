@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>SMS QR Code — Team Rollin TX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue: #4a7fff;
+      --blue-dark: #1a3fcc;
+      --red: #e5182b;
+      --ink: #0f0f0f;
+      --panel: #16181d;
+      --panel-2: #1d2027;
+      --line: #2b2f38;
+      --text: #f2f0ee;
+      --muted: #9ca3af;
+      --green: #6ee7b7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(1200px 600px at 70% -10%, #1b2440 0%, var(--ink) 55%);
+      color: var(--text);
+      font-family: 'Barlow Condensed', sans-serif;
+      min-height: 100vh;
+      padding: 32px 18px 64px;
+    }
+    .wrap { max-width: 1020px; margin: 0 auto; }
+    header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; }
+    h1 { font-size: 40px; font-weight: 700; letter-spacing: .5px; margin: 0; text-transform: uppercase; }
+    h1 .accent { color: var(--blue); }
+    .tag {
+      font-family: 'DM Mono', monospace; font-size: 12px; color: var(--green);
+      border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; letter-spacing: .5px;
+    }
+    .sub { color: var(--muted); font-size: 18px; margin: 2px 0 26px; max-width: 640px; }
+    .grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; align-items: start; }
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+      border: 1px solid var(--line); border-radius: 16px; padding: 22px;
+    }
+    .card h2 {
+      font-size: 14px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted);
+      margin: 0 0 16px; font-weight: 600; font-family: 'DM Mono', monospace;
+    }
+    .qr-box { background: #fff; border-radius: 12px; padding: 16px; display: grid; place-items: center; }
+    .qr-box svg, .qr-box img { width: 100%; height: auto; display: block; }
+    .scan-url {
+      font-family: 'DM Mono', monospace; font-size: 12px; color: var(--blue);
+      word-break: break-all; margin: 14px 0 18px; text-align: center;
+    }
+    .btn-row { display: flex; gap: 10px; }
+    button, .btn {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .6px; cursor: pointer;
+      border-radius: 10px; padding: 11px 16px; border: 1px solid var(--line);
+      background: var(--panel-2); color: var(--text); transition: .15s; flex: 1;
+    }
+    button:hover, .btn:hover { border-color: var(--blue); color: #fff; }
+    button.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    button.primary:hover { background: var(--blue-dark); }
+    label { display: block; font-size: 14px; color: var(--muted); margin: 0 0 6px; letter-spacing: .4px; font-family: 'DM Mono', monospace; }
+    input, textarea {
+      width: 100%; background: #0e1016; border: 1px solid var(--line); border-radius: 10px;
+      color: var(--text); font-family: 'Barlow Condensed', sans-serif; font-size: 18px;
+      padding: 11px 13px; margin-bottom: 16px; resize: vertical;
+    }
+    input:focus, textarea:focus { outline: none; border-color: var(--blue); }
+    .hint { font-size: 14px; color: var(--muted); margin: -8px 0 16px; }
+    .status { font-size: 15px; min-height: 20px; margin-top: 6px; color: var(--green); font-family: 'DM Mono', monospace; }
+    .status.err { color: var(--red); }
+    .stats { display: flex; gap: 14px; margin-bottom: 16px; }
+    .stat { background: #0e1016; border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; flex: 1; }
+    .stat b { display: block; font-size: 34px; line-height: 1; color: var(--blue); }
+    .stat span { font-size: 13px; color: var(--muted); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
+    table { width: 100%; border-collapse: collapse; font-size: 16px; }
+    th { text-align: left; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+    td { padding: 9px 10px; border-bottom: 1px solid #20232b; color: var(--text); }
+    td.muted { color: var(--muted); }
+    .empty { color: var(--muted); padding: 18px 4px; font-size: 16px; }
+    .scroll { max-height: 360px; overflow-y: auto; }
+    .full { grid-column: 1 / -1; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>SMS QR <span class="accent">Code</span></h1>
+      <span class="tag">STATIC · FOREVER · LOGGED</span>
+    </header>
+    <p class="sub">
+      Print this code once. Every scan opens the visitor's text-message app with your
+      number and message pre-filled — and is recorded below. Change the number or message
+      any time; the printed code never has to be reprinted.
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <h2>The Code</h2>
+        <div class="qr-box" id="qrBox">
+          <img id="qrImg" alt="SMS QR code" />
+        </div>
+        <div class="scan-url" id="scanUrl">…</div>
+        <div class="btn-row">
+          <button id="dlSvg">Download SVG</button>
+          <button id="dlPng">Download PNG</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Where It Points</h2>
+        <label for="label">Label (internal)</label>
+        <input id="label" placeholder="e.g. Dugout flyer" />
+
+        <label for="phone">Phone number</label>
+        <input id="phone" inputmode="tel" placeholder="+15551234567" />
+        <p class="hint">Use full international format. Digits, spaces and a leading + are fine.</p>
+
+        <label for="message">Pre-filled message</label>
+        <textarea id="message" rows="3" placeholder="Hi! I'm reaching out about…"></textarea>
+
+        <button class="primary" id="save" style="flex:none;width:100%;">Save changes</button>
+        <div class="status" id="status"></div>
+      </div>
+
+      <div class="card full">
+        <h2>Scan Log</h2>
+        <div class="stats">
+          <div class="stat"><b id="totalScans">0</b><span>Total scans</span></div>
+          <div class="stat"><b id="todayScans">0</b><span>Today</span></div>
+          <div class="stat"><b id="lastScan">—</b><span>Most recent</span></div>
+        </div>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr><th>When</th><th>Location</th><th>Device</th></tr>
+            </thead>
+            <tbody id="scanRows">
+              <tr><td colspan="3" class="empty">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SLUG = new URLSearchParams(location.search).get("slug") || "sms";
+    const qs = (id) => document.getElementById(id);
+    const imageUrl = `/api/sms-qr/image?slug=${encodeURIComponent(SLUG)}`;
+
+    qs("qrImg").src = imageUrl;
+
+    function setStatus(msg, isErr) {
+      const el = qs("status");
+      el.textContent = msg;
+      el.className = "status" + (isErr ? " err" : "");
+      if (msg && !isErr) setTimeout(() => { if (el.textContent === msg) el.textContent = ""; }, 3000);
+    }
+
+    async function loadConfig() {
+      const res = await fetch(`/api/sms-qr/config?slug=${encodeURIComponent(SLUG)}`);
+      const c = await res.json();
+      qs("label").value = c.label || "";
+      qs("phone").value = c.phone || "";
+      qs("message").value = c.message || "";
+      qs("scanUrl").textContent = c.scanUrl;
+    }
+
+    async function save() {
+      qs("save").disabled = true;
+      try {
+        const res = await fetch(`/api/sms-qr/config?slug=${encodeURIComponent(SLUG)}`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            label: qs("label").value,
+            phone: qs("phone").value,
+            message: qs("message").value,
+          }),
+        });
+        if (!res.ok) throw new Error("Save failed");
+        setStatus("Saved. The printed code now points to this number.");
+      } catch (e) {
+        setStatus(e.message || "Could not save", true);
+      } finally {
+        qs("save").disabled = false;
+      }
+    }
+
+    function fmtWhen(iso) {
+      if (!iso) return "—";
+      const d = new Date(iso);
+      return d.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    }
+    function isToday(iso) {
+      const d = new Date(iso), n = new Date();
+      return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate();
+    }
+    function deviceOf(ua) {
+      if (!ua) return "—";
+      if (/iphone|ipad|ios/i.test(ua)) return "iOS";
+      if (/android/i.test(ua)) return "Android";
+      if (/macintosh/i.test(ua)) return "Mac";
+      if (/windows/i.test(ua)) return "Windows";
+      return "Other";
+    }
+
+    async function loadScans() {
+      const res = await fetch(`/api/sms-qr/scans?slug=${encodeURIComponent(SLUG)}`);
+      const data = await res.json();
+      const scans = data.scans || [];
+      qs("totalScans").textContent = data.total ?? scans.length;
+      qs("todayScans").textContent = scans.filter((s) => isToday(s.scannedAt)).length;
+      qs("lastScan").textContent = scans.length ? fmtWhen(scans[0].scannedAt) : "—";
+
+      const body = qs("scanRows");
+      if (!scans.length) {
+        body.innerHTML = '<tr><td colspan="3" class="empty">No scans yet. Print the code and try it.</td></tr>';
+        return;
+      }
+      body.innerHTML = scans.map((s) => {
+        const loc = [s.city, s.country].filter(Boolean).join(", ") || "—";
+        return `<tr>
+          <td>${fmtWhen(s.scannedAt)}</td>
+          <td class="muted">${loc}</td>
+          <td class="muted">${deviceOf(s.userAgent)}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    qs("dlSvg").addEventListener("click", async () => {
+      const svg = await (await fetch(imageUrl)).text();
+      const blob = new Blob([svg], { type: "image/svg+xml" });
+      triggerDownload(URL.createObjectURL(blob), `sms-qr-${SLUG}.svg`);
+    });
+
+    qs("dlPng").addEventListener("click", async () => {
+      const svg = await (await fetch(imageUrl)).text();
+      const img = new Image();
+      const svgUrl = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
+      img.onload = () => {
+        const size = 1024;
+        const canvas = document.createElement("canvas");
+        canvas.width = canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, size, size);
+        ctx.drawImage(img, 0, 0, size, size);
+        URL.revokeObjectURL(svgUrl);
+        triggerDownload(canvas.toDataURL("image/png"), `sms-qr-${SLUG}.png`);
+      };
+      img.src = svgUrl;
+    });
+
+    function triggerDownload(href, name) {
+      const a = document.createElement("a");
+      a.href = href; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    qs("save").addEventListener("click", save);
+    loadConfig();
+    loadScans();
+    setInterval(loadScans, 15000);
+  </script>
+</body>
+</html>
