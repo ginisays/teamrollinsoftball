@@ -1257,7 +1257,6 @@ async function syncFromSupabase() {
       localStorage.setItem(PRAC_KEY, JSON.stringify(practices));
     }
     console.log('Synced from Supabase');
-    await fetchBookingRequests();
     // Re-render everything
     renderTourneys(); renderRoster('10U'); renderRoster('12U'); renderRoster('14U'); renderRoster('16U');
     if(isCoach) { renderMembersPanel(); renderHistory(); }
@@ -3620,10 +3619,8 @@ renderRoster('14U');
 renderRoster('16U');
 // Sync latest data from Supabase in background
 syncFromSupabase();
-// Fetch booking requests from Netlify Database
-fetchBookingRequests();
-// Periodic refresh every 30 seconds so all users see consistent data
-setInterval(function(){ syncFromSupabase(); }, 30000);
+// Periodic refresh every 5 minutes so all users see consistent data
+setInterval(function(){ syncFromSupabase(); }, 300000);
 
 // Set images
 var lionImg = document.getElementById('lion-img');
