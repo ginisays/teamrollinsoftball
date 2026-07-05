@@ -1,0 +1,10 @@
+.git/
+.netlify/
+node_modules/
+db/
+netlify/database/
+netlify/functions/
+package-lock.json
+package.json
+drizzle.config.ts
+deno.lock
