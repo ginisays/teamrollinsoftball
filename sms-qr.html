@@ -72,6 +72,12 @@
       padding: 11px 13px; margin-bottom: 16px; resize: vertical;
     }
     input:focus, textarea:focus { outline: none; border-color: var(--blue); }
+    .check-row {
+      display: flex; align-items: center; gap: 10px; margin: 2px 0 14px;
+      color: var(--text); font-size: 17px;
+    }
+    .check-row input { width: 18px; height: 18px; margin: 0; accent-color: var(--blue); }
+    .check-row label { margin: 0; color: var(--text); font-family: 'Barlow Condensed', sans-serif; font-size: 17px; }
     .hint { font-size: 14px; color: var(--muted); margin: -8px 0 16px; }
     .status { font-size: 15px; min-height: 20px; margin-top: 6px; color: var(--green); font-family: 'DM Mono', monospace; }
     .status.err { color: var(--red); }
@@ -125,6 +131,15 @@
         <label for="message">Pre-filled message</label>
         <textarea id="message" rows="3" placeholder="Hi! I'm reaching out about…"></textarea>
 
+        <div class="check-row">
+          <input id="notifyOnScan" type="checkbox" />
+          <label for="notifyOnScan">Text me when this code is scanned</label>
+        </div>
+
+        <label for="notificationPhone">Notification phone number</label>
+        <input id="notificationPhone" inputmode="tel" placeholder="+15551234567" />
+        <p class="hint">Requires Twilio deploy variables: account SID, auth token and sender number.</p>
+
         <button class="primary" id="save" style="flex:none;width:100%;">Save changes</button>
         <div class="status" id="status"></div>
       </div>
@@ -170,6 +185,8 @@
       qs("label").value = c.label || "";
       qs("phone").value = c.phone || "";
       qs("message").value = c.message || "";
+      qs("notifyOnScan").checked = !!c.notifyOnScan;
+      qs("notificationPhone").value = c.notificationPhone || "";
       qs("scanUrl").textContent = c.scanUrl;
     }
 
@@ -183,6 +200,8 @@
             label: qs("label").value,
             phone: qs("phone").value,
             message: qs("message").value,
+            notifyOnScan: qs("notifyOnScan").checked,
+            notificationPhone: qs("notificationPhone").value,
           }),
         });
         if (!res.ok) throw new Error("Save failed");

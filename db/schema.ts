@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 export const bookingRequests = pgTable("booking_requests", {
   id: serial().primaryKey(),
@@ -25,6 +25,8 @@ export const smsQrCodes = pgTable("sms_qr_codes", {
   label: text().notNull().default(""),
   phone: text().notNull().default(""),
   message: text().notNull().default(""),
+  notifyOnScan: boolean("notify_on_scan").notNull().default(false),
+  notificationPhone: text("notification_phone").notNull().default(""),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

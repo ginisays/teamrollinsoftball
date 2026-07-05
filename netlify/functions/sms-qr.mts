@@ -22,6 +22,8 @@ async function getOrCreateCode(slug: string) {
       label: "Team Rollin SMS",
       phone: "",
       message: DEFAULT_MESSAGE,
+      notifyOnScan: false,
+      notificationPhone: "",
     })
     .returning();
   return created;
@@ -67,6 +69,8 @@ export default async (req: Request) => {
         label: typeof body.label === "string" ? body.label : undefined,
         phone: typeof body.phone === "string" ? body.phone.trim() : undefined,
         message: typeof body.message === "string" ? body.message : undefined,
+        notifyOnScan: typeof body.notifyOnScan === "boolean" ? body.notifyOnScan : undefined,
+        notificationPhone: typeof body.notificationPhone === "string" ? body.notificationPhone.trim() : undefined,
         updatedAt: new Date(),
       })
       .where(eq(smsQrCodes.slug, slug))
