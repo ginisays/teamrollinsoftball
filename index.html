@@ -957,22 +957,38 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
     <div id="id-player">
       <div class="modal-tabs" style="margin-bottom:14px;">
         <button class="modal-tab active" onclick="playerSub('signin',this)">Sign In</button>
-        <button class="modal-tab" onclick="playerSub('request',this)">Request Access</button>
+        <button class="modal-tab" onclick="playerSub('request',this)">Create Account</button>
       </div>
       <div id="player-signin">
-        <div class="fg"><label>Name</label><input id="p-name" type="text" placeholder="Sarah Johnson"></div>
+        <div class="fg"><label>Parent Email</label><input id="account-email" type="email" autocomplete="email" placeholder="parent@email.com"></div>
+        <div class="fg"><label>Password</label><input id="account-password" type="password" autocomplete="current-password" placeholder="Your account password"></div>
+        <button class="btn btn-w btn-full" onclick="loginFamilyAccount()">Sign In to Account</button>
+        <div style="display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--silver3);font-size:11px;text-transform:uppercase;letter-spacing:1px;"><span style="height:1px;background:var(--border2);flex:1;"></span>or use your PIN<span style="height:1px;background:var(--border2);flex:1;"></span></div>
+        <div class="fg"><label>Player Name</label><input id="p-name" type="text" autocomplete="name" placeholder="Sarah Johnson"></div>
         <div class="fg"><label>Team</label><select id="p-team"><option value="10U">10U Team Rollin</option><option value="12U">12U Team Rollin</option><option value="14U">14U Team Rollin</option><option value="16U">16U Team Rollin</option></select></div>
-        <div class="fg"><label>PIN</label><input id="p-pin" type="text" inputmode="numeric" maxlength="6" placeholder="PIN"></div>
-        <button class="btn btn-w btn-full" onclick="loginPlayer()">Sign In</button>
-        <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;">No account? Click <strong>Request Access</strong> above.</p>
+        <div class="fg"><label>Six-Digit PIN</label><input id="p-pin" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div>
+        <button class="btn btn-g btn-full" onclick="loginPlayer()">Sign In with PIN</button>
+        <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;">No account? Click <strong>Create Account</strong> above.</p>
       </div>
       <div id="player-request" style="display:none">
-        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Fill this out and Coach Jaz will review your request. You'll get a PIN when approved.</p>
-        <div class="fg"><label>Player Name</label><input id="req-name" type="text" placeholder="Full name"></div>
-        <div class="fg"><label>Team</label><select id="req-team"><option value="10U">10U Team Rollin</option><option value="12U">12U Team Rollin</option><option value="14U">14U Team Rollin</option><option value="16U">16U Team Rollin</option></select></div>
-        <div class="fg"><label>Parent Email</label><input id="req-email" type="email" placeholder="parent@email.com"></div>
-        <div class="fg"><label>Parent Name</label><input id="req-parent" type="text" placeholder="Parent name"></div>
-        <button class="btn btn-w btn-full" onclick="submitRequest()">Send Request</button>
+        <div id="account-create-form">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Create your family account and receive a website PIN immediately. Coach Jaz receives an email to review each new account.</p>
+          <div class="fg"><label>Player Name</label><input id="req-name" type="text" autocomplete="name" placeholder="Full name"></div>
+          <div class="fg"><label>Team</label><select id="req-team"><option value="10U">10U Team Rollin</option><option value="12U">12U Team Rollin</option><option value="14U">14U Team Rollin</option><option value="16U">16U Team Rollin</option></select></div>
+          <div class="fg"><label>Parent Name</label><input id="req-parent" type="text" autocomplete="name" placeholder="Parent name"></div>
+          <div class="fg"><label>Parent Email</label><input id="req-email" type="email" autocomplete="email" placeholder="parent@email.com"></div>
+          <div class="fg"><label>Create Password</label><input id="req-password" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters"></div>
+          <div class="fg"><label>Confirm Password</label><input id="req-password-confirm" type="password" autocomplete="new-password" minlength="8" placeholder="Enter it again"></div>
+          <button class="btn btn-w btn-full" id="account-create-btn" onclick="submitAccount()">Create Account &amp; Get PIN</button>
+          <p id="account-create-note" style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;">Your account is approved automatically.</p>
+        </div>
+        <div id="account-pin-result" style="display:none;text-align:center;padding:8px 0;">
+          <div style="font-size:34px;margin-bottom:8px;">✅</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;text-transform:uppercase;">Account Ready</div>
+          <p style="font-size:13px;color:var(--muted);line-height:1.6;margin:8px 0 14px;">Save this PIN. It is shown only once and can be used to sign in.</p>
+          <div id="issued-pin" style="font-family:'DM Mono',monospace;font-size:34px;font-weight:700;letter-spacing:8px;background:var(--black);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:16px;"></div>
+          <button class="btn btn-w btn-full" onclick="finishFamilySignup()">Enter Family Website</button>
+        </div>
       </div>
     </div>
     <div id="id-coach" style="display:none">
@@ -1189,6 +1205,7 @@ var coachFilter = 'all';
 var isCoach = false;
 var pendingPage = null;
 var approvingId = null;
+var pendingFamilyAccount = null;
 
 var PROTECTED = ['checklist','lessons'];
 var DEFAULT_TOURNEYS = [
@@ -1658,6 +1675,24 @@ async function sbSaveMembers() {
     if(members.length) await sb.from('members').insert(members.map(function(m){ return {id:m.id,name:m.name,team:m.team,parent_email:m.parentEmail,parent_name:m.parentName,status:m.status,pin:m.pin||''}; }));
   } catch(e){ console.error('sbSaveMembers',e); }
 }
+
+async function fetchFamilyAccounts() {
+  try {
+    var response = await fetch('/api/family-accounts', {cache:'no-store'});
+    if(!response.ok) return;
+    var accounts = await response.json();
+    if(!Array.isArray(accounts)) return;
+    var accountKeys = {};
+    accounts.forEach(function(account){ accountKeys[(account.name||'').toLowerCase()+'|'+account.team] = true; });
+    members = members.filter(function(member){
+      var key = (member.name||'').toLowerCase()+'|'+member.team;
+      return member.source !== 'netlify' && !accountKeys[key];
+    }).concat(accounts);
+    save(MEMBERS_KEY, members);
+    updatePendingBadge();
+    if(identity && identity.type==='coach') renderMembersPanel();
+  } catch(e) { console.error('Family account sync failed', e); }
+}
 async function sbSaveTourneys() {
   if(!sb) return;
   try {
@@ -1783,26 +1818,57 @@ function playerSub(tab, el) {
   document.getElementById('player-request').style.display = tab==='request' ? 'block' : 'none';
 }
 
-function loginPlayer() {
-  var name = document.getElementById('p-name').value.trim();
-  var team = document.getElementById('p-team').value;
-  var pin = document.getElementById('p-pin').value.trim();
-  if(!name || !pin) { toast('Enter your name and PIN','err'); return; }
-  var member = members.find(function(m){ return m.name.toLowerCase()===name.toLowerCase() && m.team===team && m.status==='approved' && m.pin===pin; });
-  if(!member) {
-    var pending = members.find(function(m){ return m.name.toLowerCase()===name.toLowerCase() && m.team===team && m.status==='pending'; });
-    toast(pending ? 'Your request is pending approval' : 'Name, team, or PIN not found','err');
-    return;
-  }
-  identity = {type:'player', name:member.name, team:member.team};
+function completePlayerLogin(account, message) {
+  identity = {type:'player', name:account.name, team:account.team, accountId:account.identityUserId||account.id};
   save(ID_KEY, identity);
   closeModal('modal-id');
   updateAuthUI();
   if(typeof renderSlots==='function') renderSlots();
   if(typeof renderPitchSlots==='function') renderPitchSlots();
   if(typeof renderDefSlots==='function') renderDefSlots();
-  toast('Welcome back, '+member.name+'!','ok');
+  toast(message || ('Welcome back, '+account.name+'!'),'ok');
   if(pendingPage) { go(pendingPage); pendingPage=null; }
+}
+
+async function loginFamilyAccount() {
+  var email = document.getElementById('account-email').value.trim();
+  var password = document.getElementById('account-password').value;
+  if(!email || !password) { toast('Enter your email and password','err'); return; }
+  try {
+    var response = await fetch('/api/family-accounts?action=login', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:email,password:password})
+    });
+    var data = await response.json();
+    if(!response.ok) throw new Error(data.error || 'Sign in failed');
+    completePlayerLogin(data.account);
+  } catch(e) { toast(e.message || 'Sign in failed','err'); }
+}
+
+async function loginPlayer() {
+  var name = document.getElementById('p-name').value.trim();
+  var team = document.getElementById('p-team').value;
+  var pin = document.getElementById('p-pin').value.trim();
+  if(!name || !pin) { toast('Enter your name and PIN','err'); return; }
+  var member = members.find(function(m){ return m.name.toLowerCase()===name.toLowerCase() && m.team===team && m.status==='approved' && m.pin===pin; });
+  if(member) {
+    completePlayerLogin(member);
+    return;
+  }
+  try {
+    var response = await fetch('/api/family-accounts?action=verify-pin', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({playerName:name,playerTeam:team,pin:pin})
+    });
+    var data = await response.json();
+    if(!response.ok) throw new Error(data.error || 'Name, team, or PIN not found');
+    completePlayerLogin(data.account);
+  } catch(e) {
+    var pending = members.find(function(m){ return m.name.toLowerCase()===name.toLowerCase() && m.team===team && m.status==='pending'; });
+    toast(pending ? 'Your request is pending approval' : (e.message || 'Name, team, or PIN not found'),'err');
+  }
 }
 
 function loginCoach() {
@@ -1820,24 +1886,51 @@ function loginCoach() {
   if(pendingPage) { go(pendingPage); pendingPage=null; }
 }
 
-function submitRequest() {
+async function submitAccount() {
   var name = document.getElementById('req-name').value.trim();
   var team = document.getElementById('req-team').value;
   var email = document.getElementById('req-email').value.trim();
   var parent = document.getElementById('req-parent').value.trim();
-  if(!name||!email||!parent) { toast('Fill in all fields','err'); return; }
-  var existing = members.find(function(m){ return m.name.toLowerCase()===name.toLowerCase() && m.team===team; });
-  if(existing) { toast(existing.status==='approved' ? 'Already approved — use Sign In' : 'Already submitted','err'); return; }
-  members.push({id:uid(), name:name, team:team, parentEmail:email, parentName:parent, status:'pending', pin:'', createdAt:new Date().toISOString()});
-  save(MEMBERS_KEY, members); sbSaveMembers();
-  closeModal('modal-id');
-  toast('Request sent! Coach Jaz will review it soon.','ok');
-  updatePendingBadge();
-  // Notify coaches of new member request
-  sendNotification(
-    'Team Rollin: New Member Request — ' + name,
-    'A new member request has been submitted.\n\nPlayer: ' + name + '\nTeam: ' + team + '\nParent: ' + parent + '\nParent Email: ' + email + '\n\nLog in to teamrollinsoftball.net to approve or deny this request.'
-  );
+  var password = document.getElementById('req-password').value;
+  var passwordConfirm = document.getElementById('req-password-confirm').value;
+  var note = document.getElementById('account-create-note');
+  var button = document.getElementById('account-create-btn');
+  if(!name||!email||!parent||!password||!passwordConfirm) { toast('Fill in all fields','err'); return; }
+  if(password.length < 8) { toast('Password must be at least 8 characters','err'); return; }
+  if(password !== passwordConfirm) { toast('Passwords do not match','err'); return; }
+  button.disabled = true;
+  button.textContent = 'Creating Account…';
+  note.textContent = 'Creating your secure account and PIN…';
+  try {
+    var response = await fetch('/api/family-accounts?action=register', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({playerName:name,playerTeam:team,parentName:parent,email:email,password:password})
+    });
+    var data = await response.json();
+    if(!response.ok) throw new Error(data.error || 'Account could not be created');
+    pendingFamilyAccount = data.account;
+    document.getElementById('issued-pin').textContent = data.pin;
+    document.getElementById('account-create-form').style.display = 'none';
+    document.getElementById('account-pin-result').style.display = 'block';
+    members = members.filter(function(member){ return member.id !== data.account.id; });
+    members.push(data.account);
+    save(MEMBERS_KEY, members);
+  } catch(e) {
+    note.textContent = e.message || 'Account could not be created. Please try again.';
+    note.style.color = 'var(--red)';
+    toast(note.textContent,'err');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Create Account & Get PIN';
+  }
+}
+
+function finishFamilySignup() {
+  if(!pendingFamilyAccount) return;
+  var account = pendingFamilyAccount;
+  pendingFamilyAccount = null;
+  completePlayerLogin(account, 'Account created. Welcome, '+account.name+'!');
 }
 
 function logout() {
@@ -2667,6 +2760,11 @@ function denyMember(id) {
   save(MEMBERS_KEY, members); sbSaveMembers(); renderMembersPanel(); updatePendingBadge(); toast('Denied','');
 }
 function deleteMember(id) {
+  var account = members.find(function(x){ return x.id===id; });
+  if(account && account.source==='netlify') {
+    alert('This is a family account. Delete the user from the Netlify Identity dashboard to revoke access and remove the website record.');
+    return;
+  }
   if(!confirm('Remove this member?')) return;
   members = members.filter(function(x){ return x.id!==id; });
   save(MEMBERS_KEY, members); sbSaveMembers(); renderMembersPanel(); updatePendingBadge(); toast('Removed','');
@@ -2675,6 +2773,10 @@ function deleteMember(id) {
 function openEditMember(id) {
   var m = members.find(function(x){ return x.id===id; });
   if(!m) return;
+  if(m.source==='netlify') {
+    alert('Family account details are managed through Netlify Identity. Delete the Identity user if this family should not have access.');
+    return;
+  }
   document.getElementById('em-id').value = m.id;
   document.getElementById('em-name').value = m.name || '';
   document.getElementById('em-team').value = m.team || '12U';
@@ -3714,10 +3816,10 @@ renderRoster('10U');
 renderRoster('12U');
 renderRoster('14U');
 renderRoster('16U');
-// Sync latest data from Supabase in background
-syncFromSupabase();
+// Sync latest data from shared services in background
+syncFromSupabase().then(fetchFamilyAccounts);
 // Periodic refresh every 5 minutes so all users see consistent data
-setInterval(function(){ syncFromSupabase(); }, 300000);
+setInterval(function(){ syncFromSupabase().then(fetchFamilyAccounts); }, 300000);
 
 // Set images
 var lionImg = document.getElementById('lion-img');
