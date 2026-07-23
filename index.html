@@ -240,6 +240,26 @@ footer a{color:var(--silver2);}
 /* EMPTY */
 .empty{text-align:center;padding:28px;color:var(--muted);font-size:13px;}
 
+/* ORGANIZATION CALENDAR */
+.org-calendar-intro{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.55;}
+.org-calendar-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px;padding:14px;background:var(--black);border:1px solid var(--border);border-radius:10px;}
+.org-calendar-filter-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--silver2);margin-bottom:9px;}
+.org-calendar-filters{display:flex;gap:8px;flex-wrap:wrap;}
+.org-calendar-toggle{--team-color:var(--silver);display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:8px 13px;border:1px solid var(--border2);border-radius:7px;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;transition:transform .15s,border-color .15s,background .15s,color .15s;}
+.org-calendar-toggle::before{content:'';width:9px;height:9px;border:2px solid var(--team-color);border-radius:2px;background:transparent;transition:background .15s,box-shadow .15s;}
+.org-calendar-toggle:hover{transform:translateY(-1px);border-color:var(--silver3);color:var(--white);}
+.org-calendar-toggle:focus-visible,.org-calendar-show-all:focus-visible{outline:2px solid var(--white);outline-offset:3px;}
+.org-calendar-toggle[aria-pressed="true"]{background:var(--black4);border-color:var(--team-color);color:var(--white);box-shadow:inset 0 -2px 0 var(--team-color);}
+.org-calendar-toggle[aria-pressed="true"]::before{background:var(--team-color);box-shadow:0 0 0 2px rgba(242,240,238,.08);}
+.org-calendar-show-all{padding:8px 12px;border:0;background:transparent;color:var(--silver2);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;text-decoration:underline;text-underline-offset:4px;cursor:pointer;transition:color .15s;}
+.org-calendar-show-all:hover{color:var(--white);}
+.org-calendar-frame{position:relative;width:100%;overflow:hidden;border:1px solid var(--border2);border-radius:10px;background:var(--white);}
+.org-calendar-frame iframe{width:100%;height:70vh;min-height:620px;border:0;display:block;}
+.org-calendar-empty{display:none;min-height:360px;align-items:center;justify-content:center;padding:40px;text-align:center;background:var(--black2);}
+.org-calendar-empty.visible{display:flex;}
+.org-calendar-empty-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:24px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.org-calendar-empty-copy{font-size:13px;color:var(--muted);line-height:1.5;}
+
 @media(max-width:780px){
   .grid2,.coach-grid,.contact-grid,.about-grid,.staff-grid,.store-grid{grid-template-columns:1fr;}
   .c-stats{grid-template-columns:1fr 1fr;}
@@ -251,6 +271,12 @@ footer a{color:var(--silver2);}
   .nav-links a,.nav-links button{padding:16px 0;border-bottom:1px solid var(--border);font-size:18px;width:100%;text-align:left;}
   .nav-links .nav-btn{margin-top:16px;width:100%;text-align:center;justify-content:center;}
   .ham-btn{display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--border2);color:var(--white);width:36px;height:36px;border-radius:6px;font-size:18px;cursor:pointer;}
+  .org-calendar-toolbar{align-items:stretch;}
+  .org-calendar-toolbar>div{width:100%;}
+  .org-calendar-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}
+  .org-calendar-toggle{justify-content:flex-start;width:100%;}
+  .org-calendar-show-all{align-self:flex-start;text-align:left;padding-left:0;}
+  .org-calendar-frame iframe{height:72vh;min-height:560px;}
 }
 @media(min-width:641px){
   .ham-btn{display:none;}
@@ -317,7 +343,7 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
     <a onclick="go('creed');closeMob()">Our Creed</a>
     <a onclick="go('store');closeMob()">Store</a>
     <a onclick="go('checklist');closeMob()" id="nav-checklist" style="display:none">TR Families</a>
-    <a onclick="go('lessons');closeMob()" id="nav-lessons" style="display:none">Lessons</a>
+    <a onclick="go('lessons');closeMob()" id="nav-lessons" style="display:none">Calendars</a>
     <a onclick="go('contact');closeMob()">Contact</a>
     <button class="nav-btn" onclick="openModal('modal-id');closeMob()" id="signin-btn">Sign In</button>
     <button class="nav-btn" id="signout-btn" style="display:none;background:transparent;color:var(--muted);border:1px solid var(--border2);" onclick="logout();closeMob()">Sign Out</button>
@@ -727,7 +753,7 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
 
 <!-- LESSONS (requires login) -->
 <div class="page" id="page-lessons">
-  <div class="sec-head"><span class="eyebrow">Team Portal</span><h2 class="sec-title">Lessons</h2></div>
+  <div class="sec-head"><span class="eyebrow">Team Portal</span><h2 class="sec-title">Calendars</h2></div>
 
   <!-- Scheduling Notices -->
   <div style="padding:0 5%;margin-bottom:18px;">
@@ -742,15 +768,15 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
   <!-- Main Lesson Tabs -->
   <div style="padding:0 5%;margin-bottom:0;border-bottom:1px solid var(--border);">
     <div style="display:flex;gap:0;">
-      <button onclick="lessonTab('lessons-sched',this)" id="ltab-lessons-sched" style="padding:14px 24px;border:none;border-bottom:3px solid var(--scarlet);background:transparent;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Lessons Schedule</button>
-      <button onclick="lessonTab('org-sched',this)" id="ltab-org-sched" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Organization Schedule</button>
+      <button onclick="lessonTab('org-sched',this)" id="ltab-org-sched" style="padding:14px 24px;border:none;border-bottom:3px solid var(--scarlet);background:transparent;color:var(--white);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Organization Schedule</button>
+      <button onclick="lessonTab('lessons-sched',this)" id="ltab-lessons-sched" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Lessons Schedule</button>
       <button onclick="lessonTab('members',this)" id="ltab-members" style="padding:14px 24px;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;display:none;">Members</button>
     </div>
   </div>
 
   <div class="sec">
     <!-- LESSONS SCHEDULE SECTION -->
-    <div id="lsec-lessons-sched">
+    <div id="lsec-lessons-sched" style="display:none;">
       <div class="card">
         <div class="card-head"><div class="card-title">Lessons Schedule</div></div>
         <div class="card-body">
@@ -763,13 +789,32 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
     </div>
 
     <!-- ORGANIZATION SCHEDULE SECTION -->
-    <div id="lsec-org-sched" style="display:none;">
+    <div id="lsec-org-sched">
       <div class="card">
         <div class="card-head"><div class="card-title">Organization Schedule</div></div>
         <div class="card-body">
-          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;">Live view of the full organization schedule. This updates automatically as the schedule changes.</p>
-          <div style="position:relative;width:100%;overflow:hidden;border:1px solid var(--border2);border-radius:8px;">
-            <iframe src="https://docs.google.com/spreadsheets/d/1L_r9EqUYY_5Hs_mi9bB0eE0Hwo4rqo7L/preview?gid=935964933#gid=935964933" style="width:100%;height:70vh;min-height:520px;border:0;display:block;" loading="lazy" title="Organization Schedule"></iframe>
+          <p class="org-calendar-intro">View calendars together or select the calendars you want to see. Calendar updates appear automatically.</p>
+          <div class="org-calendar-toolbar" aria-label="Organization calendar filters">
+            <div>
+              <div class="org-calendar-filter-label">Calendars in view</div>
+              <div class="org-calendar-filters">
+                <button class="org-calendar-toggle" type="button" data-calendar-id="tr-org" aria-pressed="true" style="--team-color:#e5182b;">TR Org</button>
+                <button class="org-calendar-toggle" type="button" data-calendar-id="10u" aria-pressed="true" style="--team-color:#4a7fff;">10U</button>
+                <button class="org-calendar-toggle" type="button" data-calendar-id="12u" aria-pressed="true" style="--team-color:#b780d9;">12U</button>
+                <button class="org-calendar-toggle" type="button" data-calendar-id="14" aria-pressed="true" style="--team-color:#f2f0ee;">14</button>
+                <button class="org-calendar-toggle" type="button" data-calendar-id="16u" aria-pressed="true" style="--team-color:#35b8ad;">16U</button>
+              </div>
+            </div>
+            <button class="org-calendar-show-all" type="button" onclick="showAllOrgCalendars()">Show all calendars</button>
+          </div>
+          <div class="org-calendar-frame">
+            <iframe id="org-calendar-iframe" src="https://calendar.google.com/calendar/embed?src=c_14f69ee0f9c6953eeeb110f4ac46893b165a9acaccf2d3deb94d1577330e5396%40group.calendar.google.com&amp;src=c_434c7837e22ef210c9e2198561db7600e8feb5f643778a0c121ead1aaedd374d%40group.calendar.google.com&amp;src=c_c59d066f659c078f39a34d299adc93e7fa231d72fed6a145987c0aa6825c1337%40group.calendar.google.com&amp;src=c_3b4d9149ff15bff8b55852383ba9f9aad3b166f7e83f28918c951e5ddca3a8dc%40group.calendar.google.com&amp;src=c_742230e21e365b6e690ed332db7686692bc18c237d50a884b4d2ccebe7cbdba6%40group.calendar.google.com&amp;ctz=America%2FChicago&amp;showTitle=0&amp;showCalendars=0&amp;showTz=0" loading="lazy" title="Organization Schedule — TR Org, 10U, 12U, 14, and 16U"></iframe>
+            <div class="org-calendar-empty" id="org-calendar-empty" role="status">
+              <div>
+                <div class="org-calendar-empty-title">No calendars selected</div>
+                <div class="org-calendar-empty-copy">Choose a team above to add its schedule back to the calendar.</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1665,7 +1710,7 @@ function go(page) {
   var el = document.getElementById('page-'+page);
   if (el) el.classList.add('active');
   window.scrollTo(0,0);
-  if (page === 'lessons') { renderMembersPanel(); updateAuthUI(); lessonTab('lessons-sched', document.getElementById('ltab-lessons-sched')); }
+  if (page === 'lessons') { renderMembersPanel(); updateAuthUI(); lessonTab('org-sched', document.getElementById('ltab-org-sched')); }
   if (page === 'schedule') renderTourneys();
   if (page === 'teams') { renderRoster('10U'); renderRoster('12U'); renderRoster('14U'); renderRoster('16U'); }
 }
@@ -3270,6 +3315,57 @@ function openDefCoachBook(id){
   approved.forEach(function(m){var opt=document.createElement('option');opt.value=m.name+'|'+m.team;opt.textContent=m.name+' ('+m.team+')';sel.appendChild(opt);});
   openModal('modal-cbook');
 }
+
+var ORG_CALENDARS = [
+  { id:'tr-org', label:'TR Org', calendar:'c_14f69ee0f9c6953eeeb110f4ac46893b165a9acaccf2d3deb94d1577330e5396@group.calendar.google.com' },
+  { id:'10u', label:'10U', calendar:'c_434c7837e22ef210c9e2198561db7600e8feb5f643778a0c121ead1aaedd374d@group.calendar.google.com' },
+  { id:'12u', label:'12U', calendar:'c_c59d066f659c078f39a34d299adc93e7fa231d72fed6a145987c0aa6825c1337@group.calendar.google.com' },
+  { id:'14', label:'14', calendar:'c_3b4d9149ff15bff8b55852383ba9f9aad3b166f7e83f28918c951e5ddca3a8dc@group.calendar.google.com' },
+  { id:'16u', label:'16U', calendar:'c_742230e21e365b6e690ed332db7686692bc18c237d50a884b4d2ccebe7cbdba6@group.calendar.google.com' }
+];
+
+function updateOrgCalendar() {
+  var frame = document.getElementById('org-calendar-iframe');
+  var empty = document.getElementById('org-calendar-empty');
+  if(!frame || !empty) return;
+  var selected = ORG_CALENDARS.filter(function(cal) {
+    var button = document.querySelector('[data-calendar-id="'+cal.id+'"]');
+    return button && button.getAttribute('aria-pressed') === 'true';
+  });
+  if(!selected.length) {
+    frame.style.display = 'none';
+    empty.classList.add('visible');
+    return;
+  }
+  var params = new URLSearchParams();
+  selected.forEach(function(cal) { params.append('src', cal.calendar); });
+  params.set('ctz', 'America/Chicago');
+  params.set('showTitle', '0');
+  params.set('showCalendars', '0');
+  params.set('showTz', '0');
+  var nextSrc = 'https://calendar.google.com/calendar/embed?' + params.toString();
+  if(frame.src !== nextSrc) frame.src = nextSrc;
+  frame.title = 'Organization Schedule — ' + selected.map(function(cal) { return cal.label; }).join(', ');
+  frame.style.display = 'block';
+  empty.classList.remove('visible');
+}
+
+function toggleOrgCalendar(button) {
+  var isActive = button.getAttribute('aria-pressed') === 'true';
+  button.setAttribute('aria-pressed', isActive ? 'false' : 'true');
+  updateOrgCalendar();
+}
+
+function showAllOrgCalendars() {
+  document.querySelectorAll('.org-calendar-toggle').forEach(function(button) {
+    button.setAttribute('aria-pressed', 'true');
+  });
+  updateOrgCalendar();
+}
+
+document.querySelectorAll('.org-calendar-toggle').forEach(function(button) {
+  button.addEventListener('click', function() { toggleOrgCalendar(button); });
+});
 
 function lessonTab(tab, el) {
   ['lessons-sched','org-sched','members'].forEach(function(t) {
