@@ -3,7 +3,7 @@ import type { Config, Context } from '@netlify/functions'
 
 const STORE_NAME = 'tr-families-content'
 const BLOB_KEY = 'cards.json'
-const ALLOWED_TAGS = /^(a|b|strong|i|em|u|ul|ol|li|br|span|p|div)$/i
+const ALLOWED_TAGS = /^(a|b|strong|i|em|u|ul|ol|li|br|span|p|div|h2|h3)$/i
 
 type CardMap = Record<string, string>
 

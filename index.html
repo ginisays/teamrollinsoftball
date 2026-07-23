@@ -263,25 +263,51 @@ footer a{color:var(--silver2);}
 .onboarding-faqs-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;}
 .onboarding-faqs-frame{display:block;width:100%;height:75vh;min-height:680px;border:1px solid var(--border2);border-radius:10px;background:var(--white);}
 
-@media(max-width:780px){
-  .grid2,.coach-grid,.contact-grid,.about-grid,.staff-grid,.store-grid{grid-template-columns:1fr;}
-  .c-stats{grid-template-columns:1fr 1fr;}
-  .form-row{grid-template-columns:1fr;}
-}
-@media(max-width:640px){
-  .nav-links{display:none;flex-direction:column;position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(8,8,8,.98);padding:24px 5%;z-index:99;gap:0;}
+/* BIG / LITTLE SISTER */
+.sister-page{position:relative;overflow:hidden;min-height:calc(100vh - 60px);}
+.sister-page::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(229,24,43,.09),transparent 38%),radial-gradient(circle at 82% 18%,rgba(74,127,255,.12),transparent 30%);pointer-events:none;}
+.sister-page .sec-head,.sister-page .sec{position:relative;z-index:1;}
+.sister-intro{max-width:920px;margin:0 auto 28px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:34px;}
+.sister-role{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(30px,5vw,56px);line-height:.9;text-transform:uppercase;letter-spacing:1px;}
+.sister-role:first-child{text-align:right;color:var(--white);}
+.sister-role:last-child{color:#7fa2ff;}
+.sister-card{max-width:920px;margin:0 auto;border-color:rgba(242,240,238,.2);box-shadow:0 28px 90px rgba(0,0,0,.35);}
+.sister-card .card-head{padding:18px 22px;background:linear-gradient(90deg,rgba(229,24,43,.11),transparent 55%);}
+.sister-card .card-title{font-size:18px;letter-spacing:2px;}
+.sister-content{min-height:420px;padding:34px 38px;font-size:17px;line-height:1.8;color:var(--silver);}
+.sister-content h2,.sister-content h3{font-family:'Barlow Condensed',sans-serif;font-weight:900;text-transform:uppercase;color:var(--white);letter-spacing:1px;line-height:1.05;margin:8px 0 14px;}
+.sister-content h2{font-size:34px;}.sister-content h3{font-size:25px;}
+.sister-content p{margin:0 0 18px;}.sister-content p:last-child{margin-bottom:0;}
+.sister-content ul,.sister-content ol{margin:0 0 20px;padding-left:24px;}
+.sister-content li{padding:3px 0;font-size:16px;line-height:1.65;}
+.sister-admin-note{display:none;max-width:920px;margin:14px auto 0;color:var(--silver2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-align:center;text-transform:uppercase;}
+body.is-fam-coach .sister-admin-note{display:block;}
+
+@media(max-width:1120px){
+  .nav-links{display:none;flex-direction:column;position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(8,8,8,.98);padding:24px 5%;z-index:99;gap:0;overflow-y:auto;}
   .nav-links.open{display:flex;}
   .nav-links a,.nav-links button{padding:16px 0;border-bottom:1px solid var(--border);font-size:18px;width:100%;text-align:left;}
   .nav-links .nav-btn{margin-top:16px;width:100%;text-align:center;justify-content:center;}
   .ham-btn{display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--border2);color:var(--white);width:36px;height:36px;border-radius:6px;font-size:18px;cursor:pointer;}
+}
+@media(max-width:780px){
+  .grid2,.coach-grid,.contact-grid,.about-grid,.staff-grid,.store-grid{grid-template-columns:1fr;}
+  .c-stats{grid-template-columns:1fr 1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .sister-intro{grid-template-columns:1fr;text-align:center;gap:12px;}
+  .sister-role:first-child,.sister-role:last-child{text-align:center;}
+}
+@media(max-width:640px){
   .org-calendar-toolbar{align-items:stretch;}
   .org-calendar-toolbar>div{width:100%;}
   .org-calendar-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}
   .org-calendar-toggle{justify-content:flex-start;width:100%;}
   .org-calendar-show-all{align-self:flex-start;text-align:left;padding-left:0;}
   .org-calendar-frame iframe{height:72vh;min-height:560px;}
+  .sister-page .sec{padding-top:38px;}
+  .sister-content{min-height:360px;padding:26px 22px;font-size:16px;}
 }
-@media(min-width:641px){
+@media(min-width:1121px){
   .ham-btn{display:none;}
 }
 .editable-card .card-head{padding-right:14px;}
@@ -302,6 +328,7 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
 .card-body[data-card-id] li{padding:3px 0;font-size:13px;line-height:1.45;}
 .card-body[data-card-id] a{color:var(--silver);text-decoration:underline;}
 .card-body[data-card-id] li::marker{color:var(--scarlet);}
+.card-body.sister-content[data-card-id] li{font-size:16px;line-height:1.65;}
 
 /* CREED */
 .creed-wrap{max-width:720px;margin:0 auto;}
@@ -344,6 +371,7 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
     <a onclick="go('schedule');closeMob()">Schedule</a>
     <a onclick="go('coach');closeMob()">About Us</a>
     <a onclick="go('creed');closeMob()">Our Creed</a>
+    <a onclick="go('sisters');closeMob()">Big/Little Sister</a>
     <a onclick="go('store');closeMob()">Store</a>
     <a onclick="go('checklist');closeMob()" id="nav-checklist" style="display:none">Player Onboarding</a>
     <a onclick="go('lessons');closeMob()" id="nav-lessons" style="display:none">Calendars</a>
@@ -882,6 +910,26 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- BIG / LITTLE SISTER -->
+<div class="page sister-page" id="page-sisters">
+  <div class="sec-head"><span class="eyebrow">Stronger Together</span><h2 class="sec-title">Big / Little Sister</h2></div>
+  <div class="sec">
+    <div class="sister-intro" aria-hidden="true">
+      <div class="sister-role">Big Sister</div>
+      <div class="sister-role">Little Sister</div>
+    </div>
+    <div class="card editable-card sister-card" data-card-key="big-little-sister-program">
+      <div class="card-head"><div class="card-title">Program Information</div></div>
+      <div class="card-body sister-content" data-card-id="big-little-sister-program" data-editor-mode="rich-text">
+        <h2>Growing Together, On and Off the Field</h2>
+        <p>Use this space to share details about the Team Rollin Big/Little Sister program, including how players are paired, what participants can expect, and how families can get involved.</p>
+        <p>Coaches can sign in, select <strong>Edit</strong>, and replace this text with the full program information.</p>
+      </div>
+    </div>
+    <div class="sister-admin-note">Admin editing is active · Select Edit above to update this page</div>
   </div>
 </div>
 
@@ -4195,7 +4243,7 @@ document.addEventListener('click', function(e) {
     if(!body || body._famEditing) return;
     body._famEditing = true;
     body._famPrev = body.innerHTML;
-    chkBodyToList(body);
+    if(body.getAttribute('data-editor-mode') !== 'rich-text') chkBodyToList(body);
     body.contentEditable = 'true';
     body.classList.add('editable-card-body--editing');
 
