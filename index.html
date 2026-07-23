@@ -259,6 +259,9 @@ footer a{color:var(--silver2);}
 .org-calendar-empty.visible{display:flex;}
 .org-calendar-empty-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:24px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
 .org-calendar-empty-copy{font-size:13px;color:var(--muted);line-height:1.5;}
+.onboarding-faqs{width:min(100% - 10%,960px);margin:48px auto 0;text-align:center;}
+.onboarding-faqs-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;}
+.onboarding-faqs-frame{display:block;width:100%;height:75vh;min-height:680px;border:1px solid var(--border2);border-radius:10px;background:var(--white);}
 
 @media(max-width:780px){
   .grid2,.coach-grid,.contact-grid,.about-grid,.staff-grid,.store-grid{grid-template-columns:1fr;}
@@ -342,7 +345,7 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
     <a onclick="go('coach');closeMob()">About Us</a>
     <a onclick="go('creed');closeMob()">Our Creed</a>
     <a onclick="go('store');closeMob()">Store</a>
-    <a onclick="go('checklist');closeMob()" id="nav-checklist" style="display:none">TR Families</a>
+    <a onclick="go('checklist');closeMob()" id="nav-checklist" style="display:none">Player Onboarding</a>
     <a onclick="go('lessons');closeMob()" id="nav-lessons" style="display:none">Calendars</a>
     <a onclick="go('contact');closeMob()">Contact</a>
     <button class="nav-btn" onclick="openModal('modal-id');closeMob()" id="signin-btn">Sign In</button>
@@ -511,13 +514,7 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
 
 <!-- NEW MEMBERS (requires login) -->
 <div class="page" id="page-checklist">
-  <div class="sec-head"><span class="eyebrow">Team Rollin TX</span><h2 class="sec-title">TR Families</h2></div>
-  <div style="padding:0 5%;margin-bottom:16px;">
-    <a href="https://docs.google.com/spreadsheets/d/1L_r9EqUYY_5Hs_mi9bB0eE0Hwo4rqo7L/edit?gid=935964933#gid=935964933" target="_blank" rel="noopener" style="color:var(--silver);text-decoration:underline;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:32px;letter-spacing:1px;text-transform:uppercase;">25/26 Season Calendar</a>
-  </div>
-  <div style="padding:0 5%;margin-bottom:16px;">
-    <a href="https://docs.google.com/document/d/13LXDpUokiMGbo9Blhb57jKQvc7wehigdGgzULtYze-o/edit?tab=t.0" target="_blank" rel="noopener" style="color:var(--silver);text-decoration:underline;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:32px;letter-spacing:1px;text-transform:uppercase;">FAQs</a>
-  </div>
+  <div class="sec-head"><span class="eyebrow">Team Rollin TX</span><h2 class="sec-title">Player Onboarding</h2></div>
   <div style="padding:0 5%;margin-bottom:16px;">
     <div style="display:flex;gap:4px;flex-wrap:wrap;">
       <button onclick="famTab('10U',this)" id="fam-tab-10U" style="padding:5px 18px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">10U</button>
@@ -749,6 +746,10 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
     </div>
   </div>
   </div>
+  <section class="onboarding-faqs" aria-labelledby="onboarding-faqs-title">
+    <h3 class="onboarding-faqs-title" id="onboarding-faqs-title">FAQs</h3>
+    <iframe class="onboarding-faqs-frame" src="https://docs.google.com/document/d/13LXDpUokiMGbo9Blhb57jKQvc7wehigdGgzULtYze-o/preview?tab=t.0" title="Player Onboarding FAQs" loading="lazy"></iframe>
+  </section>
 </div>
 
 <!-- LESSONS (requires login) -->
