@@ -41,3 +41,17 @@ export const smsQrScans = pgTable("sms_qr_scans", {
   city: text(),
   scannedAt: timestamp("scanned_at").defaultNow(),
 });
+
+export const familyAccounts = pgTable("family_accounts", {
+  id: serial().primaryKey(),
+  identityUserId: text("identity_user_id").notNull().unique(),
+  email: text().notNull().unique(),
+  playerName: text("player_name").notNull(),
+  playerTeam: text("player_team").notNull(),
+  parentName: text("parent_name").notNull(),
+  pinSalt: text("pin_salt").notNull(),
+  pinHash: text("pin_hash").notNull(),
+  status: text().notNull().default("approved"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
