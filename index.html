@@ -147,6 +147,32 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 
 /* TOURNAMENT */
+.tourn-filter-panel{margin-bottom:22px;padding:16px 18px;background:var(--black);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;}
+.tourn-filter-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--silver2);margin-bottom:8px;}
+.tourn-filter-copy{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5;}
+.tourn-filters{display:flex;gap:8px;flex-wrap:wrap;}
+.tourn-filter{--team-color:var(--silver);display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:8px 14px;border:1px solid var(--border2);border-radius:7px;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;transition:transform .15s,border-color .15s,background .15s,color .15s;}
+.tourn-filter::before{content:'';width:10px;height:10px;border:2px solid var(--team-color);border-radius:2px;background:transparent;transition:background .15s,box-shadow .15s;}
+.tourn-filter:hover{transform:translateY(-1px);border-color:var(--silver3);color:var(--white);}
+.tourn-filter:focus-visible,.tourn-show-all:focus-visible{outline:2px solid var(--white);outline-offset:3px;}
+.tourn-filter[aria-pressed="true"]{background:var(--black4);border-color:var(--team-color);color:var(--white);box-shadow:inset 0 -2px 0 var(--team-color);}
+.tourn-filter[aria-pressed="true"]::before{background:var(--team-color);box-shadow:0 0 0 2px rgba(242,240,238,.08);}
+.tourn-filter-actions{display:flex;flex-direction:column;align-items:flex-end;gap:7px;}
+.tourn-filter-status{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--silver3);}
+.tourn-show-all{padding:5px 0;border:0;background:transparent;color:var(--silver2);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;text-decoration:underline;text-underline-offset:4px;cursor:pointer;transition:color .15s;}
+.tourn-show-all:hover{color:var(--white);}
+.tourn-team-fieldset{border:0;margin:0 0 16px;padding:0;}
+.tourn-team-fieldset legend{font-size:10px;color:var(--silver2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
+.tourn-team-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.tourn-team-option{--team-color:var(--silver);position:relative;display:flex;align-items:center;gap:9px;min-height:42px;padding:9px 11px;border:1px solid var(--border2);border-radius:7px;background:var(--black);box-shadow:inset 3px 0 0 var(--team-color);cursor:pointer;transition:border-color .15s,background .15s,transform .15s;}
+.tourn-team-option:hover{transform:translateY(-1px);border-color:var(--team-color);background:var(--black4);}
+.tourn-team-option input{position:absolute;opacity:0;pointer-events:none;}
+.tourn-team-check-box{width:15px;height:15px;border:2px solid var(--team-color);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--black);font-size:11px;font-weight:900;line-height:1;transition:background .15s,box-shadow .15s;}
+.tourn-team-option input:checked+.tourn-team-check-box{background:var(--team-color);box-shadow:0 0 0 2px rgba(242,240,238,.08);}
+.tourn-team-option input:checked+.tourn-team-check-box::after{content:'✓';}
+.tourn-team-option input:focus-visible+.tourn-team-check-box{outline:2px solid var(--white);outline-offset:3px;}
+.tourn-team-option-text{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);}
+.tourn-team-option input:checked~.tourn-team-option-text{color:var(--white);}
 .tourn{background:var(--black3);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:center;margin-bottom:10px;transition:border-color .2s;}
 .tourn:hover{border-color:var(--border2);}
 .t-month{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;color:var(--silver2);text-align:center;}
@@ -298,6 +324,11 @@ body.is-fam-coach .sister-admin-note{display:block;}
   .sister-role:first-child,.sister-role:last-child{text-align:center;}
 }
 @media(max-width:640px){
+  .tourn-filter-panel{align-items:stretch;}
+  .tourn-filter-panel>div{width:100%;}
+  .tourn-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}
+  .tourn-filter{justify-content:flex-start;width:100%;}
+  .tourn-filter-actions{align-items:flex-start;}
   .org-calendar-toolbar{align-items:stretch;}
   .org-calendar-toolbar>div{width:100%;}
   .org-calendar-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}
@@ -368,7 +399,7 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
   <div class="nav-links" id="nav-links">
     <a onclick="go('home');closeMob()">Home</a>
     <a onclick="go('teams');closeMob()">Teams</a>
-    <a onclick="go('schedule');closeMob()">Schedule</a>
+    <a onclick="go('schedule');closeMob()">Tournament Schedule</a>
     <a onclick="go('coach');closeMob()">About Us</a>
     <a onclick="go('creed');closeMob()">Our Creed</a>
     <a onclick="go('sisters');closeMob()">Big/Little Sister</a>
@@ -492,7 +523,25 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
     <div><span class="eyebrow">Game Day</span><h2 class="sec-title">Tournament Schedule</h2></div>
     <button class="btn btn-w btn-sm" id="add-tourn-btn" style="display:none" onclick="openModal('modal-tourn')">+ Add Tournament</button>
   </div>
-  <div class="sec" id="tourn-list"></div>
+  <div class="sec">
+    <div class="tourn-filter-panel" aria-label="Filter tournament schedule by team">
+      <div>
+        <div class="tourn-filter-label">Teams in view</div>
+        <p class="tourn-filter-copy">Select one team, several teams, or all four to personalize the schedule.</p>
+        <div class="tourn-filters">
+          <button class="tourn-filter" type="button" data-tourn-team="10U" aria-pressed="true" style="--team-color:#4a7fff;">10U</button>
+          <button class="tourn-filter" type="button" data-tourn-team="12U" aria-pressed="true" style="--team-color:#b780d9;">12U</button>
+          <button class="tourn-filter" type="button" data-tourn-team="14U" aria-pressed="true" style="--team-color:#f2f0ee;">14U</button>
+          <button class="tourn-filter" type="button" data-tourn-team="16U" aria-pressed="true" style="--team-color:#35b8ad;">16U</button>
+        </div>
+      </div>
+      <div class="tourn-filter-actions">
+        <div class="tourn-filter-status" id="tourn-filter-status" aria-live="polite">Showing all 4 teams</div>
+        <button class="tourn-show-all" type="button" onclick="showAllTournamentTeams()">Show all teams</button>
+      </div>
+    </div>
+    <div id="tourn-list"></div>
+  </div>
 </div>
 
 <!-- COACH -->
@@ -1168,7 +1217,15 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
     <div class="fg"><label>Name</label><input id="et-name" type="text"></div>
     <div class="fg"><label>Date</label><input id="et-date" type="text"></div>
     <div class="fg"><label>Location</label><input id="et-loc" type="text"></div>
-    <div class="fg"><label>Team</label><select id="et-team"><option value="both">Both Teams</option><option value="10U">10U Only</option><option value="12U">12U Only</option><option value="14U">14U Only</option><option value="16U">16U Only</option></select></div>
+    <fieldset class="tourn-team-fieldset" id="et-team-options">
+      <legend>Teams</legend>
+      <div class="tourn-team-checks">
+        <label class="tourn-team-option" style="--team-color:#4a7fff;"><input type="checkbox" value="10U"><span class="tourn-team-check-box"></span><span class="tourn-team-option-text">10U</span></label>
+        <label class="tourn-team-option" style="--team-color:#b780d9;"><input type="checkbox" value="12U"><span class="tourn-team-check-box"></span><span class="tourn-team-option-text">12U</span></label>
+        <label class="tourn-team-option" style="--team-color:#f2f0ee;"><input type="checkbox" value="14U"><span class="tourn-team-check-box"></span><span class="tourn-team-option-text">14U</span></label>
+        <label class="tourn-team-option" style="--team-color:#35b8ad;"><input type="checkbox" value="16U"><span class="tourn-team-check-box"></span><span class="tourn-team-option-text">16U</span></label>
+      </div>
+    </fieldset>
     <div class="fg"><label>Notes</label><input id="et-notes" type="text"></div>
     <div class="fg"><label>Tournament Website Link</label><input id="et-link" type="url" placeholder="https://example.com (optional)"></div>
     <div class="fg"><label>Travel / Lodging Details</label><textarea id="et-travel" rows="4" placeholder="Hotel, address, confirmation #, flight info, etc. (optional)" style="width:100%;resize:vertical;font-family:inherit;"></textarea></div>
@@ -1203,7 +1260,15 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
     <div class="fg"><label>Name</label><input id="t-name" type="text" placeholder="e.g. Texas Spring Classic"></div>
     <div class="fg"><label>Date</label><input id="t-date" type="date"></div>
     <div class="fg"><label>Location</label><input id="t-loc" type="text" placeholder="e.g. Round Rock, TX"></div>
-    <div class="fg"><label>Team</label><select id="t-team"><option value="both">Both Teams</option><option value="10U">10U Only</option><option value="12U">12U Only</option><option value="14U">14U Only</option><option value="16U">16U Only</option></select></div>
+    <fieldset class="tourn-team-fieldset" id="t-team-options">
+      <legend>Teams</legend>
+      <div class="tourn-team-checks">
+        <label class="tourn-team-option" style="--team-color:#4a7fff;"><input type="checkbox" value="10U" checked><span class="tourn-team-check-box"></span><span class="tourn-team-option-text">10U</span></label>
+        <label class="tourn-team-option" style="--team-color:#b780d9;"><input type="checkbox" value="12U" checked><span class="tourn-team-check-box"></span><span class="tourn-team-option-text">12U</span></label>
+        <label class="tourn-team-option" style="--team-color:#f2f0ee;"><input type="checkbox" value="14U" checked><span class="tourn-team-check-box"></span><span class="tourn-team-option-text">14U</span></label>
+        <label class="tourn-team-option" style="--team-color:#35b8ad;"><input type="checkbox" value="16U" checked><span class="tourn-team-check-box"></span><span class="tourn-team-option-text">16U</span></label>
+      </div>
+    </fieldset>
     <div class="fg"><label>Notes</label><input id="t-notes" type="text" placeholder="Optional"></div>
     <div class="fg"><label>Tournament Website Link</label><input id="t-link" type="url" placeholder="https://example.com (optional)"></div>
     <div class="fg"><label>Travel / Lodging Details</label><textarea id="t-travel" rows="4" placeholder="Hotel, address, confirmation #, flight info, etc. (optional)" style="width:100%;resize:vertical;font-family:inherit;"></textarea></div>
@@ -1220,6 +1285,8 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
 <script>
 // ====== STATE ======
 var PW_KEY='tr_pw', ID_KEY='tr_id', SLOTS_KEY='tr_slots', PITCH_KEY='tr_pitch_slots', DEF_KEY='tr_def_slots', HIST_KEY='tr_history', PRAC_KEY='tr_practices', MEMBERS_KEY='tr_members', ROSTER_KEY='tr_roster', TOURN_KEY='tr_tourn';
+var TOURNAMENT_TEAMS = ['10U','12U','14U','16U'];
+var selectedTournamentTeams = TOURNAMENT_TEAMS.slice();
 var COACHES = {
   jaz:    {name:'Coach Jaz',    specialty:'hitting',  pwKey:'tr_pw',        defaultPw:'Rollin',     role:'Hitting · Founder'},
   laurie: {name:'Coach Laurie', specialty:'pitching', pwKey:'tr_pw_laurie', defaultPw:'White',      role:'Pitching'},
@@ -2455,17 +2522,67 @@ async function addBulk() {
 }
 
 // ====== TOURNAMENTS ======
+function getTournamentTeams(tournament) {
+  if(!tournament || !tournament.team || tournament.team==='both' || tournament.team==='all') return TOURNAMENT_TEAMS.slice();
+  if(Array.isArray(tournament.team)) return tournament.team;
+  return String(tournament.team).split(/[,/+&]/).map(function(team){ return team.trim(); }).filter(Boolean);
+}
+
+function getTournamentTeamSelection(containerId) {
+  return Array.from(document.querySelectorAll('#'+containerId+' input[type="checkbox"]:checked')).map(function(input){ return input.value; });
+}
+
+function setTournamentTeamSelection(containerId, teams) {
+  document.querySelectorAll('#'+containerId+' input[type="checkbox"]').forEach(function(input) {
+    input.checked = teams.indexOf(input.value)!==-1;
+  });
+}
+
+function serializeTournamentTeams(teams) {
+  return teams.length===TOURNAMENT_TEAMS.length ? 'both' : teams.join(',');
+}
+
+function updateTournamentFilters() {
+  document.querySelectorAll('[data-tourn-team]').forEach(function(button) {
+    var team = button.getAttribute('data-tourn-team');
+    button.setAttribute('aria-pressed', selectedTournamentTeams.indexOf(team)!==-1 ? 'true' : 'false');
+  });
+  var status = document.getElementById('tourn-filter-status');
+  if(status) {
+    if(selectedTournamentTeams.length===TOURNAMENT_TEAMS.length) status.textContent = 'Showing all 4 teams';
+    else if(!selectedTournamentTeams.length) status.textContent = 'No teams selected';
+    else status.textContent = 'Showing ' + selectedTournamentTeams.join(' + ');
+  }
+}
+
+function toggleTournamentTeam(button) {
+  var team = button.getAttribute('data-tourn-team');
+  var index = selectedTournamentTeams.indexOf(team);
+  if(index===-1) selectedTournamentTeams.push(team);
+  else selectedTournamentTeams.splice(index,1);
+  selectedTournamentTeams.sort(function(a,b){ return TOURNAMENT_TEAMS.indexOf(a)-TOURNAMENT_TEAMS.indexOf(b); });
+  updateTournamentFilters();
+  renderTourneys();
+}
+
+function showAllTournamentTeams() {
+  selectedTournamentTeams = TOURNAMENT_TEAMS.slice();
+  updateTournamentFilters();
+  renderTourneys();
+}
+
 function addTournament() {
   var name = document.getElementById('t-name').value.trim();
   var date = document.getElementById('t-date').value;
   var loc = document.getElementById('t-loc').value.trim();
-  var team = document.getElementById('t-team').value;
+  var teams = getTournamentTeamSelection('t-team-options');
   var notes = document.getElementById('t-notes').value.trim();
   var link = document.getElementById('t-link').value.trim();
   var travel = document.getElementById('t-travel').value.trim();
   if(!name||!date||!loc) { toast('Fill name, date, location','err'); return; }
+  if(!teams.length) { toast('Choose at least one team','err'); return; }
   if(link && !/^https?:\/\//i.test(link)) link = 'https://' + link;
-  tourneys.push({id:uid(), name:name, date:date, location:loc, team:team, notes:notes, link:link, travel:travel});
+  tourneys.push({id:uid(), name:name, date:date, location:loc, team:serializeTournamentTeams(teams), notes:notes, link:link, travel:travel});
   tourneys.sort(function(a,b){ return a.date.localeCompare(b.date); });
   save(TOURN_KEY, tourneys); sbSaveTourneys();
   closeModal('modal-tourn');
@@ -2487,7 +2604,7 @@ function openEditTourn(id) {
   document.getElementById('et-name').value = t.name || '';
   document.getElementById('et-date').value = t.date || '';
   document.getElementById('et-loc').value = t.location || '';
-  document.getElementById('et-team').value = t.team || 'both';
+  setTournamentTeamSelection('et-team-options', getTournamentTeams(t));
   document.getElementById('et-notes').value = t.notes || '';
   document.getElementById('et-link').value = t.link || '';
   document.getElementById('et-travel').value = t.travel || '';
@@ -2505,11 +2622,13 @@ function saveEditTourn() {
   var name = document.getElementById('et-name').value.trim();
   var date = document.getElementById('et-date').value.trim();
   var loc = document.getElementById('et-loc').value.trim();
+  var teams = getTournamentTeamSelection('et-team-options');
   if(!name||!date||!loc) { toast('Fill name, date, location','err'); return; }
+  if(!teams.length) { toast('Choose at least one team','err'); return; }
   var t = tourneys.find(function(x){ return x.id===id; });
   if(!t) return;
   t.name = name; t.date = date; t.location = loc;
-  t.team = document.getElementById('et-team').value;
+  t.team = serializeTournamentTeams(teams);
   t.notes = document.getElementById('et-notes').value.trim();
   var link = document.getElementById('et-link').value.trim();
   if(link && !/^https?:\/\//i.test(link)) link = 'https://' + link;
@@ -2525,13 +2644,22 @@ function renderTourneys() {
   var el = document.getElementById('tourn-list');
   if(!el) return;
   var now = new Date().toISOString().slice(0,10);
-  var upcoming = tourneys.filter(function(t){ return t.date>=now; }).sort(function(a,b){ return a.date.localeCompare(b.date); });
+  var upcoming = tourneys.filter(function(t){
+    if(t.date<now || !selectedTournamentTeams.length) return false;
+    return getTournamentTeams(t).some(function(team){ return selectedTournamentTeams.indexOf(team)!==-1; });
+  }).sort(function(a,b){ return a.date.localeCompare(b.date); });
   var isC = identity && identity.type==='coach';
-  if(!upcoming.length) { el.innerHTML='<div class="empty">No upcoming tournaments scheduled.</div>'; return; }
+  if(!upcoming.length) {
+    var emptyTitle = selectedTournamentTeams.length ? 'No tournaments match those teams.' : 'No teams selected.';
+    var emptyCopy = selectedTournamentTeams.length ? 'Try another team combination or show all teams.' : 'Turn on at least one team to view its tournament schedule.';
+    el.innerHTML='<div class="empty"><strong style="display:block;color:var(--white);margin-bottom:5px;">'+emptyTitle+'</strong>'+emptyCopy+'</div>';
+    return;
+  }
   var html = '';
   upcoming.forEach(function(t) {
     var d = new Date(t.date+'T00:00:00');
-    var tl = t.team==='both' ? '12U + 16U' : t.team;
+    var assignedTeams = getTournamentTeams(t);
+    var tl = assignedTeams.length===TOURNAMENT_TEAMS.length ? 'All Teams' : assignedTeams.join(' + ');
     var safeLink = t.link ? String(t.link).replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : '';
     html += '<div class="tourn">';
     html += '<div><div class="t-month">'+MONTHS[d.getMonth()]+'</div><div class="t-day">'+d.getDate()+'</div><div class="t-month">'+d.getFullYear()+'</div></div>';
@@ -2561,6 +2689,11 @@ function renderTourneys() {
   });
   el.innerHTML = html;
 }
+
+document.querySelectorAll('[data-tourn-team]').forEach(function(button) {
+  button.addEventListener('click', function(){ toggleTournamentTeam(button); });
+});
+updateTournamentFilters();
 function renderRoster(team) {
   var id = 'roster-'+team.toLowerCase();
   var el = document.getElementById(id);
