@@ -1094,6 +1094,7 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
           <option value="jaz">Coach Jaz — Hitting</option>
           <option value="laurie">Coach Laurie — Pitching</option>
           <option value="mo">Coach Mo — Defense</option>
+          <option value="jordan">Coach Jordan — All Programs</option>
           <option value="ed">Executive Director</option>
         </select>
       </div>
@@ -1291,6 +1292,7 @@ var COACHES = {
   jaz:    {name:'Coach Jaz',    specialty:'hitting',  pwKey:'tr_pw',        defaultPw:'Rollin',     role:'Hitting · Founder'},
   laurie: {name:'Coach Laurie', specialty:'pitching', pwKey:'tr_pw_laurie', defaultPw:'White',      role:'Pitching'},
   mo:     {name:'Coach Mo',     specialty:'defense',  pwKey:'tr_pw_mo',     defaultPw:'Miramontez', role:'Defense'},
+  jordan: {name:'Coach Jordan', specialty:'all', passwordDigest:'960bf671c8b52a4ff33193aac00b934515097417e1aeb3a662bb7a77cc3f11b3', role:'All Programs'},
   ed:     {name:'Executive Director', specialty:'all', pwKey:'tr_pw_ed',    defaultPw:'mybitch',    role:'Executive Director'}
 };
 function canManage(area) {
@@ -1986,13 +1988,25 @@ async function loginPlayer() {
   }
 }
 
-function loginCoach() {
+async function passwordDigest(password) {
+  var bytes = new TextEncoder().encode(password);
+  var digest = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest)).map(function(byte){ return byte.toString(16).padStart(2,'0'); }).join('');
+}
+
+async function loginCoach() {
   var who = document.getElementById('c-who').value;
   var coach = COACHES[who];
   if(!coach) { toast('Pick a coach','err'); return; }
   var pw = document.getElementById('c-pw').value;
-  var stored = localStorage.getItem(coach.pwKey) || coach.defaultPw;
-  if(pw !== stored) { toast('Wrong password','err'); return; }
+  var validPassword = false;
+  if(coach.passwordDigest) {
+    validPassword = await passwordDigest(pw) === coach.passwordDigest;
+  } else {
+    var stored = localStorage.getItem(coach.pwKey) || coach.defaultPw;
+    validPassword = pw === stored;
+  }
+  if(!validPassword) { toast('Wrong password','err'); return; }
   identity = {type:'coach', name:coach.name, team:'all', specialty:coach.specialty, role:coach.role};
   save(ID_KEY, identity);
   closeModal('modal-id');
