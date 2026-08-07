@@ -288,6 +288,10 @@ footer a{color:var(--silver2);}
 .onboarding-faqs{width:min(100% - 10%,960px);margin:48px auto 0;text-align:center;}
 .onboarding-faqs-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;}
 .onboarding-faqs-frame{display:block;width:100%;height:75vh;min-height:680px;border:1px solid var(--border2);border-radius:10px;background:var(--white);}
+.lesson-schedule-frame,.lesson-form-frame{position:relative;width:100%;overflow:hidden;border:1px solid var(--border2);border-radius:8px;background:var(--white);}
+.lesson-schedule-frame iframe{display:block;width:100%;height:70vh;min-height:520px;border:0;}
+.lesson-forms-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px;}
+.lesson-form-frame iframe{display:block;width:100%;height:78vh;min-height:720px;border:0;}
 
 /* BIG / LITTLE SISTER */
 .sister-page{position:relative;overflow:hidden;min-height:calc(100vh - 60px);}
@@ -317,7 +321,7 @@ body.is-fam-coach .sister-admin-note{display:block;}
   .ham-btn{display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--border2);color:var(--white);width:36px;height:36px;border-radius:6px;font-size:18px;cursor:pointer;}
 }
 @media(max-width:780px){
-  .grid2,.coach-grid,.contact-grid,.about-grid,.staff-grid,.store-grid{grid-template-columns:1fr;}
+  .grid2,.coach-grid,.contact-grid,.about-grid,.staff-grid,.store-grid,.lesson-forms-grid{grid-template-columns:1fr;}
   .c-stats{grid-template-columns:1fr 1fr;}
   .form-row{grid-template-columns:1fr;}
   .sister-intro{grid-template-columns:1fr;text-align:center;gap:12px;}
@@ -837,8 +841,7 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
   <div style="padding:0 5%;margin-bottom:18px;">
     <div class="card" style="border:1px solid var(--white);">
       <div class="card-body">
-        <p style="font-size:15px;color:var(--white);line-height:1.6;margin:0 0 10px;">For scheduling needs, please contact Laurie: <a href="tel:+15128251324" style="color:var(--silver);text-decoration:underline;">(512) 825-1324</a></p>
-        <p style="font-size:15px;color:var(--white);line-height:1.6;margin:0;">For scheduling requests, please fill out <a onclick="go('contact')" style="color:var(--silver);text-decoration:underline;cursor:pointer;">THIS</a> form.</p>
+        <p style="font-size:15px;color:var(--white);line-height:1.6;margin:0;">For scheduling needs, please contact Laurie: <a href="tel:+15128251324" style="color:var(--silver);text-decoration:underline;">(512) 825-1324</a></p>
       </div>
     </div>
   </div>
@@ -859,8 +862,16 @@ body:not(.is-fam-coach) .fam-edit-controls{display:none;}
         <div class="card-head"><div class="card-title">Lessons Schedule</div></div>
         <div class="card-body">
           <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;">Live view of the lessons schedule. This updates automatically as the schedule changes.</p>
-          <div style="position:relative;width:100%;overflow:hidden;border:1px solid var(--border2);border-radius:8px;">
-            <iframe src="https://docs.google.com/spreadsheets/d/1AbaYsCG8UNTW3w8jcO1QythCMduD7Z1CJP1SJJNG1CE/preview" style="width:100%;height:70vh;min-height:520px;border:0;display:block;" loading="lazy" title="Lessons Schedule"></iframe>
+          <div class="lesson-schedule-frame">
+            <iframe src="https://docs.google.com/spreadsheets/d/1mhS4P3N01xnvbS2IsMWzBdwbK5E7I0rqK8PatQJdluA/preview" loading="lazy" title="Lessons Schedule"></iframe>
+          </div>
+          <div class="lesson-forms-grid">
+            <div class="lesson-form-frame">
+              <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdEAj8XEWyeNd__vfrzG4tHalaGQyUKkeOY39PzwEqajzCtOA/viewform?embedded=true" loading="lazy" title="Lesson Form 1">Loading…</iframe>
+            </div>
+            <div class="lesson-form-frame">
+              <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSd6V6Wmmdt-GP8f9N5j_5psXyp4FT3Hm53qJVOX9HGQMgZhgg/viewform?embedded=true" loading="lazy" title="Lesson Form 2">Loading…</iframe>
+            </div>
           </div>
         </div>
       </div>
