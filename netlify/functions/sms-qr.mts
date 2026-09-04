@@ -3,7 +3,8 @@ import { db } from "../../db/index.js";
 import { smsQrCodes, smsQrScans } from "../../db/schema.js";
 import { eq, desc, sql } from "drizzle-orm";
 
-const DEFAULT_SLUG = "sms";
+const DEFAULT_SLUG = "team-rollin-text";
+const LEGACY_SLUG = "sms";
 const DEFAULT_MESSAGE = "Hi! I'm reaching out about Team Rollin softball.";
 
 // Fetch the QR code config row, creating a default one the first time it's
@@ -15,16 +16,28 @@ async function getOrCreateCode(slug: string) {
     .where(eq(smsQrCodes.slug, slug));
   if (existing) return existing;
 
+  const [legacy] = slug === DEFAULT_SLUG
+    ? await db.select().from(smsQrCodes).where(eq(smsQrCodes.slug, LEGACY_SLUG))
+    : [];
+
   const [created] = await db
     .insert(smsQrCodes)
     .values({
       slug,
-      label: "Team Rollin SMS",
-      phone: "",
-      message: DEFAULT_MESSAGE,
+      label: legacy?.label || "Team Rollin SMS",
+      phone: legacy?.phone || "",
+      message: legacy?.message || DEFAULT_MESSAGE,
     })
+    .onConflictDoNothing({ target: smsQrCodes.slug })
     .returning();
-  return created;
+
+  if (created) return created;
+
+  const [concurrent] = await db
+    .select()
+    .from(smsQrCodes)
+    .where(eq(smsQrCodes.slug, slug));
+  return concurrent;
 }
 
 export default async (req: Request) => {
@@ -51,7 +64,7 @@ export default async (req: Request) => {
   // GET /api/sms-qr/config — current number/message for the dashboard.
   if (url.pathname.endsWith("/config") && req.method === "GET") {
     const code = await getOrCreateCode(slug);
-    const scanUrl = `${url.origin}/q/${slug}`;
+    const scanUrl = `${url.origin}/text/${slug}`;
     return Response.json({ ...code, scanUrl });
   }
 
@@ -72,7 +85,7 @@ export default async (req: Request) => {
       .where(eq(smsQrCodes.slug, slug))
       .returning();
 
-    const scanUrl = `${url.origin}/q/${slug}`;
+    const scanUrl = `${url.origin}/text/${slug}`;
     return Response.json({ ...updated, scanUrl });
   }
 

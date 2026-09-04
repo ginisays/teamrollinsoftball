@@ -17,7 +17,7 @@ export const bookingRequests = pgTable("booking_requests", {
 });
 
 // A reusable "forever" SMS QR code. The printed QR encodes a fixed URL
-// (/q/<slug>); the phone number and message live here so they can be changed
+// (/text/<slug>); the phone number and message live here so they can be changed
 // any time without reprinting the code.
 export const smsQrCodes = pgTable("sms_qr_codes", {
   id: serial().primaryKey(),

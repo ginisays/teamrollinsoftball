@@ -1,13 +1,15 @@
 import type { Config } from "@netlify/functions";
 import QRCode from "qrcode";
 
+const DEFAULT_SLUG = "team-rollin-text";
+
 // The printable QR image. Deliberately free of any database import so the code
-// always renders — it only ever encodes the fixed scan URL (/q/<slug>), which
-// is what makes the printed code "static forever".
+// always renders — it only ever encodes the fixed launch URL (/text/<slug>),
+// which is what makes the printed code reusable while its SMS details change.
 export default async (req: Request) => {
   const url = new URL(req.url);
-  const slug = url.searchParams.get("slug") || "sms";
-  const scanUrl = `${url.origin}/q/${slug}`;
+  const slug = url.searchParams.get("slug") || DEFAULT_SLUG;
+  const scanUrl = `${url.origin}/text/${slug}`;
 
   const svg = await QRCode.toString(scanUrl, {
     type: "svg",
