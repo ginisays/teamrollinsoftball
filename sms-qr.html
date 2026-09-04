@@ -125,7 +125,7 @@
         <input id="label" placeholder="e.g. Dugout flyer" />
 
         <label for="phone">Phone number</label>
-        <input id="phone" inputmode="tel" placeholder="+15551234567" />
+        <input id="phone" inputmode="tel" autocomplete="tel" placeholder="+15551234567" />
         <p class="hint">Use full international format. Digits, spaces and a leading + are fine.</p>
 
         <label for="message">Pre-filled message</label>
@@ -137,7 +137,7 @@
         </div>
 
         <label for="notificationPhone">Notification phone number</label>
-        <input id="notificationPhone" inputmode="tel" placeholder="+15551234567" />
+        <input id="notificationPhone" inputmode="tel" autocomplete="tel" placeholder="+15551234567" />
         <p class="hint">Requires Twilio deploy variables: account SID, auth token and sender number.</p>
 
         <button class="primary" id="save" style="flex:none;width:100%;">Save changes</button>
@@ -167,6 +167,7 @@
 
   <script>
     const SLUG = new URLSearchParams(location.search).get("slug") || "sms";
+    const CONFIG_ERROR = new URLSearchParams(location.search).get("error");
     const qs = (id) => document.getElementById(id);
     const imageUrl = `/api/sms-qr/image?slug=${encodeURIComponent(SLUG)}`;
 
@@ -204,7 +205,8 @@
             notificationPhone: qs("notificationPhone").value,
           }),
         });
-        if (!res.ok) throw new Error("Save failed");
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Save failed");
         setStatus("Saved. The printed code now points to this number.");
       } catch (e) {
         setStatus(e.message || "Could not save", true);
@@ -287,6 +289,9 @@
     qs("save").addEventListener("click", save);
     loadConfig();
     loadScans();
+    if (CONFIG_ERROR === "invalid-phone") {
+      setStatus("The QR code needs a valid phone number before it can open a text message.", true);
+    }
     setInterval(loadScans, 15000);
   </script>
 </body>
