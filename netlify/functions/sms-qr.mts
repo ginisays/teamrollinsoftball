@@ -2,6 +2,7 @@ import type { Config } from "@netlify/functions";
 import { db } from "../../db/index.js";
 import { smsQrCodes, smsQrScans } from "../../db/schema.js";
 import { eq, desc, sql } from "drizzle-orm";
+import { isValidSmsPhone } from "../lib/sms-phone.mts";
 
 const DEFAULT_SLUG = "sms";
 const DEFAULT_MESSAGE = "Hi! I'm reaching out about Team Rollin softball.";
@@ -61,16 +62,33 @@ export default async (req: Request) => {
   // printed QR) never changes here.
   if (url.pathname.endsWith("/config") && req.method === "POST") {
     const body = await req.json();
+    const phone = typeof body.phone === "string" ? body.phone.trim() : undefined;
+    const notificationPhone = typeof body.notificationPhone === "string" ? body.notificationPhone.trim() : undefined;
+
+    if (phone && !isValidSmsPhone(phone)) {
+      return Response.json(
+        { error: "Enter a valid phone number with 7 to 15 digits." },
+        { status: 400 },
+      );
+    }
+
+    if (notificationPhone && !isValidSmsPhone(notificationPhone)) {
+      return Response.json(
+        { error: "Enter a valid notification phone number with 7 to 15 digits." },
+        { status: 400 },
+      );
+    }
+
     await getOrCreateCode(slug);
 
     const [updated] = await db
       .update(smsQrCodes)
       .set({
         label: typeof body.label === "string" ? body.label : undefined,
-        phone: typeof body.phone === "string" ? body.phone.trim() : undefined,
+        phone,
         message: typeof body.message === "string" ? body.message : undefined,
         notifyOnScan: typeof body.notifyOnScan === "boolean" ? body.notifyOnScan : undefined,
-        notificationPhone: typeof body.notificationPhone === "string" ? body.notificationPhone.trim() : undefined,
+        notificationPhone,
         updatedAt: new Date(),
       })
       .where(eq(smsQrCodes.slug, slug))

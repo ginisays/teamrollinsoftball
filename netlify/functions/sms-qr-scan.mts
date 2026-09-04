@@ -2,17 +2,17 @@ import type { Config, Context } from "@netlify/functions";
 import { db } from "../../db/index.js";
 import { smsQrCodes, smsQrScans } from "../../db/schema.js";
 import { eq } from "drizzle-orm";
+import { isValidSmsPhone, normalizeSmsPhone } from "../lib/sms-phone.mts";
 
 // Build a cross-platform `sms:` URI. The leading "?&" is the widely used trick
 // that gets a pre-filled body to populate on both iOS and Android.
 function smsUri(phone: string, message: string): string {
-  const cleanedPhone = phone.replace(/[^\d+]/g, "");
-  if (!message) return `sms:${cleanedPhone}`;
-  return `sms:${cleanedPhone}?&body=${encodeURIComponent(message)}`;
+  if (!message) return `sms:${phone}`;
+  return `sms:${phone}?&body=${encodeURIComponent(message)}`;
 }
 
 function cleanPhone(phone: string): string {
-  return phone.replace(/[^\d+]/g, "");
+  return normalizeSmsPhone(phone);
 }
 
 function scanLocation(context: Context): string {
@@ -90,9 +90,14 @@ export default async (req: Request, context: Context) => {
   // The QR is printed once and points here forever. If the code has not been
   // set up (or has no number yet), send the visitor to the dashboard instead
   // of failing, so a freshly printed code is never a dead end.
-  if (!code || !code.phone) {
-    return Response.redirect(new URL("/sms-qr.html", req.url).toString(), 302);
+  if (!code || !isValidSmsPhone(code.phone)) {
+    const dashboardUrl = new URL("/sms-qr.html", req.url);
+    dashboardUrl.searchParams.set("slug", slug);
+    dashboardUrl.searchParams.set("error", "invalid-phone");
+    return Response.redirect(dashboardUrl.toString(), 302);
   }
+
+  const phone = normalizeSmsPhone(code.phone);
 
   // Logging must never block the redirect — a scan that can't be recorded should
   // still open the messaging app.
@@ -116,7 +121,7 @@ export default async (req: Request, context: Context) => {
     console.error("Failed to queue SMS QR scan notification", err);
   }
 
-  return Response.redirect(smsUri(code.phone, code.message), 302);
+  return Response.redirect(smsUri(phone, code.message), 302);
 };
 
 export const config: Config = {
