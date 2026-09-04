@@ -151,7 +151,7 @@
   </div>
 
   <script>
-    const SLUG = new URLSearchParams(location.search).get("slug") || "sms";
+    const SLUG = new URLSearchParams(location.search).get("slug") || "team-rollin-text";
     const qs = (id) => document.getElementById(id);
     const imageUrl = `/api/sms-qr/image?slug=${encodeURIComponent(SLUG)}`;
 
@@ -186,7 +186,7 @@
           }),
         });
         if (!res.ok) throw new Error("Save failed");
-        setStatus("Saved. The printed code now points to this number.");
+        setStatus("Saved. The new QR code now opens this text message.");
       } catch (e) {
         setStatus(e.message || "Could not save", true);
       } finally {
